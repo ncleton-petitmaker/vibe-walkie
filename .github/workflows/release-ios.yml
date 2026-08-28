@@ -1,0 +1,90 @@
+name: Upload TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: Version (ex. 1.0.0)
+        required: true
+      build_number:
+        description: Numéro de build App Store Connect
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  archive-validate-upload:
+    environment: release
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sélectionner Xcode 26
+        run: |
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort | tail -1)"
+          if [[ -n "$XCODE_APP" ]]; then sudo xcode-select --switch "$XCODE_APP"; fi
+          xcodebuild -version | grep '^Xcode 26'
+      - name: Installer les outils de validation
+        run: brew install xcodegen swiftlint gitleaks ripgrep
+      - name: Rejouer toutes les portes locales
+        run: |
+          Scripts/ci-local.sh
+          gitleaks git --redact --no-banner
+      - name: Importer le certificat Apple Distribution
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.RELEASE_KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" release.keychain-db
+          security set-keychain-settings -lut 21600 release.keychain-db
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" release.keychain-db
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > distribution.p12
+          security import distribution.p12 -k release.keychain-db -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s release.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" release.keychain-db
+      - name: Préparer la clé App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8"
+      - name: Archiver et exporter
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          (cd iOS && xcodegen generate)
+          xcodebuild archive \
+            -project iOS/AppRemoteiOS.xcodeproj \
+            -scheme AppRemoteiOS \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/VibeRemote-iOS.xcarchive \
+            MARKETING_VERSION='${{ inputs.marketing_version }}' \
+            CURRENT_PROJECT_VERSION='${{ inputs.build_number }}' \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          xcodebuild -exportArchive \
+            -archivePath build/VibeRemote-iOS.xcarchive \
+            -exportPath build/ios-export \
+            -exportOptionsPlist Config/ExportOptions-AppStore.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Valider et envoyer à TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          IPA="$(find build/ios-export -maxdepth 2 -name '*.ipa' -print -quit)"
+          test -n "$IPA"
+          xcrun altool --validate-app --type ios --file "$IPA" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          xcrun altool --upload-app --type ios --file "$IPA" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"

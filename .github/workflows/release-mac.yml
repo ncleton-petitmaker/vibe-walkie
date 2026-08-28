@@ -1,0 +1,122 @@
+name: Release macOS
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-notarize-release:
+    environment: release
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sélectionner Xcode 26
+        run: |
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort | tail -1)"
+          if [[ -n "$XCODE_APP" ]]; then sudo xcode-select --switch "$XCODE_APP"; fi
+          xcodebuild -version | grep '^Xcode 26'
+      - name: Vérifier le tag signé
+        run: |
+          [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]
+          git verify-tag "$GITHUB_REF_NAME"
+      - name: Installer les outils de validation
+        run: brew install xcodegen swiftlint gitleaks ripgrep
+      - name: Rejouer toutes les portes locales
+        run: |
+          Scripts/ci-local.sh
+          gitleaks git --redact --no-banner
+      - name: Importer le certificat Developer ID
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.RELEASE_KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" release.keychain-db
+          security set-keychain-settings -lut 21600 release.keychain-db
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" release.keychain-db
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > developer-id.p12
+          security import developer-id.p12 -k release.keychain-db -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s release.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" release.keychain-db
+      - name: Archiver l’application
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          (cd macOS && xcodegen generate)
+          xcodebuild archive \
+            -project macOS/AppRemoteMac.xcodeproj \
+            -scheme AppRemoteMac \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath build/VibeRemote.xcarchive \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY='Developer ID Application'
+          codesign --verify --deep --strict --verbose=2 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app'
+      - name: Créer et signer le DMG
+        env:
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p updates
+          Scripts/create-dmg.sh 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app' "updates/VibeRemote-$VERSION.dmg"
+          codesign --force --timestamp --sign "$DEVELOPER_ID_APPLICATION" "updates/VibeRemote-$VERSION.dmg"
+          sed "s/VERSION/$VERSION/g" Distribution/release-notes-template.html > "updates/VibeRemote-$VERSION.html"
+      - name: Notariser et valider Gatekeeper
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          printf '%s' "$ASC_PRIVATE_KEY" > AuthKey.p8
+          xcrun notarytool submit "updates/VibeRemote-$VERSION.dmg" --key AuthKey.p8 --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
+          xcrun stapler staple "updates/VibeRemote-$VERSION.dmg"
+          Scripts/verify-mac-distribution.sh "updates/VibeRemote-$VERSION.dmg"
+      - name: Générer l’appcast EdDSA
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          curl -fL https://github.com/sparkle-project/Sparkle/releases/download/2.9.6/Sparkle-2.9.6.tar.xz -o Sparkle.tar.xz
+          mkdir SparkleTools
+          tar -xJf Sparkle.tar.xz -C SparkleTools
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > sparkle-private-key
+          chmod 600 sparkle-private-key
+          SparkleTools/bin/generate_appcast \
+            --ed-key-file sparkle-private-key \
+            --download-url-prefix "https://github.com/ncleton-petitmaker/vibe-remote/releases/download/$GITHUB_REF_NAME/" \
+            updates
+      - name: Publier GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" "updates/VibeRemote-$VERSION.dmg" \
+            --verify-tag --title "Vibe Remote $VERSION" --notes-file CHANGELOG.md
+      - name: Préparer GitHub Pages
+        run: |
+          mkdir pages
+          cp updates/appcast.xml pages/appcast.xml
+          cp updates/*.html pages/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+
+  deploy-appcast:
+    needs: build-notarize-release
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Déployer l’appcast
+        id: deployment
+        uses: actions/deploy-pages@v4

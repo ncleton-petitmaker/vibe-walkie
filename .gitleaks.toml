@@ -1,0 +1,17 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Clé publique EdDSA Sparkle embarquée dans l'application"
+regexTarget = "secret"
+regexes = ['''nQ6eywkcEooao6zZ73sWlafO396coAq3i5\+Qn2UmU/o=''']
+
+[[allowlists]]
+description = "Valeur factice d'empreinte dans un test unitaire"
+regexTarget = "secret"
+regexes = ['''empreinte''']
+
+[[allowlists]]
+description = "Nom de type CryptoKit utilisé comme type de retour dans les tests"
+regexTarget = "secret"
+regexes = ['''Curve25519\.Signing\.PrivateKey''']

@@ -1,0 +1,77 @@
+name: AppRemoteMac
+options:
+  bundleIdPrefix: com.nicolascleton
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+
+packages:
+  RemoteCore:
+    path: ../Packages/RemoteCore
+  swift-certificates:
+    url: https://github.com/apple/swift-certificates.git
+    exactVersion: 1.19.4
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle.git
+    exactVersion: 2.9.6
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    ARCHS: arm64
+    VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac
+    VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac.tests
+
+targets:
+  AppRemoteMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: AppRemoteMac
+      - path: ../THIRD_PARTY_NOTICES.md
+        group: Legal
+        buildPhase: resources
+      - path: ../ThirdPartyLicenses
+        buildPhase: resources
+    dependencies:
+      - package: RemoteCore
+      - package: swift-certificates
+        product: X509
+      - package: Sparkle
+        product: Sparkle
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Remote
+        PRODUCT_MODULE_NAME: VibeRemoteMac
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: AppRemoteMac/Info.plist
+        LM_FILTER_WARNINGS: YES
+        ENABLE_APP_SANDBOX: NO
+
+  AppRemoteMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: AppRemoteMacTests
+    dependencies:
+      - target: AppRemoteMac
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  AppRemoteMac:
+    build:
+      targets:
+        AppRemoteMac: all
+    test:
+      targets:
+        - AppRemoteMacTests

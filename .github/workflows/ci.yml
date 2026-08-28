@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sélectionner Xcode 26
+        run: |
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort | tail -1)"
+          if [[ -n "$XCODE_APP" ]]; then sudo xcode-select --switch "$XCODE_APP"; fi
+          xcodebuild -version | tee /tmp/xcode-version
+          rg '^Xcode 26' /tmp/xcode-version
+      - name: Installer les outils de validation
+        run: brew install xcodegen swiftlint gitleaks ripgrep
+      - name: Régénérer les projets
+        run: |
+          (cd iOS && xcodegen generate)
+          (cd macOS && xcodegen generate)
+      - name: Tests RemoteCore
+        run: swift test --package-path Packages/RemoteCore
+      - name: Lint Swift
+        run: swiftlint lint --strict --config .swiftlint.yml Packages iOS macOS
+      - name: Détection de secrets
+        run: gitleaks git --redact --no-banner
+      - name: Build iOS Simulator
+        run: >-
+          xcodebuild -project iOS/AppRemoteiOS.xcodeproj
+          -scheme AppRemoteiOS
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO build
+      - name: Tests iOS
+        run: |
+          SIMULATOR_ID="$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          for runtime, candidates in devices.items():
+              if ".SimRuntime.iOS-" not in runtime:
+                  continue
+              for device in candidates:
+                  if device.get("isAvailable"):
+                      print(device["udid"])
+                      raise SystemExit
+          ')"
+          test -n "$SIMULATOR_ID"
+          xcodebuild test -project iOS/AppRemoteiOS.xcodeproj \
+            -scheme AppRemoteiOS \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Build macOS arm64
+        run: >-
+          xcodebuild -project macOS/AppRemoteMac.xcodeproj
+          -scheme AppRemoteMac
+          -configuration Debug
+          CODE_SIGNING_ALLOWED=NO build
+      - name: Tests macOS
+        run: >-
+          xcodebuild test -project macOS/AppRemoteMac.xcodeproj
+          -scheme AppRemoteMac
+          -destination 'platform=macOS,arch=arm64'
+          CODE_SIGNING_ALLOWED=NO
+      - name: Interdire les composants du prototype
+        run: |
+          if rg -n 'itms-services|remoteHost|remotePort|keyboard_edit|keyboardEdit|_appremote\._tcp|com\.yakaperformance\.appremote' Packages iOS macOS --glob '!**/Tests/**' --glob '!**/*Tests/**' --glob '!**/build*/**' --glob '!**/.build/**' --glob '!**/*.xcodeproj/**'; then
+            exit 1
+          fi
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          license-check: true
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0

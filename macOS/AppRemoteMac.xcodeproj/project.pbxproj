@@ -1,0 +1,725 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D74BF57723F5A7AD9C18A50 /* CGEventFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55708099C70FA3CF3EC06202 /* CGEventFactory.swift */; };
+		1477265AD1C141FE682DB0DC /* SwiftCrypto-NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = DBAADC0A07C66C9B704E590E /* SwiftCrypto-NOTICE.txt */; };
+		15759F380E5435FB3C59ABDD /* InstallationLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF695AE455F11570EEF92632 /* InstallationLocation.swift */; };
+		1B43ED16BC6538117F07A428 /* PairingAuthorityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A1035F7FBA5DADD2145E71 /* PairingAuthorityTests.swift */; };
+		1F620273C1BFCD5D174E0481 /* TargetMatchPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3D551045D51037B672F32 /* TargetMatchPolicyTests.swift */; };
+		25CE548A97A67F2107D87697 /* THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = 0D5F05728A4EEEAF956F7DF5 /* THIRD_PARTY_NOTICES.md */; };
+		28F97FA2C505D9457135B491 /* MacConnectionServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D128F93E837D3300F504B2 /* MacConnectionServer.swift */; };
+		2B54DFE1E6C04CC8D7071EAC /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C80212B6D529CBD7BC097A8 /* UpdateController.swift */; };
+		2FB18FF70048D1B586ACD609 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = AE1DA021DAE93448F9A4C6EE /* Sparkle */; };
+		3188B474EEB2F5392FFD3A8F /* RemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5E7D840302E929A8E3E5C188 /* RemoteCore */; };
+		327F869A9D2F49B304E10E2B /* ControlInputPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73E4071C47747C1ECD997E /* ControlInputPolicy.swift */; };
+		3C12473285BCE871AA0BFF12 /* SwiftASN1-NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D74139CC8E10D79F50AC2478 /* SwiftASN1-NOTICE.txt */; };
+		4CE3A13E0F1D84E3A470545D /* TargetTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10650FF4A40518CC3394BF9 /* TargetTracker.swift */; };
+		5067F671708B0A197AD085FF /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D28C250B8CE42339F32D35 /* MenuBarView.swift */; };
+		522A3F5D23984B74ED604DE3 /* ControlInputPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2145FD57345B5194FE34A850 /* ControlInputPolicyTests.swift */; };
+		5B49C0D7A9B9EB5F0135732C /* Apache-2.0.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8EFB04E1CEBE7DDC61F4B805 /* Apache-2.0.txt */; };
+		5BFEFA25DBF169A2C6F7A45F /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = 9E6549242EE34EBCDCEFF5B5 /* X509 */; };
+		603A5D1CA3E28572A419F04C /* ScreenCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B202BC0BE62E0295557AF0E /* ScreenCaptureService.swift */; };
+		62E27F90CA020450A1E61BFA /* PasteboardTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2262CA2F2680487879E27189 /* PasteboardTransaction.swift */; };
+		6566E5949E089ED373556EB2 /* CommercializationConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3D3032094E19FBF94A2776 /* CommercializationConfigurationTests.swift */; };
+		6A1DF30F29E8137A6CC838F2 /* WindowCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2D9D52EE46972E1A64BE90 /* WindowCatalog.swift */; };
+		6D5AD00C13C4D9A302B0FAA2 /* Sparkle.txt in Resources */ = {isa = PBXBuildFile; fileRef = 71E186F1020134A5AF51B299 /* Sparkle.txt */; };
+		75B24DC3B0737149F76F8DC4 /* TargetMatchPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E23BFA95D68F813E4C973B0 /* TargetMatchPolicy.swift */; };
+		79A3E97673D34816ED8366C9 /* TLSIdentityStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243BCBD1CFFC99041758097E /* TLSIdentityStoreTests.swift */; };
+		8124B264EA7DA2974259B061 /* SwiftCertificates-NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0C31BFFD72892C4EA366C9C1 /* SwiftCertificates-NOTICE.txt */; };
+		8C52B962D92A01FC6E7A7184 /* ApprovedPeersStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98067D0AFE8BEBD017073E5 /* ApprovedPeersStore.swift */; };
+		94A5E2C35BDCF47F88C40E36 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 757DABF32BA2D3C87B80C3F7 /* Assets.xcassets */; };
+		97985BD0BE6C4B51CB9D5FD2 /* PermissionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3829672DEA4C354D32D1244 /* PermissionCoordinator.swift */; };
+		AF4E9E7843C946528ED3F9FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */; };
+		B1DB14CE9EC5E9B8E3C57466 /* SessionRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2105AAD35123EBE0D2445C22 /* SessionRouter.swift */; };
+		BDB3D7C81743A3E7BE8BAA6E /* TLSIdentityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0391A00062E32EA8C0494ACB /* TLSIdentityStore.swift */; };
+		CB005DE418A743B46B81D537 /* PairingAuthority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D12EB21D66C3DA514CDED7 /* PairingAuthority.swift */; };
+		D273DFF50D07D2A245872C95 /* AppRemoteMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB522D9BA80F502D9722406F /* AppRemoteMacApp.swift */; };
+		DB77E5907C51BF60A46ACD05 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BF3ECC76864B118460FEB2 /* AccessibilityClient.swift */; };
+		E9DB2221E70F90AD8D3F7D76 /* TextInsertionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00BD0B3C42FD3EB39102071A /* TextInsertionCoordinator.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1D25617EF9AC81C85CE3CA54 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CCBDF9CE8C9A138380328F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 29004532C4997B45BF38E386;
+			remoteInfo = AppRemoteMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		00BD0B3C42FD3EB39102071A /* TextInsertionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInsertionCoordinator.swift; sourceTree = "<group>"; };
+		0391A00062E32EA8C0494ACB /* TLSIdentityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSIdentityStore.swift; sourceTree = "<group>"; };
+		09D28C250B8CE42339F32D35 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		0A37DDEE933718A94C5D76E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0C31BFFD72892C4EA366C9C1 /* SwiftCertificates-NOTICE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SwiftCertificates-NOTICE.txt"; sourceTree = "<group>"; };
+		0D5F05728A4EEEAF956F7DF5 /* THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = THIRD_PARTY_NOTICES.md; path = ../THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
+		19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1B202BC0BE62E0295557AF0E /* ScreenCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureService.swift; sourceTree = "<group>"; };
+		1C3D3032094E19FBF94A2776 /* CommercializationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommercializationConfigurationTests.swift; sourceTree = "<group>"; };
+		1E23BFA95D68F813E4C973B0 /* TargetMatchPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetMatchPolicy.swift; sourceTree = "<group>"; };
+		2105AAD35123EBE0D2445C22 /* SessionRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRouter.swift; sourceTree = "<group>"; };
+		2145FD57345B5194FE34A850 /* ControlInputPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlInputPolicyTests.swift; sourceTree = "<group>"; };
+		2262CA2F2680487879E27189 /* PasteboardTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteboardTransaction.swift; sourceTree = "<group>"; };
+		243BCBD1CFFC99041758097E /* TLSIdentityStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSIdentityStoreTests.swift; sourceTree = "<group>"; };
+		2741917C097FEDB50EEF4236 /* RemoteCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RemoteCore; path = ../Packages/RemoteCore; sourceTree = SOURCE_ROOT; };
+		29BF3ECC76864B118460FEB2 /* AccessibilityClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityClient.swift; sourceTree = "<group>"; };
+		35B3D551045D51037B672F32 /* TargetMatchPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetMatchPolicyTests.swift; sourceTree = "<group>"; };
+		4FB6BC1B97E8CE706F7B253C /* AppRemoteMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppRemoteMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55708099C70FA3CF3EC06202 /* CGEventFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGEventFactory.swift; sourceTree = "<group>"; };
+		56A1035F7FBA5DADD2145E71 /* PairingAuthorityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingAuthorityTests.swift; sourceTree = "<group>"; };
+		71E186F1020134A5AF51B299 /* Sparkle.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sparkle.txt; sourceTree = "<group>"; };
+		72BB5BF73145DA57F27CE6E6 /* AppRemoteMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppRemoteMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		73D12EB21D66C3DA514CDED7 /* PairingAuthority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingAuthority.swift; sourceTree = "<group>"; };
+		74D128F93E837D3300F504B2 /* MacConnectionServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionServer.swift; sourceTree = "<group>"; };
+		757DABF32BA2D3C87B80C3F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8EFB04E1CEBE7DDC61F4B805 /* Apache-2.0.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Apache-2.0.txt"; sourceTree = "<group>"; };
+		9C80212B6D529CBD7BC097A8 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
+		A3829672DEA4C354D32D1244 /* PermissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCoordinator.swift; sourceTree = "<group>"; };
+		AB522D9BA80F502D9722406F /* AppRemoteMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteMacApp.swift; sourceTree = "<group>"; };
+		AB73E4071C47747C1ECD997E /* ControlInputPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlInputPolicy.swift; sourceTree = "<group>"; };
+		B10650FF4A40518CC3394BF9 /* TargetTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetTracker.swift; sourceTree = "<group>"; };
+		D74139CC8E10D79F50AC2478 /* SwiftASN1-NOTICE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SwiftASN1-NOTICE.txt"; sourceTree = "<group>"; };
+		DBAADC0A07C66C9B704E590E /* SwiftCrypto-NOTICE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SwiftCrypto-NOTICE.txt"; sourceTree = "<group>"; };
+		E98067D0AFE8BEBD017073E5 /* ApprovedPeersStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovedPeersStore.swift; sourceTree = "<group>"; };
+		EF695AE455F11570EEF92632 /* InstallationLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationLocation.swift; sourceTree = "<group>"; };
+		FF2D9D52EE46972E1A64BE90 /* WindowCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowCatalog.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8B4249C1EC8C0C3E2C31FE87 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3188B474EEB2F5392FFD3A8F /* RemoteCore in Frameworks */,
+				5BFEFA25DBF169A2C6F7A45F /* X509 in Frameworks */,
+				2FB18FF70048D1B586ACD609 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01EFC1B35B93D10717467D34 /* Accessibility */ = {
+			isa = PBXGroup;
+			children = (
+				29BF3ECC76864B118460FEB2 /* AccessibilityClient.swift */,
+				2262CA2F2680487879E27189 /* PasteboardTransaction.swift */,
+				1E23BFA95D68F813E4C973B0 /* TargetMatchPolicy.swift */,
+				B10650FF4A40518CC3394BF9 /* TargetTracker.swift */,
+				00BD0B3C42FD3EB39102071A /* TextInsertionCoordinator.swift */,
+			);
+			path = Accessibility;
+			sourceTree = "<group>";
+		};
+		060A70669835A9B5BECF8867 /* AppRemoteMac */ = {
+			isa = PBXGroup;
+			children = (
+				AB522D9BA80F502D9722406F /* AppRemoteMacApp.swift */,
+				757DABF32BA2D3C87B80C3F7 /* Assets.xcassets */,
+				0A37DDEE933718A94C5D76E9 /* Info.plist */,
+				19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */,
+				01EFC1B35B93D10717467D34 /* Accessibility */,
+				6B057E4F0FB0D9874D051660 /* Connection */,
+				161C676BE599A1C47164541D /* Input */,
+				741BC1EEDE5608D8588435B2 /* Installation */,
+				7D4AD5E09B5569DA2C4CF134 /* MenuBar */,
+				AB8EE6F64E6C7EAC21545979 /* Pairing */,
+				D3BBC7C637F3FC5E0F07153B /* Permissions */,
+				F64000E97D0724A0E193C1B9 /* Screen */,
+				8644499FBA70D1705213CFC7 /* Updates */,
+				BA6577CAFE9DDF0FD00593D3 /* Windows */,
+			);
+			path = AppRemoteMac;
+			sourceTree = "<group>";
+		};
+		0DFA17032C045088F2592C41 /* App Remote */ = {
+			isa = PBXGroup;
+			children = (
+				63108DE7D81D71DAD6772710 /* ThirdPartyLicenses */,
+			);
+			name = "App Remote";
+			path = ..;
+			sourceTree = "<group>";
+		};
+		161C676BE599A1C47164541D /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				55708099C70FA3CF3EC06202 /* CGEventFactory.swift */,
+				AB73E4071C47747C1ECD997E /* ControlInputPolicy.swift */,
+			);
+			path = Input;
+			sourceTree = "<group>";
+		};
+		32A3F383FE8C4F87C4A895E3 = {
+			isa = PBXGroup;
+			children = (
+				0DFA17032C045088F2592C41 /* App Remote */,
+				060A70669835A9B5BECF8867 /* AppRemoteMac */,
+				C1626D1AE42AC3EA2F2B32C6 /* AppRemoteMacTests */,
+				A7FDFEE44DC510EF16DC9AD1 /* Legal */,
+				DBE48892D068A3729446CCEF /* Packages */,
+				EE601DE2D76FDE659819F6F8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		63108DE7D81D71DAD6772710 /* ThirdPartyLicenses */ = {
+			isa = PBXGroup;
+			children = (
+				8EFB04E1CEBE7DDC61F4B805 /* Apache-2.0.txt */,
+				71E186F1020134A5AF51B299 /* Sparkle.txt */,
+				D74139CC8E10D79F50AC2478 /* SwiftASN1-NOTICE.txt */,
+				0C31BFFD72892C4EA366C9C1 /* SwiftCertificates-NOTICE.txt */,
+				DBAADC0A07C66C9B704E590E /* SwiftCrypto-NOTICE.txt */,
+			);
+			path = ThirdPartyLicenses;
+			sourceTree = "<group>";
+		};
+		6B057E4F0FB0D9874D051660 /* Connection */ = {
+			isa = PBXGroup;
+			children = (
+				74D128F93E837D3300F504B2 /* MacConnectionServer.swift */,
+				2105AAD35123EBE0D2445C22 /* SessionRouter.swift */,
+			);
+			path = Connection;
+			sourceTree = "<group>";
+		};
+		741BC1EEDE5608D8588435B2 /* Installation */ = {
+			isa = PBXGroup;
+			children = (
+				EF695AE455F11570EEF92632 /* InstallationLocation.swift */,
+			);
+			path = Installation;
+			sourceTree = "<group>";
+		};
+		7D4AD5E09B5569DA2C4CF134 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				09D28C250B8CE42339F32D35 /* MenuBarView.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		8644499FBA70D1705213CFC7 /* Updates */ = {
+			isa = PBXGroup;
+			children = (
+				9C80212B6D529CBD7BC097A8 /* UpdateController.swift */,
+			);
+			path = Updates;
+			sourceTree = "<group>";
+		};
+		A7FDFEE44DC510EF16DC9AD1 /* Legal */ = {
+			isa = PBXGroup;
+			children = (
+				0D5F05728A4EEEAF956F7DF5 /* THIRD_PARTY_NOTICES.md */,
+			);
+			name = Legal;
+			sourceTree = "<group>";
+		};
+		AB8EE6F64E6C7EAC21545979 /* Pairing */ = {
+			isa = PBXGroup;
+			children = (
+				E98067D0AFE8BEBD017073E5 /* ApprovedPeersStore.swift */,
+				73D12EB21D66C3DA514CDED7 /* PairingAuthority.swift */,
+				0391A00062E32EA8C0494ACB /* TLSIdentityStore.swift */,
+			);
+			path = Pairing;
+			sourceTree = "<group>";
+		};
+		BA6577CAFE9DDF0FD00593D3 /* Windows */ = {
+			isa = PBXGroup;
+			children = (
+				FF2D9D52EE46972E1A64BE90 /* WindowCatalog.swift */,
+			);
+			path = Windows;
+			sourceTree = "<group>";
+		};
+		C1626D1AE42AC3EA2F2B32C6 /* AppRemoteMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				1C3D3032094E19FBF94A2776 /* CommercializationConfigurationTests.swift */,
+				2145FD57345B5194FE34A850 /* ControlInputPolicyTests.swift */,
+				56A1035F7FBA5DADD2145E71 /* PairingAuthorityTests.swift */,
+				35B3D551045D51037B672F32 /* TargetMatchPolicyTests.swift */,
+				243BCBD1CFFC99041758097E /* TLSIdentityStoreTests.swift */,
+			);
+			path = AppRemoteMacTests;
+			sourceTree = "<group>";
+		};
+		D3BBC7C637F3FC5E0F07153B /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				A3829672DEA4C354D32D1244 /* PermissionCoordinator.swift */,
+			);
+			path = Permissions;
+			sourceTree = "<group>";
+		};
+		DBE48892D068A3729446CCEF /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				2741917C097FEDB50EEF4236 /* RemoteCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		EE601DE2D76FDE659819F6F8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4FB6BC1B97E8CE706F7B253C /* AppRemoteMac.app */,
+				72BB5BF73145DA57F27CE6E6 /* AppRemoteMacTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F64000E97D0724A0E193C1B9 /* Screen */ = {
+			isa = PBXGroup;
+			children = (
+				1B202BC0BE62E0295557AF0E /* ScreenCaptureService.swift */,
+			);
+			path = Screen;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		29004532C4997B45BF38E386 /* AppRemoteMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 692D4A0BEE53C5EB99CA4344 /* Build configuration list for PBXNativeTarget "AppRemoteMac" */;
+			buildPhases = (
+				0E04D5421A2E90C790CD987D /* Sources */,
+				CFE5326A138020F8EF4C8D6F /* Resources */,
+				8B4249C1EC8C0C3E2C31FE87 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppRemoteMac;
+			packageProductDependencies = (
+				5E7D840302E929A8E3E5C188 /* RemoteCore */,
+				9E6549242EE34EBCDCEFF5B5 /* X509 */,
+				AE1DA021DAE93448F9A4C6EE /* Sparkle */,
+			);
+			productName = AppRemoteMac;
+			productReference = 4FB6BC1B97E8CE706F7B253C /* AppRemoteMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4BABBD11F5B538947DF33F99 /* AppRemoteMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C20D9F01E1BBBF4D835DF69 /* Build configuration list for PBXNativeTarget "AppRemoteMacTests" */;
+			buildPhases = (
+				2B8380AD7DC264EC1E26860D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6D5954FDDCD53B535403693 /* PBXTargetDependency */,
+			);
+			name = AppRemoteMacTests;
+			packageProductDependencies = (
+			);
+			productName = AppRemoteMacTests;
+			productReference = 72BB5BF73145DA57F27CE6E6 /* AppRemoteMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1CCBDF9CE8C9A138380328F7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					29004532C4997B45BF38E386 = {
+						ProvisioningStyle = Automatic;
+					};
+					4BABBD11F5B538947DF33F99 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = E7AD21E19CE84939BFB57888 /* Build configuration list for PBXProject "AppRemoteMac" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 32A3F383FE8C4F87C4A895E3;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B1371E5F8BC0F823C5A8DF16 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				EF2C0848D8FA99E5BC893BBC /* XCRemoteSwiftPackageReference "swift-certificates" */,
+				20276556B14D7298C3CC5CCB /* XCLocalSwiftPackageReference "../Packages/RemoteCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				29004532C4997B45BF38E386 /* AppRemoteMac */,
+				4BABBD11F5B538947DF33F99 /* AppRemoteMacTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CFE5326A138020F8EF4C8D6F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B49C0D7A9B9EB5F0135732C /* Apache-2.0.txt in Resources */,
+				94A5E2C35BDCF47F88C40E36 /* Assets.xcassets in Resources */,
+				AF4E9E7843C946528ED3F9FB /* PrivacyInfo.xcprivacy in Resources */,
+				6D5AD00C13C4D9A302B0FAA2 /* Sparkle.txt in Resources */,
+				3C12473285BCE871AA0BFF12 /* SwiftASN1-NOTICE.txt in Resources */,
+				8124B264EA7DA2974259B061 /* SwiftCertificates-NOTICE.txt in Resources */,
+				1477265AD1C141FE682DB0DC /* SwiftCrypto-NOTICE.txt in Resources */,
+				25CE548A97A67F2107D87697 /* THIRD_PARTY_NOTICES.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0E04D5421A2E90C790CD987D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB77E5907C51BF60A46ACD05 /* AccessibilityClient.swift in Sources */,
+				D273DFF50D07D2A245872C95 /* AppRemoteMacApp.swift in Sources */,
+				8C52B962D92A01FC6E7A7184 /* ApprovedPeersStore.swift in Sources */,
+				0D74BF57723F5A7AD9C18A50 /* CGEventFactory.swift in Sources */,
+				327F869A9D2F49B304E10E2B /* ControlInputPolicy.swift in Sources */,
+				15759F380E5435FB3C59ABDD /* InstallationLocation.swift in Sources */,
+				28F97FA2C505D9457135B491 /* MacConnectionServer.swift in Sources */,
+				5067F671708B0A197AD085FF /* MenuBarView.swift in Sources */,
+				CB005DE418A743B46B81D537 /* PairingAuthority.swift in Sources */,
+				62E27F90CA020450A1E61BFA /* PasteboardTransaction.swift in Sources */,
+				97985BD0BE6C4B51CB9D5FD2 /* PermissionCoordinator.swift in Sources */,
+				603A5D1CA3E28572A419F04C /* ScreenCaptureService.swift in Sources */,
+				B1DB14CE9EC5E9B8E3C57466 /* SessionRouter.swift in Sources */,
+				BDB3D7C81743A3E7BE8BAA6E /* TLSIdentityStore.swift in Sources */,
+				75B24DC3B0737149F76F8DC4 /* TargetMatchPolicy.swift in Sources */,
+				4CE3A13E0F1D84E3A470545D /* TargetTracker.swift in Sources */,
+				E9DB2221E70F90AD8D3F7D76 /* TextInsertionCoordinator.swift in Sources */,
+				2B54DFE1E6C04CC8D7071EAC /* UpdateController.swift in Sources */,
+				6A1DF30F29E8137A6CC838F2 /* WindowCatalog.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B8380AD7DC264EC1E26860D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6566E5949E089ED373556EB2 /* CommercializationConfigurationTests.swift in Sources */,
+				522A3F5D23984B74ED604DE3 /* ControlInputPolicyTests.swift in Sources */,
+				1B43ED16BC6538117F07A428 /* PairingAuthorityTests.swift in Sources */,
+				79A3E97673D34816ED8366C9 /* TLSIdentityStoreTests.swift in Sources */,
+				1F620273C1BFCD5D174E0481 /* TargetMatchPolicyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F6D5954FDDCD53B535403693 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 29004532C4997B45BF38E386 /* AppRemoteMac */;
+			targetProxy = 1D25617EF9AC81C85CE3CA54 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		046BEA8600A3101E51536B9D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+				VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
+				VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
+			};
+			name = Release;
+		};
+		719F8ABAAF00F1166B8465B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote";
+			};
+			name = Debug;
+		};
+		A2A95592719A1D555200DCD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LM_FILTER_WARNINGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteMac;
+				PRODUCT_NAME = "Vibe Remote";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A9A003ACFF48E936FA609F5D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
+				VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
+			};
+			name = Debug;
+		};
+		B2E6B9599B4F94B94D50B4ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)";
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote";
+			};
+			name = Release;
+		};
+		FF7143A8FC9E4E6D4487076D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LM_FILTER_WARNINGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteMac;
+				PRODUCT_NAME = "Vibe Remote";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C20D9F01E1BBBF4D835DF69 /* Build configuration list for PBXNativeTarget "AppRemoteMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				719F8ABAAF00F1166B8465B3 /* Debug */,
+				B2E6B9599B4F94B94D50B4ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		692D4A0BEE53C5EB99CA4344 /* Build configuration list for PBXNativeTarget "AppRemoteMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2A95592719A1D555200DCD0 /* Debug */,
+				FF7143A8FC9E4E6D4487076D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E7AD21E19CE84939BFB57888 /* Build configuration list for PBXProject "AppRemoteMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A9A003ACFF48E936FA609F5D /* Debug */,
+				046BEA8600A3101E51536B9D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		20276556B14D7298C3CC5CCB /* XCLocalSwiftPackageReference "../Packages/RemoteCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/RemoteCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B1371E5F8BC0F823C5A8DF16 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.9.6;
+			};
+		};
+		EF2C0848D8FA99E5BC893BBC /* XCRemoteSwiftPackageReference "swift-certificates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-certificates.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.19.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5E7D840302E929A8E3E5C188 /* RemoteCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RemoteCore;
+		};
+		9E6549242EE34EBCDCEFF5B5 /* X509 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF2C0848D8FA99E5BC893BBC /* XCRemoteSwiftPackageReference "swift-certificates" */;
+			productName = X509;
+		};
+		AE1DA021DAE93448F9A4C6EE /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1371E5F8BC0F823C5A8DF16 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1CCBDF9CE8C9A138380328F7 /* Project object */;
+}

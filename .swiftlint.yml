@@ -1,0 +1,14 @@
+only_rules:
+  - duplicate_imports
+  - empty_count
+  - trailing_whitespace
+  - unused_optional_binding
+excluded:
+  - .build
+  - Packages/RemoteCore/.build
+  - build
+  - iOS/build
+  - iOS/build-direct
+  - iOS/build-landing
+  - macOS/build
+reporter: xcode

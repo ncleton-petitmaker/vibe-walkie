@@ -1,0 +1,56 @@
+# macOS and editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local synchronization and history
+.stfolder/
+.stversions/
+.stignore
+
+# Secrets and signing material
+.env
+.env.*
+!.env.example
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+*.p8
+*private-key*
+secrets/
+/Config/Developer.xcconfig
+
+# Swift, Xcode and build outputs
+.build/
+DerivedData/
+build/
+build-*/
+*.xcarchive
+*.ipa
+*.dmg
+*.pkg
+*.app
+*.dSYM
+**/xcuserdata/
+**/*.xcuserstate
+
+# Prototype-only and separately maintained projects
+/landing/
+/server/
+/docs/
+/Scripts/archive-ios-on-macmini.command
+/Scripts/deploy-server-vps.sh
+/Scripts/release-ios-macmini.command
+/Scripts/release.sh
+/Scripts/relay/
+
+# Local research and legacy artwork
+/Brand/AppRemoteIcon-master.png
+/Brand/Legacy/
+/iOS/AppRemoteiOS/Assets.xcassets/AppIcon.appiconset/AppRemoteIcon-1024.png
+/macOS/AppRemoteMac/Assets.xcassets/AppIcon.appiconset/AppRemoteIcon-*.png
+
+# Generated smoke-test reports
+*smoke-test*.json

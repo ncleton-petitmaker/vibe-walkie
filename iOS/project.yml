@@ -1,0 +1,80 @@
+name: AppRemoteiOS
+options:
+  bundleIdPrefix: com.nicolascleton
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+
+packages:
+  RemoteCore:
+    path: ../Packages/RemoteCore
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote
+    VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.controls
+    VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.tests
+
+targets:
+  AppRemoteControls:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: AppRemoteControls
+      - path: SharedIntents
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Remote Controls
+        PRODUCT_MODULE_NAME: VibeRemoteControls
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: AppRemoteControls/Info.plist
+
+  AppRemoteiOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: AppRemoteiOS
+      - path: SharedIntents
+    dependencies:
+      - package: RemoteCore
+      - target: AppRemoteControls
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Remote
+        PRODUCT_MODULE_NAME: VibeRemoteiOS
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: AppRemoteiOS/Info.plist
+
+  AppRemoteiOSTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: AppRemoteiOSTests
+    dependencies:
+      - target: AppRemoteiOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)"
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  AppRemoteiOS:
+    build:
+      targets:
+        AppRemoteiOS: all
+    test:
+      targets:
+        - AppRemoteiOSTests

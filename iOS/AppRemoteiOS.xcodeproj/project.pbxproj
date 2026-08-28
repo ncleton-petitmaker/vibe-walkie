@@ -1,0 +1,745 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0E255BAFEC9FA7113A4D8E24 /* RemoteScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E252D774E2C2580E77988AFC /* RemoteScreenView.swift */; };
+		1AFB51F6855DC4B45CCCE4AF /* CommercializationConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */; };
+		2345B807E607C053D9AC768E /* MacConnectionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */; };
+		2F127D9F956AA6F20136D848 /* DeviceKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */; };
+		37AACFEAC8AB8DD92E22801A /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3891F57B111648029F8C1544 /* HapticFeedback.swift */; };
+		6726856E6A019126609BAD2A /* TranscriptHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */; };
+		696B10390E8BA94C43696E4D /* AppSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */; };
+		6C17056F3C3E9BA2BDA47999 /* AppleSpeechAnalyzerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */; };
+		6DC8CA4F081BEE2EABCD37F5 /* DiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */; };
+		6F4EB65C8EB76C447F68F93A /* AppRemoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */; };
+		70E89248061FDFC1C1E1A90D /* PairingScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FF5777C50B57E18B16BF59 /* PairingScannerView.swift */; };
+		71762AD64B615EA901378051 /* RemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0EFC7E75D08B3F38ACE9F031 /* RemoteCore */; };
+		718AC88DA610623032D2D605 /* MarketingRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */; };
+		735845A4B0CD8875C7E0B8C7 /* TrackpadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */; };
+		8B0F430A68D2DBB1706A4919 /* AppRemoteControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326A965F1E790D986CC0E32D /* AppRemoteControls.swift */; };
+		991D4955B618B8958754773C /* DictationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C21643286EE581CB8747DB /* DictationControllerTests.swift */; };
+		9927A7E7680A112555259661 /* OpenAppRemoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */; };
+		A2AE5E8574D6F40A1DA45FA5 /* RemoteHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */; };
+		A91183D17317D5D514027DCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 282F2AB543131F01EFC0BECB /* Assets.xcassets */; };
+		AA096530572CEA2590E90DD7 /* PressAndHoldGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F5E115C77CB1562B9E682E /* PressAndHoldGesture.swift */; };
+		AB34B6BF5CFD28E4D5534276 /* AppRemoteControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B886FFBF54E8AAE8EBF8A177 /* SpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */; };
+		B8FDDA4F229D478EBF058DBC /* OpenAppRemoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */; };
+		BDAEB491ECF3F545CE385374 /* TargetPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A1C39536CF44A9F4492373 /* TargetPill.swift */; };
+		C79B80FD0111169245176655 /* TranscriptHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */; };
+		D1F81461658A3D8D98DFC358 /* RemoteKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */; };
+		F0DAA0378147D5A7E449FB2E /* DictationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17289738EA7034957924ABD3 /* DictationController.swift */; };
+		F706F063F34C9F260831D812 /* TranscriptHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */; };
+		F8C8A8DC54E671AFDD38C6F2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */; };
+		F96DA0AABA402DE4CF5839CB /* PTTButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271BCA3204B6B76C81DAA24F /* PTTButton.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		54330EE11D0AE799998A0729 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3402799921EC326EBEC5EECE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7C808457C9BE422C9065B06;
+			remoteInfo = AppRemoteiOS;
+		};
+		A0ED0CED3B1FF8A5870866FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3402799921EC326EBEC5EECE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 273DAA72B58CD306F22B96AC;
+			remoteInfo = AppRemoteControls;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F092A5A969F868EDA2BF5346 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AB34B6BF5CFD28E4D5534276 /* AppRemoteControls.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		061478AC2C7D5412D65F6743 /* RemoteCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RemoteCore; path = ../Packages/RemoteCore; sourceTree = SOURCE_ROOT; };
+		0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadView.swift; sourceTree = "<group>"; };
+		17289738EA7034957924ABD3 /* DictationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationController.swift; sourceTree = "<group>"; };
+		2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryStore.swift; sourceTree = "<group>"; };
+		24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketingRootView.swift; sourceTree = "<group>"; };
+		271BCA3204B6B76C81DAA24F /* PTTButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PTTButton.swift; sourceTree = "<group>"; };
+		27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryView.swift; sourceTree = "<group>"; };
+		282F2AB543131F01EFC0BECB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		326A965F1E790D986CC0E32D /* AppRemoteControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteControls.swift; sourceTree = "<group>"; };
+		34F5E115C77CB1562B9E682E /* PressAndHoldGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressAndHoldGesture.swift; sourceTree = "<group>"; };
+		3891F57B111648029F8C1544 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
+		4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryStoreTests.swift; sourceTree = "<group>"; };
+		54FF5777C50B57E18B16BF59 /* PairingScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingScannerView.swift; sourceTree = "<group>"; };
+		57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechEngine.swift; sourceTree = "<group>"; };
+		6132A8BCF5F37FEA653ED460 /* AppRemoteiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppRemoteiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryView.swift; sourceTree = "<group>"; };
+		6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteHomeView.swift; sourceTree = "<group>"; };
+		75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechAnalyzerEngine.swift; sourceTree = "<group>"; };
+		7F706F54092076BEA79B78BC /* AppRemoteiOSTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AppRemoteiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppRemoteIntent.swift; sourceTree = "<group>"; };
+		B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKeyStore.swift; sourceTree = "<group>"; };
+		B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteKeyboardView.swift; sourceTree = "<group>"; };
+		BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionClient.swift; sourceTree = "<group>"; };
+		C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommercializationConfigurationTests.swift; sourceTree = "<group>"; };
+		E252D774E2C2580E77988AFC /* RemoteScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteScreenView.swift; sourceTree = "<group>"; };
+		E3C21643286EE581CB8747DB /* DictationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationControllerTests.swift; sourceTree = "<group>"; };
+		E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteApp.swift; sourceTree = "<group>"; };
+		EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSwitcherView.swift; sourceTree = "<group>"; };
+		EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AppRemoteControls.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF1D7234DE25707448551407 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F360446662D29D256CCCF175 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F6A1C39536CF44A9F4492373 /* TargetPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetPill.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		39B49D88D874CBBF37DA3513 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				71762AD64B615EA901378051 /* RemoteCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0DF1461FC973CE03BA12032F /* AppRemoteiOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */,
+				E3C21643286EE581CB8747DB /* DictationControllerTests.swift */,
+				4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */,
+			);
+			path = AppRemoteiOSTests;
+			sourceTree = "<group>";
+		};
+		103BEA007B881F074949BCFD /* AppRemoteControls */ = {
+			isa = PBXGroup;
+			children = (
+				326A965F1E790D986CC0E32D /* AppRemoteControls.swift */,
+				EF1D7234DE25707448551407 /* Info.plist */,
+			);
+			path = AppRemoteControls;
+			sourceTree = "<group>";
+		};
+		5C7AAE1DF903254918D15078 /* Connection */ = {
+			isa = PBXGroup;
+			children = (
+				B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */,
+				BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */,
+			);
+			path = Connection;
+			sourceTree = "<group>";
+		};
+		5D3A6165EF63261E8504079A /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				061478AC2C7D5412D65F6743 /* RemoteCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		6636119EF62EB21D7D33569F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */,
+				6132A8BCF5F37FEA653ED460 /* AppRemoteiOS.app */,
+				7F706F54092076BEA79B78BC /* AppRemoteiOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		823AC83899824A8864EF7903 /* Pairing */ = {
+			isa = PBXGroup;
+			children = (
+				54FF5777C50B57E18B16BF59 /* PairingScannerView.swift */,
+			);
+			path = Pairing;
+			sourceTree = "<group>";
+		};
+		8B2722D825A67AB3059C5948 /* Speech */ = {
+			isa = PBXGroup;
+			children = (
+				75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */,
+				6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */,
+			);
+			path = Speech;
+			sourceTree = "<group>";
+		};
+		ADBA9F3E6132AAD041B7C92D /* AppRemoteiOS */ = {
+			isa = PBXGroup;
+			children = (
+				E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */,
+				282F2AB543131F01EFC0BECB /* Assets.xcassets */,
+				F360446662D29D256CCCF175 /* Info.plist */,
+				24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */,
+				57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */,
+				6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */,
+				5C7AAE1DF903254918D15078 /* Connection */,
+				F02CE7EB1052A5D674819F59 /* History */,
+				D0093D0576826CE7A679BBC3 /* Onboarding */,
+				823AC83899824A8864EF7903 /* Pairing */,
+				CE85F9AEFCBC402ABC98096A /* PTT */,
+				B119C3DF6198EF40071F50BA /* RemoteControl */,
+				8B2722D825A67AB3059C5948 /* Speech */,
+			);
+			path = AppRemoteiOS;
+			sourceTree = "<group>";
+		};
+		B119C3DF6198EF40071F50BA /* RemoteControl */ = {
+			isa = PBXGroup;
+			children = (
+				EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */,
+				B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */,
+				E252D774E2C2580E77988AFC /* RemoteScreenView.swift */,
+				F6A1C39536CF44A9F4492373 /* TargetPill.swift */,
+				0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */,
+			);
+			path = RemoteControl;
+			sourceTree = "<group>";
+		};
+		CE85F9AEFCBC402ABC98096A /* PTT */ = {
+			isa = PBXGroup;
+			children = (
+				17289738EA7034957924ABD3 /* DictationController.swift */,
+				3891F57B111648029F8C1544 /* HapticFeedback.swift */,
+				34F5E115C77CB1562B9E682E /* PressAndHoldGesture.swift */,
+				271BCA3204B6B76C81DAA24F /* PTTButton.swift */,
+			);
+			path = PTT;
+			sourceTree = "<group>";
+		};
+		D0093D0576826CE7A679BBC3 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		F02CE7EB1052A5D674819F59 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */,
+				660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		FDC6BFE3BF10EB33FBD39C6F = {
+			isa = PBXGroup;
+			children = (
+				103BEA007B881F074949BCFD /* AppRemoteControls */,
+				ADBA9F3E6132AAD041B7C92D /* AppRemoteiOS */,
+				0DF1461FC973CE03BA12032F /* AppRemoteiOSTests */,
+				5D3A6165EF63261E8504079A /* Packages */,
+				FE03CF52FF4E2F6B36AFAA5F /* SharedIntents */,
+				6636119EF62EB21D7D33569F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FE03CF52FF4E2F6B36AFAA5F /* SharedIntents */ = {
+			isa = PBXGroup;
+			children = (
+				AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */,
+			);
+			path = SharedIntents;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		273DAA72B58CD306F22B96AC /* AppRemoteControls */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0045016BD1CBC356817A0F18 /* Build configuration list for PBXNativeTarget "AppRemoteControls" */;
+			buildPhases = (
+				AD5983ABB6AD970671A513DB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppRemoteControls;
+			packageProductDependencies = (
+			);
+			productName = AppRemoteControls;
+			productReference = EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8543B305E1D6671E96B3281A /* AppRemoteiOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FB6CB3E4EBA177004FEC205 /* Build configuration list for PBXNativeTarget "AppRemoteiOSTests" */;
+			buildPhases = (
+				6CD7B40672A2292E9D272980 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7103B66BB601EFFD09F4C8F8 /* PBXTargetDependency */,
+			);
+			name = AppRemoteiOSTests;
+			packageProductDependencies = (
+			);
+			productName = AppRemoteiOSTests;
+			productReference = 7F706F54092076BEA79B78BC /* AppRemoteiOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C7C808457C9BE422C9065B06 /* AppRemoteiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01B098B7B0AB98579F412C58 /* Build configuration list for PBXNativeTarget "AppRemoteiOS" */;
+			buildPhases = (
+				198E99EFB23EAB2A30B916D0 /* Sources */,
+				47ABFAC515AEFD5F9E267A3D /* Resources */,
+				39B49D88D874CBBF37DA3513 /* Frameworks */,
+				F092A5A969F868EDA2BF5346 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FBB619E3BC1E7BE1FC612580 /* PBXTargetDependency */,
+			);
+			name = AppRemoteiOS;
+			packageProductDependencies = (
+				0EFC7E75D08B3F38ACE9F031 /* RemoteCore */,
+			);
+			productName = AppRemoteiOS;
+			productReference = 6132A8BCF5F37FEA653ED460 /* AppRemoteiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3402799921EC326EBEC5EECE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					273DAA72B58CD306F22B96AC = {
+						ProvisioningStyle = Automatic;
+					};
+					8543B305E1D6671E96B3281A = {
+						ProvisioningStyle = Automatic;
+					};
+					C7C808457C9BE422C9065B06 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 197B870623D0733A1A6A31C9 /* Build configuration list for PBXProject "AppRemoteiOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = FDC6BFE3BF10EB33FBD39C6F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EEF5677B3401EBF5D5502A4B /* XCLocalSwiftPackageReference "../Packages/RemoteCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				273DAA72B58CD306F22B96AC /* AppRemoteControls */,
+				C7C808457C9BE422C9065B06 /* AppRemoteiOS */,
+				8543B305E1D6671E96B3281A /* AppRemoteiOSTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		47ABFAC515AEFD5F9E267A3D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A91183D17317D5D514027DCD /* Assets.xcassets in Resources */,
+				F8C8A8DC54E671AFDD38C6F2 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		198E99EFB23EAB2A30B916D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F4EB65C8EB76C447F68F93A /* AppRemoteApp.swift in Sources */,
+				696B10390E8BA94C43696E4D /* AppSwitcherView.swift in Sources */,
+				6C17056F3C3E9BA2BDA47999 /* AppleSpeechAnalyzerEngine.swift in Sources */,
+				2F127D9F956AA6F20136D848 /* DeviceKeyStore.swift in Sources */,
+				F0DAA0378147D5A7E449FB2E /* DictationController.swift in Sources */,
+				6DC8CA4F081BEE2EABCD37F5 /* DiscoveryView.swift in Sources */,
+				37AACFEAC8AB8DD92E22801A /* HapticFeedback.swift in Sources */,
+				2345B807E607C053D9AC768E /* MacConnectionClient.swift in Sources */,
+				718AC88DA610623032D2D605 /* MarketingRootView.swift in Sources */,
+				9927A7E7680A112555259661 /* OpenAppRemoteIntent.swift in Sources */,
+				F96DA0AABA402DE4CF5839CB /* PTTButton.swift in Sources */,
+				70E89248061FDFC1C1E1A90D /* PairingScannerView.swift in Sources */,
+				AA096530572CEA2590E90DD7 /* PressAndHoldGesture.swift in Sources */,
+				A2AE5E8574D6F40A1DA45FA5 /* RemoteHomeView.swift in Sources */,
+				D1F81461658A3D8D98DFC358 /* RemoteKeyboardView.swift in Sources */,
+				0E255BAFEC9FA7113A4D8E24 /* RemoteScreenView.swift in Sources */,
+				B886FFBF54E8AAE8EBF8A177 /* SpeechEngine.swift in Sources */,
+				BDAEB491ECF3F545CE385374 /* TargetPill.swift in Sources */,
+				735845A4B0CD8875C7E0B8C7 /* TrackpadView.swift in Sources */,
+				6726856E6A019126609BAD2A /* TranscriptHistoryStore.swift in Sources */,
+				C79B80FD0111169245176655 /* TranscriptHistoryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CD7B40672A2292E9D272980 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AFB51F6855DC4B45CCCE4AF /* CommercializationConfigurationTests.swift in Sources */,
+				991D4955B618B8958754773C /* DictationControllerTests.swift in Sources */,
+				F706F063F34C9F260831D812 /* TranscriptHistoryStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD5983ABB6AD970671A513DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B0F430A68D2DBB1706A4919 /* AppRemoteControls.swift in Sources */,
+				B8FDDA4F229D478EBF058DBC /* OpenAppRemoteIntent.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7103B66BB601EFFD09F4C8F8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7C808457C9BE422C9065B06 /* AppRemoteiOS */;
+			targetProxy = 54330EE11D0AE799998A0729 /* PBXContainerItemProxy */;
+		};
+		FBB619E3BC1E7BE1FC612580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 273DAA72B58CD306F22B96AC /* AppRemoteControls */;
+			targetProxy = A0ED0CED3B1FF8A5870866FB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		000D26E204CF0C25892CF7FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteControls/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteControls;
+				PRODUCT_NAME = "Vibe Remote Controls";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3C982314D1B09C3640894F08 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteiOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteiOS;
+				PRODUCT_NAME = "Vibe Remote";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		782E6A95CB4359240F0F5B0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote";
+			};
+			name = Debug;
+		};
+		9BFC00DE65182BB0BDCD6210 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
+				VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
+				VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
+			};
+			name = Debug;
+		};
+		B3AFF9DD298D51FCD9F26922 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteControls/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteControls;
+				PRODUCT_NAME = "Vibe Remote Controls";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C21FB53C525517B3E45DE800 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppRemoteiOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeRemoteiOS;
+				PRODUCT_NAME = "Vibe Remote";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CAF76B753489A890FC7AEB85 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote";
+			};
+			name = Release;
+		};
+		E693035748E6B814C8EBC160 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+				VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
+				VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
+				VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0045016BD1CBC356817A0F18 /* Build configuration list for PBXNativeTarget "AppRemoteControls" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3AFF9DD298D51FCD9F26922 /* Debug */,
+				000D26E204CF0C25892CF7FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		01B098B7B0AB98579F412C58 /* Build configuration list for PBXNativeTarget "AppRemoteiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C21FB53C525517B3E45DE800 /* Debug */,
+				3C982314D1B09C3640894F08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		197B870623D0733A1A6A31C9 /* Build configuration list for PBXProject "AppRemoteiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9BFC00DE65182BB0BDCD6210 /* Debug */,
+				E693035748E6B814C8EBC160 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4FB6CB3E4EBA177004FEC205 /* Build configuration list for PBXNativeTarget "AppRemoteiOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				782E6A95CB4359240F0F5B0F /* Debug */,
+				CAF76B753489A890FC7AEB85 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		EEF5677B3401EBF5D5502A4B /* XCLocalSwiftPackageReference "../Packages/RemoteCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/RemoteCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0EFC7E75D08B3F38ACE9F031 /* RemoteCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RemoteCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3402799921EC326EBEC5EECE /* Project object */;
+}
