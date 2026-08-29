@@ -20,6 +20,7 @@ final class DictationController: ObservableObject {
         case finalizing
         case sending
         case delivered(String)
+        case sentUnverified(String)
         case failed(String)
     }
 
@@ -106,7 +107,7 @@ final class DictationController: ObservableObject {
             } catch let error as RemoteErrorPayload {
                 await fail(error.message)
             } catch {
-                await fail("Impossible de préparer la dictée")
+                await fail(error.localizedDescription)
             }
         }
     }
@@ -177,7 +178,16 @@ final class DictationController: ObservableObject {
                 await fail(SpeechEngineError.notPrepared.localizedDescription)
                 return
             }
-            let update = (try? await engine.finish()) ?? .empty
+            let update: SpeechUpdate
+            do {
+                update = try await engine.finish()
+            } catch {
+                partialsTask?.cancel()
+                partialsTask = nil
+                await cancelRemoteTarget(for: currentID)
+                await fail(error.localizedDescription)
+                return
+            }
             partialsTask?.cancel()
             partialsTask = nil
 
@@ -205,9 +215,14 @@ final class DictationController: ObservableObject {
                 guard ack.ok, let insertion = ack.insertion else {
                     throw RemoteErrorPayload(code: .internalFailure, detail: "accusé incomplet")
                 }
-                history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
-                HapticFeedback.shared.delivered()
-                phase = .delivered("Écrit dans \(insertion.applicationName)")
+                if insertion.verified {
+                    history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
+                    HapticFeedback.shared.delivered()
+                    phase = .delivered("Écrit dans \(insertion.applicationName)")
+                } else {
+                    history.update(entry.id, delivery: .unknown, applicationName: insertion.applicationName)
+                    phase = .sentUnverified("Envoyé à \(insertion.applicationName) — vérifiez le champ")
+                }
                 scheduleReset()
             } catch let error as RemoteErrorPayload {
                 let delivery: DeliveryState = error.detail == "timeout" ? .unknown : .notSent
@@ -278,9 +293,14 @@ final class DictationController: ObservableObject {
                 guard ack.ok, let insertion = ack.insertion else {
                     throw RemoteErrorPayload(code: .internalFailure, detail: "accusé incomplet")
                 }
-                history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
-                HapticFeedback.shared.delivered()
-                phase = .delivered("Renvoyé dans \(insertion.applicationName)")
+                if insertion.verified {
+                    history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
+                    HapticFeedback.shared.delivered()
+                    phase = .delivered("Renvoyé dans \(insertion.applicationName)")
+                } else {
+                    history.update(entry.id, delivery: .unknown, applicationName: insertion.applicationName)
+                    phase = .sentUnverified("Renvoyé à \(insertion.applicationName) — vérifiez le champ")
+                }
                 scheduleReset()
             } catch let error as RemoteErrorPayload {
                 history.update(entry.id, delivery: .notSent)

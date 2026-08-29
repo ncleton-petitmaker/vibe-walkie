@@ -117,6 +117,45 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(transport.insertPayloads.count, 1)
     }
 
+    func testUnverifiedInsertionIsNeverReportedAsWritten() async throws {
+        transport.insertionIsVerified = false
+        controller.pressBegan()
+        try await waitUntil { self.engine.didStart }
+        controller.pressEnded()
+
+        try await waitUntil {
+            if case .sentUnverified = self.controller.phase { return true }
+            return false
+        }
+        XCTAssertEqual(history.entries.first?.delivery, .unknown)
+        XCTAssertEqual(transport.insertPayloads.count, 1)
+    }
+
+    func testAnalyzerPromotesLastHypothesisAfterEndOfInput() {
+        let (stream, continuation) = AsyncStream<SpeechUpdate>.makeStream()
+        _ = stream
+        let state = AnalyzerRecognitionState(continuation: continuation)
+
+        state.receive(text: "Bonjour", isFinal: false)
+        XCTAssertEqual(state.finalUpdate.finalizedText, "")
+        state.finish()
+
+        XCTAssertEqual(state.finalUpdate.text, "Bonjour")
+        XCTAssertEqual(state.finalUpdate.finalizedText, "Bonjour")
+    }
+
+    func testAnalyzerKeepsFinalPrefixAndLastHypothesis() {
+        let (stream, continuation) = AsyncStream<SpeechUpdate>.makeStream()
+        _ = stream
+        let state = AnalyzerRecognitionState(continuation: continuation)
+
+        state.receive(text: "Bonjour", isFinal: true)
+        state.receive(text: "tout le monde", isFinal: false)
+        state.finish()
+
+        XCTAssertEqual(state.finalUpdate.finalizedText, "Bonjour tout le monde")
+    }
+
     func testResendAlwaysCapturesANewTarget() async throws {
         let entry = history.record("Texte à renvoyer", delivery: .unknown, applicationName: nil)
         controller.resend(entry)
@@ -152,6 +191,7 @@ private final class FakeDictationTransport: DictationTransport {
     var recordingError: Error?
     var insertError: Error?
     var suspendInsertReply = false
+    var insertionIsVerified = true
     private var insertContinuation: CheckedContinuation<RemoteEnvelope, Error>?
 
     func send<T: Encodable>(type: RemoteMessageType, payload: T) async throws -> RemoteEnvelope {
@@ -209,7 +249,7 @@ private final class FakeDictationTransport: DictationTransport {
                 ok: true,
                 insertion: InsertionResult(
                     method: .axSelectedText,
-                    verified: true,
+                    verified: insertionIsVerified,
                     pasteboardRestored: nil,
                     applicationName: "Notes"
                 )

@@ -20,7 +20,7 @@ enum CGEventFactory {
         switch key {
         case .enter: return 36
         case .escape: return 53
-        case .tab: return 48
+        case .tab, .applicationSwitcher: return 48
         case .backspace: return 51
         case .delete: return 117
         case .arrowUp: return 126
@@ -32,25 +32,53 @@ enum CGEventFactory {
     }
 
     static func press(_ key: RemoteKey) {
+        if key == .applicationSwitcher {
+            switchToPreviousApplication()
+            return
+        }
+
         let code = keyCode(for: key)
         CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: true)?.post(tap: .cghidEventTap)
         CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: false)?.post(tap: .cghidEventTap)
+    }
+
+    /// Reproduit un appui bref sur Cmd+Tab. Relâcher Command immédiatement
+    /// valide la sélection : l'app précédente passe devant sans laisser le
+    /// sélecteur macOS affiché.
+    private static func switchToPreviousApplication() {
+        let command: CGKeyCode = 55
+        let tab: CGKeyCode = 48
+
+        CGEvent(keyboardEventSource: source, virtualKey: command, keyDown: true)?.post(tap: .cghidEventTap)
+
+        if let down = CGEvent(keyboardEventSource: source, virtualKey: tab, keyDown: true) {
+            down.flags = .maskCommand
+            down.post(tap: .cghidEventTap)
+        }
+        if let up = CGEvent(keyboardEventSource: source, virtualKey: tab, keyDown: false) {
+            up.flags = .maskCommand
+            up.post(tap: .cghidEventTap)
+        }
+
+        CGEvent(keyboardEventSource: source, virtualKey: command, keyDown: false)?.post(tap: .cghidEventTap)
     }
 
     /// Tape du texte par événements Unicode.
     ///
     /// Découpé en petits paquets : certaines applications ignorent une chaîne
     /// Unicode trop longue attachée à un seul événement.
-    static func type(_ text: String) {
+    @discardableResult
+    static func type(_ text: String) -> Bool {
         for chunk in text.chunked(by: 16) {
             let utf16 = Array(chunk.utf16)
             guard let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
-                  let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false) else { continue }
+                  let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false) else { return false }
             down.keyboardSetUnicodeString(stringLength: utf16.count, unicodeString: utf16)
             up.keyboardSetUnicodeString(stringLength: utf16.count, unicodeString: utf16)
             down.post(tap: .cghidEventTap)
             up.post(tap: .cghidEventTap)
         }
+        return true
     }
 
     /// Colle avec un vrai Cmd+V.

@@ -9,7 +9,7 @@
 
 ## Tests et builds non signés
 
-Exécutez `Scripts/ci-local.sh`. Le script lance RemoteCore, régénère les projets lorsque XcodeGen est présent, puis compile iOS Simulator et macOS arm64 sans signature.
+Exécutez `scripts/ci-local.sh`. Le script lance RemoteCore, régénère les projets lorsque XcodeGen est présent, puis compile iOS Simulator et macOS arm64 sans signature.
 
 ## Signature d’un fork
 

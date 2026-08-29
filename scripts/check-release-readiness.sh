@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-"$ROOT/Scripts/ci-local.sh"
+"$ROOT/scripts/ci-local.sh"
 
 for command in git xcodebuild xcrun codesign hdiutil; do
   command -v "$command" >/dev/null || { echo "Commande absente: $command" >&2; exit 1; }

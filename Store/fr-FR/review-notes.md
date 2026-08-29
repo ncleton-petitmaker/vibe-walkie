@@ -1,6 +1,6 @@
 # Notes pour l’équipe App Review
 
-`{{PRODUCT_NAME}}` requiert normalement son compagnon macOS 15+ Apple Silicon. Le DMG de revue signé et notarisé sera disponible ici : `{{REVIEW_DMG_URL}}`.
+Vibe Remote requiert normalement son compagnon macOS 15+ Apple Silicon. Le DMG de revue signé et notarisé sera disponible ici : `{{REVIEW_DMG_URL}}`.
 
 ## Revue sans Mac
 

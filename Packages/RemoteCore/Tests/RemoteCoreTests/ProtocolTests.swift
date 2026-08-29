@@ -131,6 +131,16 @@ struct EnvelopeTests {
         #expect(RemoteMessageType.allCases.count == 23)
         #expect(ProtocolVersion.current == 2)
     }
+
+    @Test("La commande du switcher d'app conserve sa valeur réseau")
+    func applicationSwitcherKeyIsStable() throws {
+        #expect(RemoteKey.applicationSwitcher.rawValue == "application_switcher")
+        let payload = try RemoteCoding.decoder.decode(
+            KeyPressPayload.self,
+            from: Data(#"{"key":"application_switcher"}"#.utf8)
+        )
+        #expect(payload.key == .applicationSwitcher)
+    }
 }
 
 @Suite("Anti-rejeu")

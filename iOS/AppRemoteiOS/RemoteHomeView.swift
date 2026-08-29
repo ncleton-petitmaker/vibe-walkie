@@ -32,7 +32,12 @@ struct RemoteHomeView: View {
                 VStack(spacing: 12) {
                     TrackpadView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    statusStrip
+                        .overlay(alignment: .bottom) {
+                            statusStrip
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 8)
+                                .allowsHitTesting(false)
+                        }
                     dictationBar
                 }
                 .padding(.horizontal, 14)
@@ -236,6 +241,8 @@ struct RemoteHomeView: View {
                 Text("Envoi…").foregroundStyle(.white.opacity(0.6))
             case .delivered(let message):
                 Label(message, systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+            case .sentUnverified(let message):
+                Label(message, systemImage: "arrow.up.circle.fill").foregroundStyle(.orange)
             case .failed(let message):
                 Label(message, systemImage: "exclamationmark.circle.fill").foregroundStyle(.orange)
             case .idle:
@@ -264,14 +271,25 @@ struct RemoteHomeView: View {
 
                 Spacer()
 
-                CircularControlButton(
-                    systemImage: "return",
-                    size: 52,
-                    iconSize: 20,
-                    isProminent: true,
-                    accessibilityText: "Entrée"
-                ) {
-                    sendKey(.enter)
+                VStack(spacing: 8) {
+                    CircularControlButton(
+                        systemImage: "arrow.left.arrow.right",
+                        size: 52,
+                        iconSize: 18,
+                        accessibilityText: "Revenir à l’application précédente"
+                    ) {
+                        sendKey(.applicationSwitcher)
+                    }
+
+                    CircularControlButton(
+                        systemImage: "return",
+                        size: 52,
+                        iconSize: 20,
+                        isProminent: true,
+                        accessibilityText: "Entrée"
+                    ) {
+                        sendKey(.enter)
+                    }
                 }
             }
 
@@ -290,7 +308,10 @@ struct RemoteHomeView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .frame(minHeight: 158)
+        // La zone de commandes gagne un peu de hauteur pour accueillir le
+        // switcher au-dessus d'Entrée ; le pavé tactile cède naturellement
+        // cet espace sans déplacer les commandes essentielles.
+        .frame(minHeight: 190)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(Color.controlSurface)

@@ -91,9 +91,9 @@ struct SettingsSheet: View {
                     }
 
                 } header: {
-                    Text("Écran et accès à distance")
+                    Text("Retour écran")
                 } footer: {
-                    Text("Aucune app VPN n’est nécessaire. Le VPS transporte uniquement le TLS épinglé du Mac et ne peut pas lire les commandes ou l’écran.")
+                    Text("Le retour écran facultatif reste chiffré entre l’iPhone et le Mac sur votre réseau local.")
                 }
 
                 Section {

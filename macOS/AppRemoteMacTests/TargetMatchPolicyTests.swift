@@ -132,6 +132,45 @@ final class TargetMatchPolicyTests: XCTestCase {
         }
     }
 
+    func testWindowFallbackAcceptsSameApplicationAndWindow() throws {
+        try TargetMatchPolicy.validateWindowFallback(
+            capturedProcessIdentifier: 100,
+            currentProcessIdentifier: 100,
+            isSameWindow: true,
+            secureInputEnabled: false
+        )
+    }
+
+    func testWindowFallbackRejectsApplicationOrWindowChange() {
+        assertError(.targetChanged) {
+            try TargetMatchPolicy.validateWindowFallback(
+                capturedProcessIdentifier: 100,
+                currentProcessIdentifier: 200,
+                isSameWindow: true,
+                secureInputEnabled: false
+            )
+        }
+        assertError(.targetChanged) {
+            try TargetMatchPolicy.validateWindowFallback(
+                capturedProcessIdentifier: 100,
+                currentProcessIdentifier: 100,
+                isSameWindow: false,
+                secureInputEnabled: false
+            )
+        }
+    }
+
+    func testWindowFallbackRejectsSecureInput() {
+        assertError(.secureField) {
+            try TargetMatchPolicy.validateWindowFallback(
+                capturedProcessIdentifier: 100,
+                currentProcessIdentifier: 100,
+                isSameWindow: true,
+                secureInputEnabled: true
+            )
+        }
+    }
+
     private func assertError(
         _ expected: RemoteErrorCode,
         operation: () throws -> Void,

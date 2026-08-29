@@ -77,7 +77,15 @@ final class MacConnectionServer: ObservableObject {
             }
             let listener = try NWListener(using: parameters, on: port)
 
-            let name = "VibeRemote-\(Host.current().localizedName ?? "Mac")"
+            // Le nom historique basé uniquement sur le Mac pouvait rester
+            // réservé par une ancienne installation Bonjour et faire échouer
+            // la nouvelle publication avec EADDRINUSE. Le certificat est
+            // propre à cette installation : son préfixe donne un nom stable,
+            // unique et dépourvu de donnée personnelle supplémentaire.
+            let fingerprint = try TLSIdentityStore.fingerprint(of: identity)
+            let suffix = String(fingerprint.filter { $0.isLetter || $0.isNumber }.prefix(8))
+            let host = String((Host.current().localizedName ?? "Mac").prefix(30))
+            let name = "VibeRemote-\(host)-\(suffix)"
             listener.service = NWListener.Service(name: name, type: VibeRemoteInfo.bonjourServiceType)
             self.serviceName = name
 

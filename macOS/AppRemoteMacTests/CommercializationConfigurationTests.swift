@@ -5,6 +5,7 @@ final class CommercializationConfigurationTests: XCTestCase {
     func testWorkingBundleIdentifierAndMinimumSystem() {
         XCTAssertEqual(Bundle.main.bundleIdentifier, "com.nicolascleton.viberemote.mac")
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "LSMinimumSystemVersion") as? String, "15.0")
+        XCTAssertNotEqual(Bundle.main.object(forInfoDictionaryKey: "LSUIElement") as? Bool, true)
     }
 
     func testBonjourAndSparkleConfigurationAreEmbedded() {

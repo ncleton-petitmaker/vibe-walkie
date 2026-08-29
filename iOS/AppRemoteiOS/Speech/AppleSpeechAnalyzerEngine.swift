@@ -292,9 +292,10 @@ private final class ConverterInputSupply: @unchecked Sendable {
 }
 
 /// Agrège les phrases dans l'ordre garanti par DictationTranscriber.
-/// `finalizedText` ne fait qu'augmenter ; les résultats volatils ne le touchent
-/// jamais et peuvent donc changer librement sans altérer le texte du Mac.
-private final class AnalyzerRecognitionState: @unchecked Sendable {
+/// Pendant l'écoute, `finalizedText` ne fait qu'augmenter. Une fois que
+/// `SpeechAnalyzer` a fini de consommer l'entrée, sa dernière hypothèse est
+/// définitive même si le flux n'a pas envoyé un dernier drapeau `isFinal`.
+final class AnalyzerRecognitionState: @unchecked Sendable {
     private let lock = NSLock()
     private var finalizedText = ""
     private var latestUpdate = SpeechUpdate.empty
@@ -308,7 +309,8 @@ private final class AnalyzerRecognitionState: @unchecked Sendable {
     var finalUpdate: SpeechUpdate {
         lock.lock()
         defer { lock.unlock() }
-        return SpeechUpdate(text: finalizedText, finalizedText: finalizedText)
+        let completedText = isFinished ? latestUpdate.text : finalizedText
+        return SpeechUpdate(text: completedText, finalizedText: completedText)
     }
 
     func receive(text: String, isFinal: Bool) {

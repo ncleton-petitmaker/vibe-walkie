@@ -216,6 +216,9 @@ public enum RemoteKey: String, Codable, Sendable, CaseIterable {
     case enter
     case escape
     case tab
+    /// Bascule immédiatement vers l'application utilisée précédemment,
+    /// comme un appui bref sur Cmd+Tab affecté à un bouton de souris.
+    case applicationSwitcher = "application_switcher"
     case backspace
     case delete
     case arrowUp = "arrow_up"

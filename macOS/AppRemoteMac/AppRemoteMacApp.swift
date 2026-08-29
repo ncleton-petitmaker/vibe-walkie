@@ -1,21 +1,38 @@
 import SwiftUI
 import RemoteCore
 
+/// Dépendances uniques du compagnon.
+///
+/// SwiftUI peut reconstruire la valeur `App` lorsqu'une `WindowGroup` et un
+/// `MenuBarExtra` coexistent. Les conserver ici garantit que les deux scènes
+/// partagent le même serveur, la même autorité d'appairage et le même QR.
+@MainActor
+private final class AppRemoteDependencies {
+    static let shared = AppRemoteDependencies()
+
+    let peers: ApprovedPeersStore
+    let permissions: PermissionCoordinator
+    let authority: PairingAuthority
+    let server: MacConnectionServer
+    let updates: UpdateController
+
+    private init() {
+        let peers = ApprovedPeersStore()
+        let authority = PairingAuthority(peers: peers)
+        let server = MacConnectionServer(peers: peers, authority: authority)
+
+        self.peers = peers
+        self.permissions = PermissionCoordinator()
+        self.authority = authority
+        self.server = server
+        self.updates = UpdateController()
+        if InstallationLocation.isSuitable { server.start() }
+    }
+}
+
 @main
 struct AppRemoteMacApp: App {
-    @StateObject private var peers = ApprovedPeersStore()
-    @StateObject private var permissions = PermissionCoordinator()
-    @StateObject private var authority: PairingAuthority
-    @StateObject private var server: MacConnectionServer
-    @StateObject private var updates = UpdateController()
-
-    init() {
-        let peersStore = ApprovedPeersStore()
-        let pairingAuthority = PairingAuthority(peers: peersStore)
-        _peers = StateObject(wrappedValue: peersStore)
-        _authority = StateObject(wrappedValue: pairingAuthority)
-        _server = StateObject(wrappedValue: MacConnectionServer(peers: peersStore, authority: pairingAuthority))
-    }
+    private let dependencies = AppRemoteDependencies.shared
 
     var body: some Scene {
         WindowGroup("Vibe Remote") {
@@ -32,13 +49,10 @@ struct AppRemoteMacApp: App {
 
     private var controlPanel: some View {
         MenuBarView()
-            .environmentObject(server)
-            .environmentObject(permissions)
-            .environmentObject(authority)
-            .environmentObject(peers)
-            .environmentObject(updates)
-            .task {
-                if InstallationLocation.isSuitable { server.start() }
-            }
+            .environmentObject(dependencies.server)
+            .environmentObject(dependencies.permissions)
+            .environmentObject(dependencies.authority)
+            .environmentObject(dependencies.peers)
+            .environmentObject(dependencies.updates)
     }
 }

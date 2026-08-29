@@ -1,16 +1,16 @@
 # État des portes de sortie V1
 
-Mis à jour le 28 août 2026. `PRÊT` signifie qu’une preuve locale reproductible existe ; `EXTERNE` exige un compte, un certificat, du matériel ou une validation tierce ; `BLOQUÉ` empêche explicitement la publication.
+Mis à jour le 29 août 2026. `PRÊT` signifie qu’une preuve locale reproductible existe ; `EXTERNE` exige un compte, un certificat, du matériel ou une validation tierce ; `BLOQUÉ` empêche explicitement la publication.
 
 | Porte | Statut | Preuve / action suivante |
 |---|---|---|
-| Protocole V2, appairage, dictée transactionnelle | PRÊT | Tests `RemoteCore`, iOS et macOS |
+| Protocole V2, appairage, dictée transactionnelle | PRÊT | 53 tests `RemoteCore`, 15 tests iOS et 32 tests macOS verts |
 | Identité TLS Swift autonome et stable | PRÊT | Tests création, corruption, stabilité, régénération |
-| Builds iOS Simulator et macOS arm64 | PRÊT | `Scripts/ci-local.sh` |
+| Builds iOS Simulator et macOS arm64 | PRÊT | `scripts/ci-local.sh`, builds Release non signés iOS/macOS et DMG arm64 contrôlé |
 | Lint Swift et scripts | PRÊT | SwiftLint strict et ShellCheck |
-| Scan des secrets et fichiers interdits | PRÊT | Gitleaks + garde CI ; à répéter sur l’historique final |
+| Scan des secrets et fichiers interdits | PRÊT | Gitleaks sans fuite sur tout l’historique actuel + garde CI ; à répéter sur l’historique final |
 | Dépôt open source documenté | PRÊT en local | Publication volontairement gelée jusqu’au nouveau nom |
-| Nom public disponible | **BLOQUÉ** | Voir [BRAND_REVIEW.md](BRAND_REVIEW.md) ; choisir et valider un nouveau nom |
+| Nom public disponible | **BLOQUÉ** | Titre exact absent de la recherche publique et formulaire Apple préparé, mais produit concurrent homonyme actif ; voir [BRAND_REVIEW.md](BRAND_REVIEW.md) |
 | Certificat Developer ID Application | EXTERNE | Créer/télécharger depuis le compte Apple Developer |
 | Signature, notarisation, stapling, Gatekeeper | EXTERNE | Exécuter le workflow Mac avec le certificat et les identifiants de notarisation |
 | Mise à jour Sparkle entre deux versions signées | EXTERNE | Publier deux bêtas après gel du nom et du feed |

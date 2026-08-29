@@ -31,7 +31,7 @@ jobs:
         run: brew install xcodegen swiftlint gitleaks ripgrep
       - name: Rejouer toutes les portes locales
         run: |
-          Scripts/ci-local.sh
+          scripts/ci-local.sh
           gitleaks git --redact --no-banner
       - name: Importer le certificat Developer ID
         env:
@@ -67,7 +67,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           mkdir -p updates
-          Scripts/create-dmg.sh 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app' "updates/VibeRemote-$VERSION.dmg"
+          scripts/create-dmg.sh 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app' "updates/VibeRemote-$VERSION.dmg"
           codesign --force --timestamp --sign "$DEVELOPER_ID_APPLICATION" "updates/VibeRemote-$VERSION.dmg"
           sed "s/VERSION/$VERSION/g" Distribution/release-notes-template.html > "updates/VibeRemote-$VERSION.html"
       - name: Notariser et valider Gatekeeper
@@ -80,7 +80,7 @@ jobs:
           printf '%s' "$ASC_PRIVATE_KEY" > AuthKey.p8
           xcrun notarytool submit "updates/VibeRemote-$VERSION.dmg" --key AuthKey.p8 --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
           xcrun stapler staple "updates/VibeRemote-$VERSION.dmg"
-          Scripts/verify-mac-distribution.sh "updates/VibeRemote-$VERSION.dmg"
+          scripts/verify-mac-distribution.sh "updates/VibeRemote-$VERSION.dmg"
       - name: Générer l’appcast EdDSA
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}

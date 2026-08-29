@@ -22,10 +22,15 @@ final class TextInsertionCoordinator {
             throw RemoteErrorPayload(code: .internalFailure, detail: "texte vide")
         }
         // Vérifié avant toute écriture, tout presse-papiers, tout événement.
-        guard !AccessibilityClient.isSecure(target.element) else {
+        guard !AccessibilityClient.isSecureInputEnabled else {
             throw RemoteErrorPayload(code: .secureField)
         }
-        collapseSelectionToEnd(in: target.element)
+        if let element = target.element, AccessibilityClient.isSecure(element) {
+            throw RemoteErrorPayload(code: .secureField)
+        }
+        if let element = target.element {
+            collapseSelectionToEnd(in: element)
+        }
         let preparedText = shouldPrependSpace(beforeTyping: text, in: target.element)
             ? " " + text
             : text
@@ -33,12 +38,22 @@ final class TextInsertionCoordinator {
             throw RemoteErrorPayload(code: .payloadTooLarge)
         }
 
-        if let result = insertViaSelectedText(preparedText, target: target) {
-            remember(.axSelectedText, for: target)
-            return result
-        }
-        if let result = insertViaValueRange(preparedText, target: target) {
-            remember(.axRange, for: target)
+        if target.element != nil {
+            if let result = insertViaSelectedText(preparedText, target: target) {
+                remember(.axSelectedText, for: target)
+                return result
+            }
+            if let result = insertViaValueRange(preparedText, target: target) {
+                remember(.axRange, for: target)
+                return result
+            }
+        } else {
+            // Certaines apps web natives (dont ChatGPT/Codex) masquent toute
+            // leur hiérarchie AX. Le collage y est parfois lu après notre
+            // restauration transactionnelle et disparaît. Les événements
+            // Unicode n'utilisent pas le presse-papiers et sont synchrones.
+            let result = try insertViaKeyboardEvents(preparedText, target: target)
+            remember(.keyboardEvents, for: target)
             return result
         }
 
@@ -71,7 +86,7 @@ final class TextInsertionCoordinator {
     // MARK: - Méthode 1 : texte sélectionné
 
     private func insertViaSelectedText(_ text: String, target: CapturedTarget) -> InsertionResult? {
-        let element = target.element
+        guard let element = target.element else { return nil }
         guard AccessibilityClient.isSettable(element, kAXSelectedTextAttribute) else { return nil }
 
         let before = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute)
@@ -101,7 +116,7 @@ final class TextInsertionCoordinator {
     // MARK: - Méthode 2 : remplacement de plage
 
     private func insertViaValueRange(_ text: String, target: CapturedTarget) -> InsertionResult? {
-        let element = target.element
+        guard let element = target.element else { return nil }
         guard AccessibilityClient.isSettable(element, kAXValueAttribute),
               let current = AccessibilityClient.string(element, kAXValueAttribute),
               let selection = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute) else {
@@ -136,6 +151,18 @@ final class TextInsertionCoordinator {
     }
 
     // MARK: - Méthode 3 : collage transactionnel
+
+    private func insertViaKeyboardEvents(_ text: String, target: CapturedTarget) throws -> InsertionResult {
+        guard CGEventFactory.type(text) else {
+            throw RemoteErrorPayload(code: .internalFailure, detail: "événements clavier indisponibles")
+        }
+        return InsertionResult(
+            method: .keyboardEvents,
+            verified: false,
+            pasteboardRestored: nil,
+            applicationName: target.applicationName
+        )
+    }
 
     private func insertViaPaste(_ text: String, target: CapturedTarget) throws -> InsertionResult {
         let transaction = PasteboardTransaction(writing: text)

@@ -12,4 +12,4 @@ Réponse prévue dans App Store Connect : **Non, nous ne collectons pas de donn�
 
 Avant soumission, comparer cette déclaration au comportement du binaire final et de toutes ses dépendances. Tout ajout futur de diagnostic distant impose une nouvelle analyse et une mise à jour des réponses.
 
-URL publique requise : `{{PRIVACY_URL}}`.
+URL publique : `https://viberemote.app/privacy`.

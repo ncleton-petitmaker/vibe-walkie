@@ -1,14 +1,16 @@
 # Revue du nom public
 
-Statut au 28 août 2026 : **BLOQUÉ — nouveau nom requis avant publication**.
+Statut au 29 août 2026 : **BLOQUÉ POUR LA PUBLICATION COMMERCIALE — réservation Apple en cours, risque de confusion non levé**.
 
-Ce document est un dossier de décision produit, pas un avis juridique. La publication, les identifiants définitifs, le domaine, le dépôt GitHub public et la fiche App Store ne doivent pas être figés sous le nom de travail actuel.
+Ce document est un dossier de décision produit, pas un avis juridique. Une fiche App Store peut être créée pour tester et réserver le nom, mais sa disponibilité chez Apple ne vaut ni disponibilité juridique ni validation de marque.
 
 ## Conflits trouvés
 
-- L’App Store contient l’application `id6759615708`, encore référencée comme « Vibe Remote – AI Dev » et dont l’historique indique un renommage vers « Btelo Coding » : <https://apps.apple.com/us/app/vibe-remote-ai-dev/id6759615708>.
+- L’application `id6759615708` a utilisé « Vibe Remote – AI Dev » avant d’être renommée « Btelo Coding – AI Vibe Remote » : <https://apps.apple.com/fr/app/btelo-coding-ai-vibe-remote/id6759615708>.
 - Le site <https://vibe-remote.net/> présente un produit nommé exactement « Vibe Remote », lui aussi destiné à piloter un Mac depuis un téléphone.
 - Le nom `vibe-remote` est également utilisé dans l’écosystème logiciel, notamment sur PyPI.
+
+Le 29 août 2026, la recherche publique de l’App Store français ne montrait aucune app portant exactement le titre « Vibe Remote ». Le formulaire « Nouvelle app » d’App Store Connect accepte le texte sans erreur immédiate ; la réponse définitive nécessite l’enregistrement du Bundle ID puis la création de la fiche.
 
 Le second point suffit à créer un risque important de confusion commerciale pour un produit voisin. La porte « revue de marque favorable » n’est donc pas franchie, indépendamment de l’existence ou non d’une marque enregistrée exacte.
 

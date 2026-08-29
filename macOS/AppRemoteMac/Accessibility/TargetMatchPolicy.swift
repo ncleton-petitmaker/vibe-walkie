@@ -33,4 +33,20 @@ enum TargetMatchPolicy {
             throw RemoteErrorPayload(code: .targetChanged)
         }
     }
+
+    /// Repli borné pour une application qui ne publie aucun champ AX.
+    /// L'application et l'objet fenêtre doivent rester strictement identiques.
+    static func validateWindowFallback(
+        capturedProcessIdentifier: pid_t,
+        currentProcessIdentifier: pid_t,
+        isSameWindow: Bool,
+        secureInputEnabled: Bool
+    ) throws {
+        guard !secureInputEnabled else {
+            throw RemoteErrorPayload(code: .secureField)
+        }
+        guard currentProcessIdentifier == capturedProcessIdentifier, isSameWindow else {
+            throw RemoteErrorPayload(code: .targetChanged)
+        }
+    }
 }

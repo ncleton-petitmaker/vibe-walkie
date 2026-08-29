@@ -12,7 +12,7 @@ Décrivez le problème et le résultat observable.
 
 ## Validation
 
-- [ ] `Scripts/ci-local.sh`
+- [ ] `scripts/ci-local.sh`
 - [ ] test ajouté ou raison documentée
 - [ ] aucun secret, asset tiers ou donnée personnelle
 - [ ] documentation mise à jour

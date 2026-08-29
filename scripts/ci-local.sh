@@ -56,7 +56,7 @@ if command -v swiftlint >/dev/null 2>&1; then
 fi
 
 if rg -n \
-  'itms-services|remoteHost|remotePort|keyboard_edit|keyboardEdit|_appremote\._tcp|com\.yakaperformance\.appremote' \
+  'itms-services|remoteHost|remotePort|keyboard_edit|keyboardEdit|_appremote\._tcp|com\.yakaperformance\.appremote|relais distant|accès à distance|VPS' \
   "$ROOT/Packages" "$ROOT/iOS" "$ROOT/macOS" \
   --glob '!**/Tests/**' --glob '!**/*Tests/**' \
   --glob '!**/build*/**' --glob '!**/.build/**' --glob '!**/*.xcodeproj/**'; then

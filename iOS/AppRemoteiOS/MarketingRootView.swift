@@ -84,7 +84,7 @@ private struct MarketingSettingsPreview: View {
                             sliderRow("Vitesse du défilement", value: "0,8×", progress: 0.36, left: "tortoise", right: "hare")
                         }
 
-                        sectionTitle("Écran et accès à distance")
+                        sectionTitle("Retour écran")
                         card {
                             sliderRow("Qualité de l’écran", value: "45 %", progress: 0.45, left: "rectangle", right: "rectangle.inset.filled")
                             divider
