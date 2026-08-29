@@ -497,8 +497,8 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
-				VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
-				VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
+				VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
+				VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
 			};
 			name = Release;
 		};
@@ -513,9 +513,9 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER)";
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Contents/MacOS/Vibe Walkie";
 			};
 			name = Debug;
 		};
@@ -532,9 +532,9 @@
 					"@executable_path/../Frameworks",
 				);
 				LM_FILTER_WARNINGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteMac;
-				PRODUCT_NAME = "Vibe Remote";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieMac;
+				PRODUCT_NAME = "Vibe Walkie";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -604,8 +604,8 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
-				VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
-				VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
+				VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac;
+				VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.mac.tests;
 			};
 			name = Debug;
 		};
@@ -620,9 +620,9 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER)";
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Contents/MacOS/Vibe Walkie";
 			};
 			name = Release;
 		};
@@ -639,9 +639,9 @@
 					"@executable_path/../Frameworks",
 				);
 				LM_FILTER_WARNINGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteMac;
-				PRODUCT_NAME = "Vibe Remote";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieMac;
+				PRODUCT_NAME = "Vibe Walkie";
 				SDKROOT = macosx;
 			};
 			name = Release;

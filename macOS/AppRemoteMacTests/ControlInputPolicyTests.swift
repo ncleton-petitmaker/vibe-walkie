@@ -1,6 +1,6 @@
 import XCTest
 import RemoteCore
-@testable import VibeRemoteMac
+@testable import VibeWalkieMac
 
 final class ControlInputPolicyTests: XCTestCase {
     func testGestureDeltasAreBounded() throws {

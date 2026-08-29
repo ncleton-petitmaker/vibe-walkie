@@ -132,7 +132,7 @@ struct SettingsSheet: View {
                     }
                 }
             }
-            .navigationTitle("Vibe Remote")
+            .navigationTitle("Vibe Walkie")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

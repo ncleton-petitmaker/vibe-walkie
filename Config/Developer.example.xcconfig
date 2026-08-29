@@ -4,8 +4,8 @@ DEVELOPMENT_TEAM = YOUR_TEAM_ID
 CODE_SIGN_STYLE = Automatic
 
 // Identifiants d'un fork. Ils doivent tous être uniques dans votre compte.
-VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER = org.example.viberemote
-VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER = org.example.viberemote.controls
-VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER = org.example.viberemote.tests
-VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER = org.example.viberemote.mac
-VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER = org.example.viberemote.mac.tests
+VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER = org.example.vibewalkie
+VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER = org.example.vibewalkie.controls
+VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER = org.example.vibewalkie.tests
+VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER = org.example.vibewalkie.mac
+VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER = org.example.vibewalkie.mac.tests

@@ -4,7 +4,7 @@
 
 ## Transport
 
-- Bonjour : `_viberemote._tcp`, domaine local ;
+- Bonjour : `_viberemote._tcp`, domaine local (identifiant historique conservé pour la compatibilité des mises à jour) ;
 - port de contrôle : 54389 ;
 - TLS 1.3 minimum avec certificat épinglé ;
 - messages JSON précédés d’une longueur 32 bits big-endian ;

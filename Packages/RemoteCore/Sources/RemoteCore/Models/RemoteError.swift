@@ -34,7 +34,7 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
     public var localizedMessage: String {
         switch self {
         case .permissionAccessibilityDenied:
-            return "Autorisez l'Accessibilité pour Vibe Remote sur le Mac."
+            return "Autorisez l'Accessibilité pour Vibe Walkie sur le Mac."
         case .localNetworkDenied:
             return "L'accès au réseau local est refusé."
         case .speechAssetMissing:
@@ -48,7 +48,7 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
         case .targetExpired:
             return "La cible a expiré. Recommencez la dictée."
         case .secureField:
-            return "Vibe Remote n'insère jamais de dictée dans un champ sécurisé."
+            return "Vibe Walkie n'insère jamais de dictée dans un champ sécurisé."
         case .axNotSettable:
             return "Ce champ n'accepte pas l'écriture directe."
         case .pasteNotConsumed:
@@ -68,7 +68,7 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
         case .pairingApprovalExpired:
             return "La demande d'autorisation a expiré. Scannez de nouveau le QR."
         case .protocolMismatch:
-            return "Les versions de Vibe Remote diffèrent. Mettez à jour l'iPhone et le Mac."
+            return "Les versions de Vibe Walkie diffèrent. Mettez à jour l'iPhone et le Mac."
         case .replayDetected:
             return "Message rejeté (rejeu détecté)."
         case .payloadTooLarge:

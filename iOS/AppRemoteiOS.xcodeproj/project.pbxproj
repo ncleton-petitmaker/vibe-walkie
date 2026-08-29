@@ -21,15 +21,15 @@
 		71762AD64B615EA901378051 /* RemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0EFC7E75D08B3F38ACE9F031 /* RemoteCore */; };
 		718AC88DA610623032D2D605 /* MarketingRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */; };
 		735845A4B0CD8875C7E0B8C7 /* TrackpadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */; };
+		81D3835B6C9FDAAA8A32DAAB /* OpenVibeWalkieIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6353152161E016133B85F50 /* OpenVibeWalkieIntent.swift */; };
 		8B0F430A68D2DBB1706A4919 /* AppRemoteControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326A965F1E790D986CC0E32D /* AppRemoteControls.swift */; };
 		991D4955B618B8958754773C /* DictationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C21643286EE581CB8747DB /* DictationControllerTests.swift */; };
-		9927A7E7680A112555259661 /* OpenAppRemoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */; };
 		A2AE5E8574D6F40A1DA45FA5 /* RemoteHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */; };
 		A91183D17317D5D514027DCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 282F2AB543131F01EFC0BECB /* Assets.xcassets */; };
 		AA096530572CEA2590E90DD7 /* PressAndHoldGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F5E115C77CB1562B9E682E /* PressAndHoldGesture.swift */; };
+		AAAC0A284780629BBFF2DF7D /* OpenVibeWalkieIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6353152161E016133B85F50 /* OpenVibeWalkieIntent.swift */; };
 		AB34B6BF5CFD28E4D5534276 /* AppRemoteControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B886FFBF54E8AAE8EBF8A177 /* SpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */; };
-		B8FDDA4F229D478EBF058DBC /* OpenAppRemoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */; };
 		BDAEB491ECF3F545CE385374 /* TargetPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A1C39536CF44A9F4492373 /* TargetPill.swift */; };
 		C79B80FD0111169245176655 /* TranscriptHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */; };
 		D1F81461658A3D8D98DFC358 /* RemoteKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */; };
@@ -91,7 +91,6 @@
 		6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteHomeView.swift; sourceTree = "<group>"; };
 		75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechAnalyzerEngine.swift; sourceTree = "<group>"; };
 		7F706F54092076BEA79B78BC /* AppRemoteiOSTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AppRemoteiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppRemoteIntent.swift; sourceTree = "<group>"; };
 		B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKeyStore.swift; sourceTree = "<group>"; };
 		B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteKeyboardView.swift; sourceTree = "<group>"; };
 		BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionClient.swift; sourceTree = "<group>"; };
@@ -99,6 +98,7 @@
 		E252D774E2C2580E77988AFC /* RemoteScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteScreenView.swift; sourceTree = "<group>"; };
 		E3C21643286EE581CB8747DB /* DictationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationControllerTests.swift; sourceTree = "<group>"; };
 		E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteApp.swift; sourceTree = "<group>"; };
+		E6353152161E016133B85F50 /* OpenVibeWalkieIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenVibeWalkieIntent.swift; sourceTree = "<group>"; };
 		EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSwitcherView.swift; sourceTree = "<group>"; };
 		EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AppRemoteControls.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF1D7234DE25707448551407 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -256,7 +256,7 @@
 		FE03CF52FF4E2F6B36AFAA5F /* SharedIntents */ = {
 			isa = PBXGroup;
 			children = (
-				AB747BFDCB6B8403D229F9EA /* OpenAppRemoteIntent.swift */,
+				E6353152161E016133B85F50 /* OpenVibeWalkieIntent.swift */,
 			);
 			path = SharedIntents;
 			sourceTree = "<group>";
@@ -391,7 +391,7 @@
 				37AACFEAC8AB8DD92E22801A /* HapticFeedback.swift in Sources */,
 				2345B807E607C053D9AC768E /* MacConnectionClient.swift in Sources */,
 				718AC88DA610623032D2D605 /* MarketingRootView.swift in Sources */,
-				9927A7E7680A112555259661 /* OpenAppRemoteIntent.swift in Sources */,
+				81D3835B6C9FDAAA8A32DAAB /* OpenVibeWalkieIntent.swift in Sources */,
 				F96DA0AABA402DE4CF5839CB /* PTTButton.swift in Sources */,
 				70E89248061FDFC1C1E1A90D /* PairingScannerView.swift in Sources */,
 				AA096530572CEA2590E90DD7 /* PressAndHoldGesture.swift in Sources */,
@@ -421,7 +421,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B0F430A68D2DBB1706A4919 /* AppRemoteControls.swift in Sources */,
-				B8FDDA4F229D478EBF058DBC /* OpenAppRemoteIntent.swift in Sources */,
+				AAAC0A284780629BBFF2DF7D /* OpenVibeWalkieIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,9 +452,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteControls;
-				PRODUCT_NAME = "Vibe Remote Controls";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieControls;
+				PRODUCT_NAME = "Vibe Walkie Controls";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -472,9 +472,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteiOS;
-				PRODUCT_NAME = "Vibe Remote";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieiOS;
+				PRODUCT_NAME = "Vibe Walkie";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -491,10 +491,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Vibe Walkie";
 			};
 			name = Debug;
 		};
@@ -561,9 +561,9 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
-				VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
-				VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
-				VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
+				VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
+				VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
+				VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
 			};
 			name = Debug;
 		};
@@ -578,9 +578,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteControls;
-				PRODUCT_NAME = "Vibe Remote Controls";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieControls;
+				PRODUCT_NAME = "Vibe Walkie Controls";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -598,9 +598,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)";
-				PRODUCT_MODULE_NAME = VibeRemoteiOS;
-				PRODUCT_NAME = "Vibe Remote";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER)";
+				PRODUCT_MODULE_NAME = VibeWalkieiOS;
+				PRODUCT_NAME = "Vibe Walkie";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -617,10 +617,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Vibe Walkie";
 			};
 			name = Release;
 		};
@@ -680,9 +680,9 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
-				VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
-				VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
-				VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
+				VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.controls;
+				VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote;
+				VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER = com.nicolascleton.viberemote.tests;
 			};
 			name = Release;
 		};

@@ -1,6 +1,6 @@
 import XCTest
 import RemoteCore
-@testable import VibeRemoteMac
+@testable import VibeWalkieMac
 
 final class TargetMatchPolicyTests: XCTestCase {
     private let captured = TargetMatchPolicy.Snapshot(

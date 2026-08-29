@@ -25,7 +25,7 @@ final class WindowCatalog {
                 // l'utilisateur. Les agents de menu et helpers gonflaient la
                 // réponse avec des dizaines d'icônes jusqu'au timeout.
                 && $0.activationPolicy == .regular
-                && $0.bundleIdentifier != VibeRemoteInfo.macBundleIdentifier
+                && $0.bundleIdentifier != VibeWalkieInfo.macBundleIdentifier
         }
         let frontmost = NSWorkspace.shared.frontmostApplication
 

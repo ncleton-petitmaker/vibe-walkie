@@ -1,7 +1,7 @@
 import Foundation
 import Security
 import XCTest
-@testable import VibeRemoteMac
+@testable import VibeWalkieMac
 
 final class TLSIdentityStoreTests: XCTestCase {
     private var configuration: TLSIdentityStore.Configuration!
@@ -10,7 +10,7 @@ final class TLSIdentityStoreTests: XCTestCase {
         super.setUp()
         let id = UUID().uuidString
         configuration = .init(
-            label: "Vibe Remote Tests \(id)",
+            label: "Vibe Walkie Tests \(id)",
             keyTag: Data("com.nicolascleton.viberemote.tests.\(id)".utf8)
         )
     }

@@ -1,4 +1,4 @@
-# Contribuer à Vibe Remote
+# Contribuer à Vibe Walkie
 
 Merci de proposer des changements petits, testés et faciles à relire.
 

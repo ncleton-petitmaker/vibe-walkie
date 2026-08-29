@@ -13,7 +13,7 @@ enum ScreenCaptureServiceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return "Autorisez l’enregistrement de l’écran sur le Mac, puis relancez Vibe Remote."
+            return "Autorisez l’enregistrement de l’écran sur le Mac, puis relancez Vibe Walkie."
         case .noDisplay:
             return "L’écran du Mac est verrouillé ou indisponible. Déverrouillez la session Mac pour reprendre le contrôle."
         }
@@ -82,7 +82,7 @@ final class ScreenCaptureService: NSObject, SCStreamOutput, SCStreamDelegate, @u
         try await stream.startCapture()
         powerActivity = ProcessInfo.processInfo.beginActivity(
             options: [.userInitiated, .idleSystemSleepDisabled, .idleDisplaySleepDisabled],
-            reason: "Vibe Remote diffuse l’écran vers un iPhone autorisé"
+            reason: "Vibe Walkie diffuse l’écran vers un iPhone autorisé"
         )
     }
 
@@ -131,7 +131,7 @@ final class ScreenCaptureService: NSObject, SCStreamOutput, SCStreamDelegate, @u
     }
 
     func stream(_ stream: SCStream, didStopWithError error: Error) {
-        NSLog("[VibeRemote] Capture écran arrêtée : %@", error.localizedDescription)
+        NSLog("[VibeWalkie] Capture écran arrêtée : %@", error.localizedDescription)
         guard self.stream === stream else { return }
         stoppedHandler?(error)
     }

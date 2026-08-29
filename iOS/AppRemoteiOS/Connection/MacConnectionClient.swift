@@ -74,7 +74,7 @@ final class MacConnectionClient: ObservableObject {
                     bundleIdentifier: "com.openai.codex",
                     isActive: false,
                     iconPNG: nil,
-                    windows: [RemoteWindow(id: "codex-main", title: "Vibe Remote", isMain: true, isMinimized: false)]
+                    windows: [RemoteWindow(id: "codex-main", title: "Vibe Walkie", isMain: true, isMinimized: false)]
                 ),
                 RemoteApplication(
                     id: "xcode",
@@ -82,7 +82,7 @@ final class MacConnectionClient: ObservableObject {
                     bundleIdentifier: "com.apple.dt.Xcode",
                     isActive: false,
                     iconPNG: nil,
-                    windows: [RemoteWindow(id: "xcode-main", title: "Vibe Remote", isMain: true, isMinimized: false)]
+                    windows: [RemoteWindow(id: "xcode-main", title: "Vibe Walkie", isMain: true, isMinimized: false)]
                 ),
                 RemoteApplication(
                     id: "terminal",
@@ -185,7 +185,7 @@ final class MacConnectionClient: ObservableObject {
         let parameters = makeParameters(expecting: fingerprint)
         let endpoint = NWEndpoint.service(
             name: serviceName,
-            type: VibeRemoteInfo.bonjourServiceType,
+            type: VibeWalkieInfo.bonjourServiceType,
             domain: "local.",
             interface: nil
         )

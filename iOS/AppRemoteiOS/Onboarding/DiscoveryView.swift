@@ -13,7 +13,7 @@ struct DiscoveryView: View {
                     HStack {
                         Button("Fermer") { dismiss() }
                         Spacer()
-                        Text("Vibe Remote").font(.headline)
+                        Text("Vibe Walkie").font(.headline)
                         Spacer()
                         Text("DÉMO")
                             .font(.caption2.monospaced().bold())
@@ -66,7 +66,7 @@ struct DiscoveryView: View {
                     .background(Color.controlSurface, in: RoundedRectangle(cornerRadius: 20))
 
                     Button("Installer le compagnon Mac") {
-                        UIApplication.shared.open(URL(string: "https://viberemote.app/download")!)
+                        UIApplication.shared.open(URL(string: "https://vibewalkie.app/download")!)
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Color.remoteBlue)

@@ -3,7 +3,7 @@ import RemoteCore
 import WidgetKit
 
 @main
-struct AppRemoteApp: App {
+struct VibeWalkieApp: App {
     @StateObject private var client = MacConnectionClient()
     @StateObject private var history = TranscriptHistoryStore()
     @Environment(\.scenePhase) private var scenePhase
@@ -78,7 +78,7 @@ private struct WelcomeView: View {
 
             VStack(spacing: 20) {
                 HStack {
-                    Text("Vibe Remote")
+                    Text("Vibe Walkie")
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.white)
                     Spacer()
@@ -105,8 +105,8 @@ private struct WelcomeView: View {
                         Text("Pilotez le pointeur, le clavier et la dictée depuis cet iPhone. Aucun compte, aucun cloud.")
                             .font(.callout)
                             .foregroundStyle(.white.opacity(0.72))
-                        onboardingStep(1, "Téléchargez le compagnon sur viberemote.app")
-                        onboardingStep(2, "Ouvrez Vibe Remote sur le Mac")
+                        onboardingStep(1, "Téléchargez le compagnon sur vibewalkie.app")
+                        onboardingStep(2, "Ouvrez Vibe Walkie sur le Mac")
                         onboardingStep(3, "Scannez son QR et autorisez cet iPhone")
                         onboardingStep(4, "Testez une première commande")
                     }
@@ -138,7 +138,7 @@ private struct WelcomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    Link(destination: URL(string: "https://viberemote.app/download")!) {
+                    Link(destination: URL(string: "https://vibewalkie.app/download")!) {
                         Label("Télécharger le compagnon Mac", systemImage: "arrow.down.circle")
                             .font(.subheadline.weight(.semibold))
                     }
@@ -146,7 +146,7 @@ private struct WelcomeView: View {
                     Button("Découvrir sans Mac") { showDiscovery = true }
                         .font(.subheadline.weight(.semibold))
 
-                    Text("Ouvrez Vibe Remote sur votre Mac, puis « Appairer un iPhone ».")
+                    Text("Ouvrez Vibe Walkie sur votre Mac, puis « Appairer un iPhone ».")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.62))
                         .multilineTextAlignment(.center)

@@ -1,6 +1,6 @@
 # Revue du nom public
 
-Statut au 29 août 2026 : **CANDIDAT RÉSERVÉ — « Vibe Nomad » est accepté dans App Store Connect ; la validation juridique reste à terminer avant le renommage public**.
+Statut au 29 août 2026 : **NOM SÉLECTIONNÉ ET RÉSERVÉ — « Vibe Walkie » est enregistré dans App Store Connect ; la validation juridique reste à terminer avant la publication commerciale**.
 
 Ce document est un dossier de décision produit, pas un avis juridique. Une fiche App Store peut être créée pour tester et réserver le nom, mais sa disponibilité chez Apple ne vaut ni disponibilité juridique ni validation de marque.
 
@@ -14,14 +14,14 @@ Le 29 août 2026, la recherche publique de l’App Store français ne montrait a
 
 Le second point suffit à créer un risque important de confusion commerciale pour un produit voisin. La porte « revue de marque favorable » n’est donc pas franchie, indépendamment de l’existence ou non d’une marque enregistrée exacte.
 
-## Vérifications encore requises pour le prochain nom
+## Vérifications encore requises pour Vibe Walkie
 
 1. Recherche à l’identique et par similarité dans Data INPI : <https://data.inpi.fr/>.
 2. Recherche France et Union européenne dans TMview, recommandé par l’EUIPO : <https://www.tmdn.org/tmview/>.
 3. Recherche App Store, moteurs web, GitHub, noms de domaine et principaux registres de paquets.
 4. Vérification des classes pertinentes avec un conseil en propriété industrielle avant le dépôt si la marque doit être protégée.
 
-## Critères d’acceptation du prochain nom
+## Critères d’acceptation définitive
 
 - distinctif en français et prononçable ;
 - aucun produit logiciel proche portant un nom identique ou fortement similaire ;
@@ -29,28 +29,28 @@ Le second point suffit à créer un risque important de confusion commerciale po
 - recherche INPI/TMview sans risque significatif identifié ;
 - validation écrite de la décision avant de remplacer les noms, identifiants et URLs de travail.
 
-## Éléments provisoires à remplacer ensemble
+## Décisions techniques de renommage
 
-- nom produit et textes `Vibe Remote` ;
-- identifiants `com.nicolascleton.viberemote*` ;
-- service Bonjour `_viberemote._tcp` ;
-- dépôt et URLs `vibe-remote` ;
-- clés de trousseau, noms de certificats, feed Sparkle, politique de marque et visuels commerciaux.
+- le nom produit, les textes iOS/macOS, les métadonnées Store et les artefacts deviennent `Vibe Walkie` ;
+- le service Bonjour historique `_viberemote._tcp` reste stable afin qu’une mise à jour partielle ne casse ni la découverte ni les appairages ;
+- les Bundle IDs `com.nicolascleton.viberemote*` restent stables, car la fiche App Store et les autorisations système y sont déjà liées ;
+- les clés de trousseau et chemins de données historiques restent stables pour ne pas supprimer l’identité TLS ni les appairages lors d’une simple mise à jour ;
+- le dépôt, le feed Sparkle et le domaine historiques seront migrés séparément pour conserver des redirections fonctionnelles.
 
-Le protocole V2 et les données locales du prototype n’ont aucune obligation de migration vers le futur nom : une réinstallation et un nouvel appairage sont déjà assumés.
+Le protocole V2 et les données locales conservent leurs identifiants techniques historiques. Le changement de marque ne doit exiger ni réinstallation simultanée ni nouvel appairage.
 
 ## Vérification des candidats du 29 août 2026
 
-### Candidat retenu provisoirement
+### Nom sélectionné
 
-**Vibe Nomad** a été accepté et réservé par la création effective de la fiche App Store Connect. La fiche, créée initialement sous « Vibe Nomade », a ensuite été renommée et enregistrée avec succès sous sa forme anglaise :
+**Vibe Walkie** a été accepté et réservé par l’enregistrement effectif de la fiche App Store Connect :
 
 - Apple ID : `6806599345` ;
 - Bundle ID : `com.nicolascleton.viberemote` ;
 - SKU : `VIBENOMADE-IOS-001` ;
 - langue principale : français.
 
-Les recherches publiques effectuées à l'identique n'ont révélé ni application App Store ni produit logiciel proche portant exactement ce nom. Des usages proches existent dans d'autres secteurs et sous l'ordre inversé « Nomad Vibe », mais aucun conflit logiciel exact n'a été identifié. Cela ne constitue pas une validation juridique : la recherche par similarité dans Data INPI et TMview, puis l'appréciation du risque dans les classes pertinentes, restent obligatoires avant le renommage public.
+Les recherches publiques effectuées à l’identique dans les App Stores français, américain et britannique, sur le Web et dans les résultats de marques indexés n’ont révélé aucun logiciel portant exactement ce nom. App Store Connect a également accepté le titre. Cela ne constitue pas une validation juridique : la recherche par similarité dans Data INPI et TMview, puis l’appréciation du risque dans les classes pertinentes, restent obligatoires avant la publication commerciale.
 
 ### Candidats écartés
 
@@ -61,6 +61,7 @@ Les recherches publiques effectuées à l'identique n'ont révélé ni applicati
 - **Vibe Control** : extension logicielle homonyme et forte collision sémantique avec des produits de contrôle à distance pour adultes.
 - **Vibe Active** : marque et service logiciel de télécommunications déjà exploités.
 - **Vibe Touch** : forte collision commerciale avec la gamme We-Vibe Touch et ses fonctions de contrôle à distance.
+- **Vibe Nomad** : disponible et accepté par Apple, mais moins directement lié au geste de parler et de piloter le Mac en marchant.
 
 ### Solution de repli
 

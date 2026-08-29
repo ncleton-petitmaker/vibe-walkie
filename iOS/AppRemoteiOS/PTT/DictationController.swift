@@ -69,7 +69,7 @@ final class DictationController: ObservableObject {
 
     func prepareEngine() async {
         guard #available(iOS 26.0, *) else {
-            phase = .failed("Vibe Remote nécessite iOS 26.")
+            phase = .failed("Vibe Walkie nécessite iOS 26.")
             return
         }
         let engine = AppleSpeechAnalyzerEngine()
@@ -143,7 +143,7 @@ final class DictationController: ObservableObject {
     private func requestTarget(for id: UUID) async throws -> TargetToken {
         let response = try await client.send(
             type: .recordingStarted,
-            payload: RecordingStartedPayload(locale: VibeRemoteInfo.dictationLocale, dictationID: id)
+            payload: RecordingStartedPayload(locale: VibeWalkieInfo.dictationLocale, dictationID: id)
         )
         let ack = try response.decodePayload(AcknowledgementPayload.self)
         guard let token = ack.targetToken else {

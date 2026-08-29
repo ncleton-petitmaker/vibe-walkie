@@ -1,5 +1,5 @@
 import XCTest
-@testable import VibeRemoteiOS
+@testable import VibeWalkieiOS
 
 final class CommercializationConfigurationTests: XCTestCase {
     func testWorkingBundleIdentifierAndFrenchPermissionCopy() {

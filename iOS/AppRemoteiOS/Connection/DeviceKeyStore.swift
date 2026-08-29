@@ -41,7 +41,7 @@ enum DeviceKeyStore {
     static func reset() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: VibeRemoteInfo.keychainService,
+            kSecAttrService as String: VibeWalkieInfo.keychainService,
             kSecAttrAccount as String: account
         ]
         SecItemDelete(query as CFDictionary)
@@ -50,7 +50,7 @@ enum DeviceKeyStore {
     private static func loadRaw() throws -> Data? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: VibeRemoteInfo.keychainService,
+            kSecAttrService as String: VibeWalkieInfo.keychainService,
             kSecAttrAccount as String: account,
             kSecReturnData as String: true
         ]
@@ -63,7 +63,7 @@ enum DeviceKeyStore {
     private static func store(_ data: Data) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: VibeRemoteInfo.keychainService,
+            kSecAttrService as String: VibeWalkieInfo.keychainService,
             kSecAttrAccount as String: account,
             kSecValueData as String: data,
             // Protégé quand l'iPhone est verrouillé, et non transférable vers
@@ -108,6 +108,8 @@ struct PairedMac: Codable, Equatable {
 
     static func forget() {
         UserDefaults.standard.removeObject(forKey: key)
-        DeviceKeyStore.reset()
+        // Oublier un Mac retire la relation locale, pas l'identité durable de
+        // cet iPhone. Régénérer la clé ici créait un conflit avec la clé que
+        // le Mac connaît encore et empêchait tout réappairage ultérieur.
     }
 }

@@ -15,7 +15,7 @@ iPhone (iOS 26+)                       Mac Apple Silicon (macOS 15+)
 
 `RemoteCore` contient uniquement les modèles, le cadrage, les signatures, l’anti-rejeu et les limites partagés. Il ne dépend d’aucune interface utilisateur.
 
-Le compagnon publie `_viberemote._tcp` avec Bonjour et écoute uniquement le réseau local. Il n’exécute jamais de chaîne arbitraire : chaque type de message est routé vers une action bornée.
+Le compagnon publie `_viberemote._tcp` avec Bonjour et écoute uniquement le réseau local. Cet identifiant historique reste stable entre les versions. Il n’exécute jamais de chaîne arbitraire : chaque type de message est routé vers une action bornée.
 
 ## Identité et confiance
 

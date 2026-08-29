@@ -1,6 +1,6 @@
 # Notices de logiciels tiers
 
-Vibe Remote dépend des projets suivants :
+Vibe Walkie dépend des projets suivants :
 
 - **Swift Certificates 1.19.4**, Apple Inc. et contributeurs — Apache License 2.0.
 - **Swift Crypto 4.5.1**, Apple Inc. et contributeurs — Apache License 2.0.
@@ -20,4 +20,4 @@ Sources amont correspondantes :
 - <https://github.com/apple/swift-asn1/blob/1.7.1/LICENSE.txt>
 - <https://github.com/sparkle-project/Sparkle/blob/2.9.6/LICENSE>
 
-L’icône Vibe Remote a été créée spécifiquement pour ce projet avec l’outil de génération d’images d’OpenAI le 28 août 2026. Elle ne reprend aucun asset tiers connu et reste soumise à la politique de marque du projet.
+L’icône Vibe Walkie a été créée spécifiquement pour ce projet avec l’outil de génération d’images d’OpenAI le 28 août 2026. Elle ne reprend aucun asset tiers connu et reste soumise à la politique de marque du projet.

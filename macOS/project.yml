@@ -23,8 +23,9 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
     ARCHS: arm64
-    VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac
-    VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac.tests
+    # Les Bundle IDs historiques restent stables pour la signature et les autorisations macOS.
+    VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac
+    VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac.tests
 
 targets:
   AppRemoteMac:
@@ -45,9 +46,9 @@ targets:
         product: Sparkle
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_MAC_BUNDLE_IDENTIFIER)"
-        PRODUCT_NAME: Vibe Remote
-        PRODUCT_MODULE_NAME: VibeRemoteMac
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Walkie
+        PRODUCT_MODULE_NAME: VibeWalkieMac
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: AppRemoteMac/Info.plist
         LM_FILTER_WARNINGS: YES
@@ -62,9 +63,9 @@ targets:
       - target: AppRemoteMac
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_MAC_TESTS_BUNDLE_IDENTIFIER)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER)"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Contents/MacOS/Vibe Remote"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Contents/MacOS/Vibe Walkie"
         BUNDLE_LOADER: "$(TEST_HOST)"
 
 schemes:

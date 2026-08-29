@@ -1,6 +1,6 @@
 # Notes pour l’équipe App Review
 
-Vibe Remote requiert normalement son compagnon macOS 15+ Apple Silicon. Le DMG de revue signé et notarisé sera disponible ici : `{{REVIEW_DMG_URL}}`.
+Vibe Walkie requiert normalement son compagnon macOS 15+ Apple Silicon. Le DMG de revue signé et notarisé sera disponible ici : `{{REVIEW_DMG_URL}}`.
 
 ## Revue sans Mac
 

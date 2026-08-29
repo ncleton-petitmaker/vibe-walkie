@@ -42,7 +42,7 @@ struct PairingScannerView: View {
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.6))
                         } else {
-                            Text("Scannez le code affiché par Vibe Remote sur votre Mac.")
+                            Text("Scannez le code affiché par Vibe Walkie sur votre Mac.")
                                 .font(.callout)
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)

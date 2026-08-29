@@ -68,7 +68,7 @@ final class PermissionCoordinator: ObservableObject {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            NSLog("[VibeRemote] Lancement à la connexion : %@", error.localizedDescription)
+            NSLog("[VibeWalkie] Lancement à la connexion : %@", error.localizedDescription)
         }
         refresh()
     }

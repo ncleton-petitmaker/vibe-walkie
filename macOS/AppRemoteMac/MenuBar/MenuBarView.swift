@@ -24,7 +24,7 @@ struct MenuBarView: View {
         .onChange(of: server.isListening) { _, _ in beginFirstPairingIfReady() }
         .task { beginFirstPairingIfReady() }
         .confirmationDialog(
-            "Réinitialiser Vibe Remote ?",
+            "Réinitialiser Vibe Walkie ?",
             isPresented: $showResetConfirmation,
             titleVisibility: .visible
         ) {
@@ -71,7 +71,7 @@ struct MenuBarView: View {
 
     private var installationSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Déplacez Vibe Remote dans Applications", systemImage: "arrow.down.app.fill")
+            Label("Déplacez Vibe Walkie dans Applications", systemImage: "arrow.down.app.fill")
                 .font(.headline)
                 .foregroundStyle(.orange)
             Text("L’app a été ouverte depuis le disque d’installation. Glissez-la vers le raccourci Applications, puis ouvrez la copie installée.")
@@ -118,7 +118,7 @@ struct MenuBarView: View {
                         .foregroundStyle(.white)
                 )
             VStack(alignment: .leading, spacing: 2) {
-                Text("Vibe Remote").font(.title3.bold())
+                Text("Vibe Walkie").font(.title3.bold())
                 HStack(spacing: 6) {
                     Circle().fill(statusColor).frame(width: 7, height: 7)
                     Text(statusText)
@@ -152,7 +152,7 @@ struct MenuBarView: View {
             .foregroundStyle(permissions.accessibilityGranted ? .green : .orange)
 
             if !permissions.accessibilityGranted {
-                Text("Vibe Remote a besoin de l'Accessibilité pour lire le champ actif, y écrire votre dictée et changer d'application.")
+                Text("Vibe Walkie a besoin de l'Accessibilité pour lire le champ actif, y écrire votre dictée et changer d'application.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack {
@@ -195,7 +195,7 @@ struct MenuBarView: View {
                 .font(.system(.title3, design: .monospaced))
                 .foregroundStyle(Color.remoteBlue)
                 .frame(maxWidth: .infinity)
-            Text("Scannez ce code avec Vibe Remote sur l'iPhone. Il reste identique pendant 2 minutes.")
+            Text("Scannez ce code avec Vibe Walkie sur l'iPhone. Il reste identique pendant 2 minutes.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button("Annuler l'appairage") { authority.endPairing() }

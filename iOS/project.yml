@@ -15,9 +15,10 @@ settings:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
-    VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote
-    VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.controls
-    VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.tests
+    # Les Bundle IDs historiques restent liés à la fiche App Store réservée.
+    VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote
+    VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.controls
+    VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.tests
 
 targets:
   AppRemoteControls:
@@ -28,9 +29,9 @@ targets:
       - path: SharedIntents
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_CONTROLS_BUNDLE_IDENTIFIER)"
-        PRODUCT_NAME: Vibe Remote Controls
-        PRODUCT_MODULE_NAME: VibeRemoteControls
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_WALKIE_CONTROLS_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Walkie Controls
+        PRODUCT_MODULE_NAME: VibeWalkieControls
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
         GENERATE_INFOPLIST_FILE: NO
@@ -48,9 +49,9 @@ targets:
         embed: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_IOS_BUNDLE_IDENTIFIER)"
-        PRODUCT_NAME: Vibe Remote
-        PRODUCT_MODULE_NAME: VibeRemoteiOS
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER)"
+        PRODUCT_NAME: Vibe Walkie
+        PRODUCT_MODULE_NAME: VibeWalkieiOS
         TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: AppRemoteiOS/Info.plist
@@ -65,9 +66,9 @@ targets:
       - target: AppRemoteiOS
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_REMOTE_IOS_TESTS_BUNDLE_IDENTIFIER)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(VIBE_WALKIE_IOS_TESTS_BUNDLE_IDENTIFIER)"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Remote.app/Vibe Remote"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Vibe Walkie.app/Vibe Walkie"
         BUNDLE_LOADER: "$(TEST_HOST)"
 
 schemes:

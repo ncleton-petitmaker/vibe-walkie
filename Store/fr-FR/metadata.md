@@ -2,7 +2,7 @@
 
 > Métadonnées de travail pour la fiche française. La publication reste soumise à la réservation du nom dans App Store Connect et à la revue de marque.
 
-- **Nom** (30 caractères maximum) : `Vibe Remote`
+- **Nom** (30 caractères maximum) : `Vibe Walkie`
 - **Sous-titre** (30 caractères maximum) : `Votre Mac depuis l’iPhone`
 - **Catégorie principale** : Productivité
 - **Catégorie secondaire** : Utilitaires
@@ -10,9 +10,9 @@
 - **Langue** : français
 - **Prix** : 14,99 €, achat initial unique
 - **IAP / abonnement** : aucun
-- **URL marketing** : `https://viberemote.app/`
-- **URL d’assistance** : `https://viberemote.app/support`
-- **Politique de confidentialité** : `https://viberemote.app/privacy`
+- **URL marketing** : `https://vibewalkie.app/`
+- **URL d’assistance** : `https://vibewalkie.app/support`
+- **Politique de confidentialité** : `https://vibewalkie.app/privacy`
 
 ## Texte promotionnel
 
@@ -20,7 +20,7 @@ Dictez, tapez et pilotez votre Mac depuis l’iPhone, uniquement sur votre rése
 
 ## Description
 
-Vibe Remote transforme votre iPhone en commande locale pour votre Mac.
+Vibe Walkie transforme votre iPhone en commande locale pour votre Mac.
 
 Dictez du texte sans envoyer votre voix sur Internet, utilisez un clavier et un trackpad, choisissez une application ou une fenêtre et, si vous le souhaitez, affichez le retour de l’écran du Mac.
 
@@ -28,7 +28,7 @@ La connexion se fait directement sur votre Wi-Fi. Aucun compte n’est nécessai
 
 Pour commencer :
 
-1. téléchargez le compagnon Mac depuis `viberemote.app` ;
+1. téléchargez le compagnon Mac depuis `vibewalkie.app` ;
 2. ouvrez-le et accordez l’autorisation Accessibilité guidée ;
 3. scannez son QR depuis l’iPhone ;
 4. autorisez l’iPhone sur le Mac ;

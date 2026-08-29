@@ -56,7 +56,7 @@ private struct MarketingSettingsPreview: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    Text("Vibe Remote")
+                    Text("Vibe Walkie")
                         .font(.headline)
                     Spacer()
                     Text("OK")

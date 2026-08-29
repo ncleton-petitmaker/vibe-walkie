@@ -1,6 +1,6 @@
 import XCTest
 import RemoteCore
-@testable import VibeRemoteiOS
+@testable import VibeWalkieiOS
 
 @MainActor
 final class DictationControllerTests: XCTestCase {

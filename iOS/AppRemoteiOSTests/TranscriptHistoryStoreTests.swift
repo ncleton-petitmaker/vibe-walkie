@@ -1,6 +1,6 @@
 import XCTest
 import RemoteCore
-@testable import VibeRemoteiOS
+@testable import VibeWalkieiOS
 
 @MainActor
 final class TranscriptHistoryStoreTests: XCTestCase {
@@ -10,7 +10,7 @@ final class TranscriptHistoryStoreTests: XCTestCase {
     private var suiteName: String!
 
     override func setUp() async throws {
-        suiteName = "VibeRemoteTests.\(UUID().uuidString)"
+        suiteName = "VibeWalkieTests.\(UUID().uuidString)"
         defaults = UserDefaults(suiteName: suiteName)!
         directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         fileURL = directory.appendingPathComponent("history.json")

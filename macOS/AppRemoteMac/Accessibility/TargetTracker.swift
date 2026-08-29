@@ -70,7 +70,7 @@ final class TargetTracker {
             accessibilityIdentifier: element.flatMap { AccessibilityClient.string($0, kAXIdentifierAttribute) },
             role: element.flatMap { AccessibilityClient.string($0, kAXRoleAttribute) },
             subrole: element.flatMap { AccessibilityClient.string($0, kAXSubroleAttribute) },
-            expiresAt: Date().addingTimeInterval(VibeRemoteInfo.targetTokenLifetime)
+            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.targetTokenLifetime)
         )
         captured = target
         return target

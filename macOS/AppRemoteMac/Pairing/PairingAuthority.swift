@@ -44,7 +44,7 @@ final class PairingAuthority: ObservableObject {
             serviceName: serviceName,
             certificateFingerprint: fingerprint,
             pairingSecret: secret.base64EncodedString(),
-            expiresAt: Date().addingTimeInterval(VibeRemoteInfo.pairingWindow)
+            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingWindow)
         )
         activeSession = PairingSession(
             payload: payload,
@@ -54,7 +54,7 @@ final class PairingAuthority: ObservableObject {
 
         expiryTask?.cancel()
         expiryTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(VibeRemoteInfo.pairingWindow))
+            try? await Task.sleep(for: .seconds(VibeWalkieInfo.pairingWindow))
             guard !Task.isCancelled else { return }
             await MainActor.run { self?.endPairing() }
         }
@@ -132,7 +132,7 @@ final class PairingAuthority: ObservableObject {
             id: UUID(),
             peer: peer,
             confirmationCode: session.payload.confirmationCode,
-            expiresAt: Date().addingTimeInterval(VibeRemoteInfo.pairingApprovalWindow)
+            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingApprovalWindow)
         )
         pendingApproval = pending
         return .requiresApproval(pending)

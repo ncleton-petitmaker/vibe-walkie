@@ -1,6 +1,6 @@
-# Vibe Remote
+# Vibe Walkie
 
-Vibe Remote transforme un iPhone en télécommande locale pour Mac : dictée sur l’appareil, clavier, trackpad, sélection des applications et retour écran facultatif.
+Vibe Walkie transforme un iPhone en télécommande locale pour Mac : dictée sur l’appareil, clavier, trackpad, sélection des applications et retour écran facultatif.
 
 La voix ne quitte jamais l’iPhone. Le Mac reçoit seulement du texte et des commandes après un appairage confirmé physiquement. Il n’existe ni compte, ni cloud, ni publicité, ni télémétrie tierce.
 
@@ -42,7 +42,7 @@ xcodebuild \
 
 Les projets Xcode sont versionnés pour qu’un contributeur n’ait rien d’autre à installer que Xcode. Après une modification de `project.yml`, exécutez `xcodegen generate` dans `iOS/` ou `macOS/` et validez aussi le projet régénéré.
 
-Les identifiants de travail sont `com.nicolascleton.viberemote`, `.controls` et `.mac`. Ils seront remplacés avec le nom final avant publication. Pour signer un fork, surchargez l’identifiant et l’équipe dans une configuration locale non versionnée ; aucun certificat, Team ID ou compte personnel n’est requis par les sources.
+Les Bundle IDs `com.nicolascleton.viberemote`, `.controls` et `.mac` restent volontairement stables : ils sont déjà liés à la fiche App Store, aux signatures et aux autorisations locales. Ils sont invisibles pour les utilisateurs et ne constituent pas le nom commercial. Pour signer un fork, surchargez l’identifiant et l’équipe dans une configuration locale non versionnée ; aucun certificat, Team ID ou compte personnel n’est requis par les sources.
 
 ## Sécurité
 
@@ -58,4 +58,4 @@ Lisez [CONTRIBUTING.md](CONTRIBUTING.md). Ne publiez jamais une vulnérabilité 
 
 ## Statut commercial
 
-La [revue du nom de travail](Documentation/BRAND_REVIEW.md) a trouvé un risque de confusion important : un nouveau nom est requis avant de publier le dépôt ou de figer les identifiants. Une Release Candidate nécessite aussi la notarisation, la validation TestFlight et les essais réels décrits dans [Documentation/RELEASES.md](Documentation/RELEASES.md).
+**Vibe Walkie** est sélectionné et réservé dans App Store Connect. La [revue de marque](Documentation/BRAND_REVIEW.md) doit encore être terminée dans Data INPI et TMview avant la publication commerciale. Une Release Candidate nécessite aussi la notarisation, la validation TestFlight et les essais réels décrits dans [Documentation/RELEASES.md](Documentation/RELEASES.md).

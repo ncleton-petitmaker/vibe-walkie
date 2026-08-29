@@ -53,9 +53,9 @@ enum SpeechEngineError: LocalizedError {
         case .assetMissing:
             return "Le modèle français local doit être téléchargé."
         case .microphoneDenied:
-            return "Le microphone est désactivé pour Vibe Remote."
+            return "Le microphone est désactivé pour Vibe Walkie."
         case .speechRecognitionDenied:
-            return "La reconnaissance vocale est désactivée pour Vibe Remote."
+            return "La reconnaissance vocale est désactivée pour Vibe Walkie."
         case .notPrepared:
             return "Le moteur de dictée n'est pas prêt."
         }

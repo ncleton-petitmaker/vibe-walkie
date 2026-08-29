@@ -27,11 +27,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>La caméra sert uniquement à scanner le code affiché par votre Mac lors de l’appairage.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Vibe Remote se connecte directement à votre Mac uniquement sur votre réseau local.</string>
+	<string>Vibe Walkie se connecte directement à votre Mac uniquement sur votre réseau local.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Vibe Remote transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs.</string>
+	<string>Vibe Walkie transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Vibe Remote utilise la reconnaissance vocale locale de cet iPhone pour écrire votre dictée sur votre Mac.</string>
+	<string>Vibe Walkie utilise la reconnaissance vocale locale de cet iPhone pour écrire votre dictée sur votre Mac.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UILaunchScreen</key>

@@ -7,8 +7,8 @@ import RemoteCore
 /// `MenuBarExtra` coexistent. Les conserver ici garantit que les deux scènes
 /// partagent le même serveur, la même autorité d'appairage et le même QR.
 @MainActor
-private final class AppRemoteDependencies {
-    static let shared = AppRemoteDependencies()
+private final class VibeWalkieDependencies {
+    static let shared = VibeWalkieDependencies()
 
     let peers: ApprovedPeersStore
     let permissions: PermissionCoordinator
@@ -31,17 +31,17 @@ private final class AppRemoteDependencies {
 }
 
 @main
-struct AppRemoteMacApp: App {
-    private let dependencies = AppRemoteDependencies.shared
+struct VibeWalkieMacApp: App {
+    private let dependencies = VibeWalkieDependencies.shared
 
     var body: some Scene {
-        WindowGroup("Vibe Remote") {
+        WindowGroup("Vibe Walkie") {
             controlPanel
                 .frame(minWidth: 380, idealWidth: 400, minHeight: 440, maxHeight: .infinity, alignment: .top)
         }
         .defaultSize(width: 400, height: 560)
 
-        MenuBarExtra("Vibe Remote", systemImage: "iphone.gen3.radiowaves.left.and.right") {
+        MenuBarExtra("Vibe Walkie", systemImage: "iphone.gen3.radiowaves.left.and.right") {
             controlPanel
         }
         .menuBarExtraStyle(.window)

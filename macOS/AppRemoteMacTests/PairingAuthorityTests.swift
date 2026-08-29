@@ -2,7 +2,7 @@ import CryptoKit
 import Foundation
 import XCTest
 import RemoteCore
-@testable import VibeRemoteMac
+@testable import VibeWalkieMac
 
 @MainActor
 final class PairingAuthorityTests: XCTestCase {
@@ -93,7 +93,7 @@ final class PairingAuthorityTests: XCTestCase {
         nonce: Data,
         key: Curve25519.Signing.PrivateKey
     ) {
-        _ = authority.beginPairing(macName: "Mac Test", serviceName: "VibeRemote-Test", fingerprint: "empreinte")
+        _ = authority.beginPairing(macName: "Mac Test", serviceName: "VibeWalkie-Test", fingerprint: "empreinte")
         let key = Curve25519.Signing.PrivateKey()
         let nonce = SecureRandom.bytes(32)
         let secret = Data(base64Encoded: authority.activeSession!.payload.pairingSecret)!

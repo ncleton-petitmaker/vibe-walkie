@@ -25,13 +25,13 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Nicolas Cléton</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Vibe Remote communique avec votre iPhone uniquement sur le réseau local. Aucun audio ne quitte l’iPhone.</string>
+	<string>Vibe Walkie communique avec votre iPhone uniquement sur le réseau local. Aucun audio ne quitte l’iPhone.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_viberemote._tcp</string>
 	</array>
 	<key>SUFeedURL</key>
-	<string>https://ncleton-petitmaker.github.io/vibe-remote/appcast.xml</string>
+	<string>https://ncleton-petitmaker.github.io/vibe-walkie/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>nQ6eywkcEooao6zZ73sWlafO396coAq3i5+Qn2UmU/o=</string>
 	<key>SUEnableAutomaticChecks</key>

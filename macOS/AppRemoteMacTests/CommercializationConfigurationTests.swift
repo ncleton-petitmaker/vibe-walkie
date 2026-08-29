@@ -1,5 +1,5 @@
 import XCTest
-@testable import VibeRemoteMac
+@testable import VibeWalkieMac
 
 final class CommercializationConfigurationTests: XCTestCase {
     func testWorkingBundleIdentifierAndMinimumSystem() {
@@ -12,7 +12,7 @@ final class CommercializationConfigurationTests: XCTestCase {
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "NSBonjourServices") as? [String], ["_viberemote._tcp"])
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String,
-            "https://ncleton-petitmaker.github.io/vibe-remote/appcast.xml"
+            "https://ncleton-petitmaker.github.io/vibe-walkie/appcast.xml"
         )
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String,

@@ -1,7 +1,13 @@
 import Foundation
 
-public struct VibeRemoteInfo: Sendable {
+public struct VibeWalkieInfo: Sendable {
+    // Identifiant réseau historique et invisible. Il doit rester stable entre
+    // les mises à jour et les changements de marque : un iPhone récent doit
+    // continuer à trouver un ancien compagnon Mac (et inversement).
     public static let bonjourServiceType = "_viberemote._tcp"
+    // Identifiants historiques invisibles : la fiche App Store, la signature
+    // macOS et le trousseau existant y sont déjà liés. Une marque n'a pas
+    // besoin de correspondre au Bundle ID.
     public static let iosBundleIdentifier = "com.nicolascleton.viberemote"
     public static let macBundleIdentifier = "com.nicolascleton.viberemote.mac"
     public static let keychainService = "com.nicolascleton.viberemote"

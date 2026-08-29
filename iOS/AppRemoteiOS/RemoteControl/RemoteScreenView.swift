@@ -129,7 +129,7 @@ struct RemoteScreenView: View {
                     .foregroundStyle(.orange)
                 Text("Autorisez l’écran sur le Mac")
                     .font(.footnote.weight(.semibold))
-                Text(client.screenStreamStatus.detail ?? "Ouvrez Vibe Remote sur le Mac puis autorisez l’enregistrement de l’écran.")
+                Text(client.screenStreamStatus.detail ?? "Ouvrez Vibe Walkie sur le Mac puis autorisez l’enregistrement de l’écran.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -171,7 +171,7 @@ struct RemoteScreenView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Brief lancement")
                             .font(.headline.bold())
-                        Text("Vibe Remote me permet de dicter, viser le bon champ et piloter mon Mac depuis l’iPhone — sans envoyer ma voix dans le cloud.")
+                        Text("Vibe Walkie me permet de dicter, viser le bon champ et piloter mon Mac depuis l’iPhone — sans envoyer ma voix dans le cloud.")
                             .font(.caption)
                             .lineSpacing(3)
                         RoundedRectangle(cornerRadius: 1)

@@ -12,7 +12,7 @@ import RemoteCore
 @MainActor
 final class AppleSpeechAnalyzerEngine: SpeechEngine {
 
-    private let requestedLocale = Locale(identifier: VibeRemoteInfo.dictationLocale)
+    private let requestedLocale = Locale(identifier: VibeWalkieInfo.dictationLocale)
     private let audioEngine = AVAudioEngine()
 
     private var preparedLocale: Locale?

@@ -56,20 +56,20 @@ jobs:
             -scheme AppRemoteMac \
             -configuration Release \
             -destination 'generic/platform=macOS' \
-            -archivePath build/VibeRemote.xcarchive \
+            -archivePath build/VibeWalkie.xcarchive \
             DEVELOPMENT_TEAM="$TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY='Developer ID Application'
-          codesign --verify --deep --strict --verbose=2 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app'
+          codesign --verify --deep --strict --verbose=2 'build/VibeWalkie.xcarchive/Products/Applications/Vibe Walkie.app'
       - name: Créer et signer le DMG
         env:
           DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           mkdir -p updates
-          scripts/create-dmg.sh 'build/VibeRemote.xcarchive/Products/Applications/Vibe Remote.app' "updates/VibeRemote-$VERSION.dmg"
-          codesign --force --timestamp --sign "$DEVELOPER_ID_APPLICATION" "updates/VibeRemote-$VERSION.dmg"
-          sed "s/VERSION/$VERSION/g" Distribution/release-notes-template.html > "updates/VibeRemote-$VERSION.html"
+          scripts/create-dmg.sh 'build/VibeWalkie.xcarchive/Products/Applications/Vibe Walkie.app' "updates/VibeWalkie-$VERSION.dmg"
+          codesign --force --timestamp --sign "$DEVELOPER_ID_APPLICATION" "updates/VibeWalkie-$VERSION.dmg"
+          sed "s/VERSION/$VERSION/g" Distribution/release-notes-template.html > "updates/VibeWalkie-$VERSION.html"
       - name: Notariser et valider Gatekeeper
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -78,9 +78,9 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           printf '%s' "$ASC_PRIVATE_KEY" > AuthKey.p8
-          xcrun notarytool submit "updates/VibeRemote-$VERSION.dmg" --key AuthKey.p8 --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
-          xcrun stapler staple "updates/VibeRemote-$VERSION.dmg"
-          scripts/verify-mac-distribution.sh "updates/VibeRemote-$VERSION.dmg"
+          xcrun notarytool submit "updates/VibeWalkie-$VERSION.dmg" --key AuthKey.p8 --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
+          xcrun stapler staple "updates/VibeWalkie-$VERSION.dmg"
+          scripts/verify-mac-distribution.sh "updates/VibeWalkie-$VERSION.dmg"
       - name: Générer l’appcast EdDSA
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
@@ -92,15 +92,15 @@ jobs:
           chmod 600 sparkle-private-key
           SparkleTools/bin/generate_appcast \
             --ed-key-file sparkle-private-key \
-            --download-url-prefix "https://github.com/ncleton-petitmaker/vibe-remote/releases/download/$GITHUB_REF_NAME/" \
+            --download-url-prefix "https://github.com/ncleton-petitmaker/vibe-walkie/releases/download/$GITHUB_REF_NAME/" \
             updates
       - name: Publier GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          gh release create "$GITHUB_REF_NAME" "updates/VibeRemote-$VERSION.dmg" \
-            --verify-tag --title "Vibe Remote $VERSION" --notes-file CHANGELOG.md
+          gh release create "$GITHUB_REF_NAME" "updates/VibeWalkie-$VERSION.dmg" \
+            --verify-tag --title "Vibe Walkie $VERSION" --notes-file CHANGELOG.md
       - name: Préparer GitHub Pages
         run: |
           mkdir pages

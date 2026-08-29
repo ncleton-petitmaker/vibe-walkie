@@ -1,8 +1,8 @@
-# Politique de confidentialité — Vibe Remote
+# Politique de confidentialité — Vibe Walkie
 
 Dernière mise à jour : 28 août 2026.
 
-Vibe Remote fonctionne uniquement entre votre iPhone et votre Mac sur le réseau local. Aucun compte n’est créé et aucune donnée n’est vendue, louée, utilisée pour la publicité ou transmise à un service d’analyse tiers.
+Vibe Walkie fonctionne uniquement entre votre iPhone et votre Mac sur le réseau local. Aucun compte n’est créé et aucune donnée n’est vendue, louée, utilisée pour la publicité ou transmise à un service d’analyse tiers.
 
 La voix est capturée et transcrite localement sur l’iPhone. Le Mac reçoit seulement le texte final après votre relâchement et après validation de la cible. L’application peut conserver sur l’iPhone un historique local de 50 éléments maximum pendant 7 jours ; il est désactivable et effaçable.
 
@@ -12,4 +12,4 @@ La caméra sert uniquement à scanner le QR d’appairage. Le microphone sert à
 
 Les téléchargements et mises à jour peuvent générer les journaux techniques habituels de GitHub, de l’App Store ou de l’hébergeur du site, soumis à leurs propres politiques.
 
-Pour une question ou une demande relative à vos données, utilisez la page <https://viberemote.app/support>.
+Pour une question ou une demande relative à vos données, utilisez la page <https://vibewalkie.app/support>.

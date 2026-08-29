@@ -1,6 +1,6 @@
 # Support
 
-Canal public : <https://viberemote.app/support>.
+Canal public : <https://vibewalkie.app/support>.
 
 Avant de demander de l’aide, vérifiez que les deux apps sont à jour, sur le même Wi‑Fi et que l’Accessibilité est accordée au compagnon. Une réinitialisation de l’identité TLS exige un nouvel appairage.
 

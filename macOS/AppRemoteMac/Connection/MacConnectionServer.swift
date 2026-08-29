@@ -72,7 +72,7 @@ final class MacConnectionServer: ObservableObject {
             self.identity = identity
 
             let parameters = try makeParameters(identity: identity)
-            guard let port = NWEndpoint.Port(rawValue: VibeRemoteInfo.controlPort) else {
+            guard let port = NWEndpoint.Port(rawValue: VibeWalkieInfo.controlPort) else {
                 throw RemoteErrorPayload(code: .internalFailure, detail: "port invalide")
             }
             let listener = try NWListener(using: parameters, on: port)
@@ -85,8 +85,11 @@ final class MacConnectionServer: ObservableObject {
             let fingerprint = try TLSIdentityStore.fingerprint(of: identity)
             let suffix = String(fingerprint.filter { $0.isLetter || $0.isNumber }.prefix(8))
             let host = String((Host.current().localizedName ?? "Mac").prefix(30))
+            // Le nom Bonjour est également un identifiant technique durable.
+            // Conserver le préfixe historique évite de casser les iPhone déjà
+            // appairés lors d'une simple mise à jour ou d'un renommage produit.
             let name = "VibeRemote-\(host)-\(suffix)"
-            listener.service = NWListener.Service(name: name, type: VibeRemoteInfo.bonjourServiceType)
+            listener.service = NWListener.Service(name: name, type: VibeWalkieInfo.bonjourServiceType)
             self.serviceName = name
 
             listener.stateUpdateHandler = { [weak self] state in
@@ -275,7 +278,7 @@ final class MacConnectionServer: ObservableObject {
                         replyTo: envelope.messageID
                     )
                     session.approvalExpiryTask = Task { [weak self, weak session] in
-                        try? await Task.sleep(for: .seconds(VibeRemoteInfo.pairingApprovalWindow))
+                        try? await Task.sleep(for: .seconds(VibeWalkieInfo.pairingApprovalWindow))
                         guard !Task.isCancelled, let self, let session else { return }
                         await MainActor.run { self.expirePairing(pending.id, in: session) }
                     }

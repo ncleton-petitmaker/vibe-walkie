@@ -16,6 +16,8 @@ enum TLSIdentityStore {
         let keyTag: Data
 
         static let live = Configuration(
+            // Libellé de stockage historique : le modifier rendrait l'ancien
+            // certificat introuvable et invaliderait tous les appairages.
             label: "Vibe Remote Local TLS",
             keyTag: Data("com.nicolascleton.viberemote.mac.tls-key".utf8)
         )
@@ -138,7 +140,7 @@ enum TLSIdentityStore {
                 // certificat, ce qui évite de récupérer le certificat d'un autre
                 // profil de test ou d'une ancienne installation.
                 CommonName(configuration.label)
-                OrganizationName("Vibe Remote")
+                OrganizationName("Vibe Walkie")
             }
             let now = Date()
             let certificate = try Certificate(
@@ -154,7 +156,7 @@ enum TLSIdentityStore {
                     Critical(BasicConstraints.notCertificateAuthority)
                     Critical(KeyUsage(digitalSignature: true, keyAgreement: true))
                     try ExtendedKeyUsage([.serverAuth])
-                    SubjectAlternativeNames([.dnsName("vibe-remote.local")])
+                    SubjectAlternativeNames([.dnsName("vibe-walkie.local")])
                 },
                 issuerPrivateKey: privateKey
             )

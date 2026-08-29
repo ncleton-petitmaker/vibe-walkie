@@ -172,8 +172,8 @@ struct TargetTokenTests {
 
     @Test("La durée de vie couvre une dictée normale sans être illimitée")
     func lifetimeIsReasonable() {
-        #expect(VibeRemoteInfo.targetTokenLifetime >= 60)
-        #expect(VibeRemoteInfo.targetTokenLifetime <= 300)
+        #expect(VibeWalkieInfo.targetTokenLifetime >= 60)
+        #expect(VibeWalkieInfo.targetTokenLifetime <= 300)
     }
 
     @Test("Le texte d'une dictée reste sous la limite du protocole")

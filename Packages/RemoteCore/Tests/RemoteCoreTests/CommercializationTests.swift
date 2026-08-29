@@ -6,20 +6,20 @@ import Testing
 struct CommercializationTests {
     @Test("Le service Bonjour de travail est cohérent")
     func bonjourIdentity() {
-        #expect(VibeRemoteInfo.bonjourServiceType == "_viberemote._tcp")
-        #expect(VibeRemoteInfo.controlPort == 54_389)
+        #expect(VibeWalkieInfo.bonjourServiceType == "_viberemote._tcp")
+        #expect(VibeWalkieInfo.controlPort == 54_389)
     }
 
     @Test("Les identifiants de travail sont cohérents")
     func bundleIdentifiers() {
-        #expect(VibeRemoteInfo.iosBundleIdentifier == "com.nicolascleton.viberemote")
-        #expect(VibeRemoteInfo.macBundleIdentifier == "com.nicolascleton.viberemote.mac")
+        #expect(VibeWalkieInfo.iosBundleIdentifier == "com.nicolascleton.viberemote")
+        #expect(VibeWalkieInfo.macBundleIdentifier == "com.nicolascleton.viberemote.mac")
     }
 
     @Test("Les fenêtres d'appairage sont bornées")
     func pairingWindows() {
-        #expect(VibeRemoteInfo.pairingWindow == 120)
-        #expect(VibeRemoteInfo.pairingApprovalWindow == 60)
+        #expect(VibeWalkieInfo.pairingWindow == 120)
+        #expect(VibeWalkieInfo.pairingApprovalWindow == 60)
     }
 
     @Test("Hello annonce toujours le protocole V2")
@@ -40,7 +40,7 @@ struct CommercializationTests {
     func qrHasNoRemoteRoute() throws {
         let qr = PairingQRPayload(
             macName: "Mac",
-            serviceName: "VibeRemote-Mac",
+            serviceName: "VibeWalkie-Mac",
             certificateFingerprint: "fingerprint",
             pairingSecret: "secret",
             expiresAt: Date().addingTimeInterval(120)

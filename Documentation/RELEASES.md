@@ -1,6 +1,6 @@
 # Politique de release
 
-Vibe Remote suit le versionnage sémantique. Chaque release possède un changelog, un tag signé et des notes utilisateur en français.
+Vibe Walkie suit le versionnage sémantique. Chaque release possède un changelog, un tag signé et des notes utilisateur en français.
 
 ## Portes automatiques
 
