@@ -1,6 +1,6 @@
 # Revue du nom public
 
-Statut au 29 août 2026 : **BLOQUÉ POUR LA PUBLICATION COMMERCIALE — nom Apple indisponible et risque de confusion élevé**.
+Statut au 29 août 2026 : **CANDIDAT RÉSERVÉ — « Vibe Nomade » est accepté dans App Store Connect ; la validation juridique reste à terminer avant le renommage public**.
 
 Ce document est un dossier de décision produit, pas un avis juridique. Une fiche App Store peut être créée pour tester et réserver le nom, mais sa disponibilité chez Apple ne vaut ni disponibilité juridique ni validation de marque.
 
@@ -38,3 +38,30 @@ Le second point suffit à créer un risque important de confusion commerciale po
 - clés de trousseau, noms de certificats, feed Sparkle, politique de marque et visuels commerciaux.
 
 Le protocole V2 et les données locales du prototype n’ont aucune obligation de migration vers le futur nom : une réinstallation et un nouvel appairage sont déjà assumés.
+
+## Vérification des candidats du 29 août 2026
+
+### Candidat retenu provisoirement
+
+**Vibe Nomade** a été accepté et réservé par la création effective de la fiche App Store Connect :
+
+- Apple ID : `6806599345` ;
+- Bundle ID : `com.nicolascleton.viberemote` ;
+- SKU : `VIBENOMADE-IOS-001` ;
+- langue principale : français.
+
+Les recherches publiques effectuées à l'identique n'ont révélé ni application App Store ni produit logiciel proche portant exactement ce nom. Cela ne constitue pas une validation juridique : la recherche par similarité dans Data INPI et TMview, puis l'appréciation du risque dans les classes pertinentes, restent obligatoires avant le renommage public.
+
+### Candidats écartés
+
+- **Vibe Deck** : produit logiciel homonyme permettant déjà de piloter des terminaux par la voix et à distance.
+- **Vibe Walk** : produit homonyme de contrôle à distance d'un environnement de développement depuis un téléphone, avec une promesse centrée sur le travail en marchant.
+- **VibeWork** : application iPhone et services logiciels déjà exploités sous ce nom.
+- **Vibe Flow / Vibeflow** : plusieurs produits logiciels homonymes, dont une application macOS de dictée vocale et une société soutenue par Y Combinator.
+- **Vibe Control** : extension logicielle homonyme et forte collision sémantique avec des produits de contrôle à distance pour adultes.
+- **Vibe Active** : marque et service logiciel de télécommunications déjà exploités.
+- **Vibe Touch** : forte collision commerciale avec la gamme We-Vibe Touch et ses fonctions de contrôle à distance.
+
+### Solution de repli
+
+**VibeDeskless** ne présentait pas de conflit public exact dans les recherches effectuées. Le nom n'a pas été réservé dans App Store Connect et reste donc un candidat de repli non vérifié par Apple.
