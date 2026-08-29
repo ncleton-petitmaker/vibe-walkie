@@ -106,7 +106,7 @@ jobs:
           mkdir pages
           cp updates/appcast.xml pages/appcast.xml
           cp updates/*.html pages/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: pages
 
