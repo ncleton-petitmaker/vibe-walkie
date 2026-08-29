@@ -1,6 +1,6 @@
 # Revue du nom public
 
-Statut au 29 août 2026 : **BLOQUÉ POUR LA PUBLICATION COMMERCIALE — réservation Apple en cours, risque de confusion non levé**.
+Statut au 29 août 2026 : **BLOQUÉ POUR LA PUBLICATION COMMERCIALE — nom Apple indisponible et risque de confusion élevé**.
 
 Ce document est un dossier de décision produit, pas un avis juridique. Une fiche App Store peut être créée pour tester et réserver le nom, mais sa disponibilité chez Apple ne vaut ni disponibilité juridique ni validation de marque.
 
@@ -10,7 +10,7 @@ Ce document est un dossier de décision produit, pas un avis juridique. Une fich
 - Le site <https://vibe-remote.net/> présente un produit nommé exactement « Vibe Remote », lui aussi destiné à piloter un Mac depuis un téléphone.
 - Le nom `vibe-remote` est également utilisé dans l’écosystème logiciel, notamment sur PyPI.
 
-Le 29 août 2026, la recherche publique de l’App Store français ne montrait aucune app portant exactement le titre « Vibe Remote ». Le formulaire « Nouvelle app » d’App Store Connect accepte le texte sans erreur immédiate ; la réponse définitive nécessite l’enregistrement du Bundle ID puis la création de la fiche.
+Le 29 août 2026, la recherche publique de l’App Store français ne montrait aucune app portant exactement le titre « Vibe Remote ». La vérification décisive a néanmoins échoué après l’enregistrement du Bundle ID et la tentative de création de la fiche dans App Store Connect, avec le message : « Le nom de l’app saisi est déjà utilisé. » Le titre exact ne peut donc pas être réservé sur ce compte sans réclamation fondée sur des droits de propriété industrielle et commerciale.
 
 Le second point suffit à créer un risque important de confusion commerciale pour un produit voisin. La porte « revue de marque favorable » n’est donc pas franchie, indépendamment de l’existence ou non d’une marque enregistrée exacte.
 
