@@ -1,6 +1,6 @@
 # Revue du nom public
 
-Statut au 29 août 2026 : **CANDIDAT RÉSERVÉ — « Vibe Nomade » est accepté dans App Store Connect ; la validation juridique reste à terminer avant le renommage public**.
+Statut au 29 août 2026 : **CANDIDAT RÉSERVÉ — « Vibe Nomad » est accepté dans App Store Connect ; la validation juridique reste à terminer avant le renommage public**.
 
 Ce document est un dossier de décision produit, pas un avis juridique. Une fiche App Store peut être créée pour tester et réserver le nom, mais sa disponibilité chez Apple ne vaut ni disponibilité juridique ni validation de marque.
 
@@ -43,14 +43,14 @@ Le protocole V2 et les données locales du prototype n’ont aucune obligation d
 
 ### Candidat retenu provisoirement
 
-**Vibe Nomade** a été accepté et réservé par la création effective de la fiche App Store Connect :
+**Vibe Nomad** a été accepté et réservé par la création effective de la fiche App Store Connect. La fiche, créée initialement sous « Vibe Nomade », a ensuite été renommée et enregistrée avec succès sous sa forme anglaise :
 
 - Apple ID : `6806599345` ;
 - Bundle ID : `com.nicolascleton.viberemote` ;
 - SKU : `VIBENOMADE-IOS-001` ;
 - langue principale : français.
 
-Les recherches publiques effectuées à l'identique n'ont révélé ni application App Store ni produit logiciel proche portant exactement ce nom. Cela ne constitue pas une validation juridique : la recherche par similarité dans Data INPI et TMview, puis l'appréciation du risque dans les classes pertinentes, restent obligatoires avant le renommage public.
+Les recherches publiques effectuées à l'identique n'ont révélé ni application App Store ni produit logiciel proche portant exactement ce nom. Des usages proches existent dans d'autres secteurs et sous l'ordre inversé « Nomad Vibe », mais aucun conflit logiciel exact n'a été identifié. Cela ne constitue pas une validation juridique : la recherche par similarité dans Data INPI et TMview, puis l'appréciation du risque dans les classes pertinentes, restent obligatoires avant le renommage public.
 
 ### Candidats écartés
 
