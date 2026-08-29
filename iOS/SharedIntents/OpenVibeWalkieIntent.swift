@@ -19,7 +19,7 @@ enum VibeWalkieOpenDestination: String, AppEnum {
 /// depuis le Centre de contrôle, l'écran verrouillé ou le bouton Action.
 struct OpenVibeWalkieIntent: OpenIntent {
     static let title: LocalizedStringResource = "Ouvrir Vibe Walkie"
-    static let description = IntentDescription("Ouvre Vibe Walkie pour contrôler le Mac associé.")
+    static let description = IntentDescription("Ouvre Vibe Walkie pour contrôler l’ordinateur associé.")
 
     @Parameter(title: "Destination")
     var target: VibeWalkieOpenDestination
