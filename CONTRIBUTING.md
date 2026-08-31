@@ -1,15 +1,15 @@
-# Contribuer à Vibe Walkie
+# Contributing to Vibe Walkie
 
-Merci de proposer des changements petits, testés et faciles à relire.
+Please keep changes small, tested and easy to review.
 
-1. Ouvrez une issue pour les changements de protocole, de sécurité ou d’expérience utilisateur importants.
-2. Créez une branche depuis `main`.
-3. Ajoutez ou adaptez les tests avant la pull request.
-4. Exécutez `Scripts/ci-local.sh`.
-5. Décrivez le risque, la validation et les éventuelles migrations dans la pull request.
+1. Open an issue for significant protocol, security or user-experience changes.
+2. Create a branch from `main`.
+3. Add or update tests before opening the pull request.
+4. Run `Scripts/ci-local.sh`.
+5. Describe risks, validation and any required migration in the pull request.
 
-Toute contribution est fournie sous MPL-2.0. Vous certifiez être autorisé à la soumettre. Aucun visuel, police, capture, secret, UDID, adresse IP ou certificat tiers ne doit entrer dans le dépôt.
+All contributions are provided under MPL-2.0. You certify that you are authorized to submit them. Do not commit third-party artwork, fonts, screenshots, secrets, UDIDs, IP addresses or certificates.
 
-Les interfaces du protocole V2 sont publiques et doivent rester compatibles dans une même version majeure. Tout changement de format nécessite une documentation dans `Documentation/PROTOCOL.md`, un test d’aller-retour et une stratégie d’incompatibilité explicite.
+Protocol V2 interfaces are public and must remain compatible within the same major version. Any format change requires documentation in `Documentation/PROTOCOL.md`, a round-trip test and an explicit incompatibility strategy.
 
-Le formatage suit SwiftFormat fourni par Xcode ; SwiftLint bloque les erreurs simples. Les warnings Xcode doivent être traités, pas masqués.
+Formatting follows the SwiftFormat bundled with Xcode; SwiftLint blocks straightforward mistakes. Xcode warnings must be addressed, not hidden.

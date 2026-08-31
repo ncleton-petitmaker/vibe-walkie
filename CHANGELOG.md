@@ -1,19 +1,19 @@
-# Journal des changements
+# Changelog
 
-Toutes les modifications notables sont documentées ici. Le format suit Keep a Changelog et le projet utilise le versionnage sémantique.
+All notable changes are documented here. The format follows Keep a Changelog and the project uses semantic versioning.
 
-## [Non publié]
+## [Unreleased]
 
-### Ajouté
+### Added
 
-- protocole local V2 et approbation explicite d’un nouvel iPhone ;
-- identité TLS autonome P-256/X.509 ;
-- mode iOS « Découvrir sans Mac » ;
-- gestion des appareils autorisés ;
-- mises à jour Sparkle signées et distribution GitHub.
+- local protocol V2 and explicit approval for every new iPhone;
+- self-contained P-256/X.509 TLS identity;
+- iOS “Explore without a Mac” mode;
+- authorized-device management;
+- signed Sparkle updates and GitHub distribution.
 
-### Sécurité
+### Security
 
-- transaction de dictée sans écriture en direct ;
-- refus strict des champs sécurisés et des cibles modifiées ;
-- suppression du relais distant et de l’updater iOS Ad Hoc.
+- transactional dictation with no live insertion;
+- strict rejection of secure fields and changed targets;
+- removal of the remote relay and Ad Hoc iOS updater.

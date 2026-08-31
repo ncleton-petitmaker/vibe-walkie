@@ -1,7 +1,7 @@
-# Code de conduite
+# Code of Conduct
 
-Nous voulons une communauté accueillante, factuelle et sûre. Le harcèlement, les attaques personnelles, les discriminations, la publication de données privées et les comportements intimidants ne sont pas acceptés.
+We want a welcoming, factual and safe community. Harassment, personal attacks, discrimination, publication of private information and intimidating behavior are not accepted.
 
-Les désaccords techniques doivent porter sur le code, les preuves et les compromis. Les mainteneurs peuvent modifier ou supprimer un contenu et restreindre la participation afin de protéger la communauté.
+Technical disagreements must focus on code, evidence and tradeoffs. Maintainers may edit or remove content and restrict participation to protect the community.
 
-Signalez un incident en privé via l’adresse de support publiée sur [vibewalkie.app](https://vibewalkie.app/support). Les signalements sont traités avec confidentialité et sans représailles.
+Report an incident privately through the support address published on [vibewalkie.app](https://vibewalkie.app/support). Reports are handled confidentially and without retaliation.

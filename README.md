@@ -1,180 +1,180 @@
 <p align="center">
-  <img src="Brand/VibeWalkieIcon-source.png" width="112" alt="Icône Vibe Walkie">
+  <img src="Brand/VibeWalkieIcon-source.png" width="112" alt="Vibe Walkie icon">
 </p>
 
 <h1 align="center">Vibe Walkie</h1>
 
 <p align="center">
-  <strong>Le travail sans le bureau.</strong><br>
-  Marchez, parlez et gardez votre Mac sous le pouce depuis votre iPhone.
+  <strong>Work beyond the desk.</strong><br>
+  Walk, talk and keep your Mac under your thumb from your iPhone.
 </p>
 
 <p align="center">
-  <a href="https://vibewalkie.app">Site officiel</a>
+  <a href="https://vibewalkie.app">Official website</a>
   ·
   <a href="https://testflight.apple.com/join/9AUshVWm">TestFlight</a>
   ·
-  <a href="#compiler-le-projet">Compiler le projet</a>
+  <a href="#build-the-project">Build the project</a>
   ·
-  <a href="CONTRIBUTING.md">Contribuer</a>
+  <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
 <p align="center">
   <img alt="iOS 26+" src="https://img.shields.io/badge/iOS-26%2B-111111?logo=apple">
   <img alt="macOS 15+" src="https://img.shields.io/badge/macOS-15%2B-111111?logo=apple">
   <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white">
-  <img alt="Local et Tailscale" src="https://img.shields.io/badge/réseau-local%20%2B%20Tailscale-0A84FF">
-  <a href="LICENSE"><img alt="Licence MPL 2.0" src="https://img.shields.io/badge/licence-MPL--2.0-7B42BC"></a>
+  <img alt="Local and Tailscale" src="https://img.shields.io/badge/network-local%20%2B%20Tailscale-0A84FF">
+  <a href="LICENSE"><img alt="MPL 2.0 license" src="https://img.shields.io/badge/license-MPL--2.0-7B42BC"></a>
 </p>
 
-Vibe Walkie transforme l’iPhone en télécommande pour Mac : dictée sur l’appareil, clavier, trackpad, sélection des applications et retour d’écran facultatif. La connexion est locale par défaut ; le mode Nomade peut emprunter votre propre réseau Tailscale. Aucun compte Vibe Walkie, abonnement ou serveur Vibe Walkie n’est nécessaire.
+Vibe Walkie turns your iPhone into a remote control for Mac: on-device dictation, keyboard, trackpad, app selection and optional screen view. It connects over your local network by default; Roaming mode can use your own Tailscale network. No Vibe Walkie account, subscription or server is required.
 
-## Nouveautés
+## What's new
 
-- **Multi‑Mac** — associez plusieurs Macs au même iPhone et changez de machine depuis le bouton en haut à gauche.
-- **Mode Nomade** — rejoignez votre Mac à distance via Tailscale, avec retour automatique au réseau local lorsqu’il est disponible.
-- **Commandes personnalisables** — organisez les touches rapides, leurs noms et leurs icônes selon votre façon de travailler.
-- **Contrôle plus complet** — clavier intégré, pavé tactile amélioré et retour d’écran réunis dans la même télécommande.
+- **Multi-Mac** — pair several Macs with one iPhone and switch machines from the top-left button.
+- **Roaming mode** — reach your Mac remotely through Tailscale, with automatic fallback to the local network whenever it is available.
+- **Customizable controls** — arrange quick keys, labels and icons around the way you work.
+- **More complete control** — an integrated keyboard, improved trackpad and screen view in the same remote.
 
-## Vibe Walkie en images
+## Vibe Walkie in action
 
 <p align="center">
-  <img src="Store/fr-FR/screenshots/iphone-6.9/01-travail-sans-bureau.png" width="31%" alt="Travaillez sans rester devant le bureau avec Vibe Walkie">
+  <img src="Store/en-US/screenshots/iphone-6.9/01-work-beyond-the-desk.png" width="31%" alt="Work beyond the desk with Vibe Walkie">
   &nbsp;
-  <img src="Store/fr-FR/screenshots/iphone-6.9/02-dictee-en-marchant.png" width="31%" alt="Dictez à votre Mac en marchant">
+  <img src="Store/en-US/screenshots/iphone-6.9/02-dictate-while-walking.png" width="31%" alt="Dictate to your Mac while walking">
   &nbsp;
-  <img src="Store/fr-FR/screenshots/iphone-6.9/03-depuis-le-canape.png" width="31%" alt="Contrôlez votre Mac depuis le canapé">
+  <img src="Store/en-US/screenshots/iphone-6.9/03-from-the-sofa.png" width="31%" alt="Control your Mac from the sofa">
 </p>
 
 <p align="center">
-  <img src="Store/fr-FR/screenshots/iphone-6.9/04-controle-ecran.png" width="31%" alt="Retour d’écran et commandes Mac sur l’iPhone">
+  <img src="Store/en-US/screenshots/iphone-6.9/04-screen-control.png" width="31%" alt="See and control your Mac screen from iPhone">
   &nbsp;
-  <img src="Store/fr-FR/screenshots/iphone-6.9/05-changer-application.png" width="31%" alt="Changez d’application Mac depuis l’iPhone">
+  <img src="Store/en-US/screenshots/iphone-6.9/05-switch-apps.png" width="31%" alt="Switch Mac apps from iPhone">
   &nbsp;
-  <img src="Store/fr-FR/screenshots/iphone-6.9/06-multi-mac-nomade.png" width="31%" alt="Choisissez entre plusieurs Macs et contrôlez-les localement ou via Tailscale">
+  <img src="Store/en-US/screenshots/iphone-6.9/06-multi-mac-roaming.png" width="31%" alt="Switch between multiple Macs locally or through Tailscale">
 </p>
 
-## Ce que l’app permet
+## What you can do
 
-| Fonction | Expérience |
+| Feature | Experience |
 | --- | --- |
-| **Dicter en marchant** | Maintenez le bouton, parlez, puis relâchez pour envoyer le texte final dans le champ actif. |
-| **Piloter le pointeur** | Déplacez le curseur, cliquez et faites défiler depuis le pavé tactile de l’iPhone. |
-| **Changer d’application** | Retrouvez les fenêtres ouvertes sur le Mac et activez la bonne cible du pouce. |
-| **Voir l’écran du Mac** | Activez le retour visuel uniquement lorsque vous en avez besoin. |
-| **Garder les gestes utiles** | Clavier, Effacer, Espace, Entrée et raccourcis restent immédiatement accessibles. |
-| **Changer de Mac** | Associez plusieurs compagnons et basculez vers la bonne machine depuis le sélecteur « Mes Macs ». |
-| **Travailler à distance** | Utilisez le réseau local en priorité, puis votre tailnet Tailscale lorsque le Mac est ailleurs. |
-| **Personnaliser les commandes** | Configurez les sept boutons visibles et la palette globale avec vos touches, noms et icônes. |
+| **Dictate while walking** | Hold the button, speak, then release to send the final text to the active field. |
+| **Control the pointer** | Move the cursor, click and scroll from the iPhone trackpad. |
+| **Switch apps** | Browse the windows open on your Mac and activate the right target with your thumb. |
+| **See your Mac screen** | Turn on visual feedback only when you need it. |
+| **Keep useful actions close** | Keyboard, Delete, Space, Return and shortcuts stay immediately accessible. |
+| **Switch Macs** | Pair multiple companions and choose the right machine from the My Macs switcher. |
+| **Work remotely** | Prefer the local network, then use your Tailscale tailnet when the Mac is elsewhere. |
+| **Customize controls** | Configure the seven visible buttons and the Global palette with your own keys, labels and icons. |
 
-La voix ne quitte jamais l’iPhone. Le Mac reçoit uniquement le texte final et les commandes validées, après un appairage confirmé physiquement.
+Your voice never leaves the iPhone. The Mac receives only final text and confirmed commands after pairing has been physically approved.
 
-## Comment ça fonctionne
+## How it works
 
-1. Ouvrez le compagnon Vibe Walkie sur le Mac.
-2. Scannez son QR avec l’iPhone ; utilisez le QR Nomade si le Mac est à distance.
-3. Confirmez l’iPhone depuis la demande affichée sur le Mac.
-4. Dictez, pointez ou changez d’application depuis l’iPhone.
-5. Répétez l’appairage sur vos autres Macs, puis changez de machine depuis le bouton en haut à gauche.
+1. Open the Vibe Walkie companion on your Mac.
+2. Scan its QR code with the iPhone; use the Roaming QR code when the Mac is remote.
+3. Approve the iPhone from the request shown on the Mac.
+4. Dictate, point or switch apps from the iPhone.
+5. Repeat pairing on your other Macs, then switch machines from the top-left button.
 
-Le mode Nomade facultatif se configure ensuite depuis le compagnon Mac. Il détecte Tailscale sans modifier le tailnet ni ses ACL, et conserve l’approbation humaine de chaque nouvel iPhone.
+Optional Roaming mode is configured from the Mac companion. It detects Tailscale without changing your tailnet or ACLs and keeps human approval mandatory for every new iPhone.
 
 ```text
-┌──────────────┐   local ou Tailscale + TLS 1.3   ┌─────────────────┐
+┌──────────────┐   local or Tailscale + TLS 1.3   ┌─────────────────┐
 │    iPhone    │  ─────────────────────────────▶  │       Mac       │
-│ voix + gestes│  ◀─────────────────────────────  │ texte + contrôle│
-└──────────────┘       aucun serveur Vibe Walkie   └─────────────────┘
+│ voice + touch│  ◀─────────────────────────────  │ text + control  │
+└──────────────┘       no Vibe Walkie server       └─────────────────┘
 ```
 
-## Obtenir l’application
+## Get the app
 
-### Version officielle
+### Official release
 
-- **iPhone** — la bêta publique est [disponible via TestFlight](https://testflight.apple.com/join/9AUshVWm), sous réserve de l’approbation bêta d’Apple. La version commerciale est prévue à **14,99 €**, en achat unique sur l’App Store français.
-- **Mac Apple Silicon** — le compagnon gratuit sera proposé sur [vibewalkie.app](https://vibewalkie.app) dans un DMG signé et notarisé.
+- **iPhone** — the public beta is [available through TestFlight](https://testflight.apple.com/join/9AUshVWm), subject to Apple's beta review. The commercial release is planned at **€14.99** as a one-time purchase on the French App Store.
+- **Apple silicon Mac** — the free companion will be available from [vibewalkie.app](https://vibewalkie.app) as a signed and notarized DMG.
 
-L’achat finance le build officiel signé, les mises à jour et l’assistance. Le code reste librement compilable avec votre propre compte Apple Developer.
+The purchase supports official signed builds, updates and support. The source remains freely buildable with your own Apple Developer account.
 
-### Compiler soi-même
+### Build it yourself
 
-Le dépôt contient l’app iOS, le compagnon macOS, le protocole partagé `RemoteCore`, les tests et la documentation de publication.
+The repository contains the iOS app, macOS companion, shared `RemoteCore` protocol, tests and release documentation.
 
-## Compatibilité
+## Compatibility
 
-- iOS 26 ou supérieur ;
-- macOS 15 ou supérieur ;
-- Mac Apple Silicon ;
-- iPhone et Mac sur le même réseau local pour le fonctionnement standard ;
-- pour le mode Nomade : Tailscale installé séparément sur les deux appareils et accès au même tailnet (ou Mac partagé).
+- iOS 26 or later;
+- macOS 15 or later;
+- Apple silicon Mac;
+- iPhone and Mac on the same local network for standard operation;
+- for Roaming mode: Tailscale installed separately on both devices, with access to the same tailnet or to a shared Mac.
 
-Le protocole courant est la **version 3**. Les versions antérieures ne sont volontairement pas compatibles : mettez à jour les deux applications ensemble.
+The current protocol is **version 3**. Older versions are intentionally incompatible: update both apps together.
 
-## Compiler le projet
+## Build the project
 
-### Prérequis
+### Requirements
 
-- Xcode 26 ou supérieur ;
-- Swift 6 ;
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen), uniquement pour régénérer les projets après une modification de `project.yml`.
+- Xcode 26 or later;
+- Swift 6;
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen), only when regenerating projects after editing `project.yml`.
 
-Les projets Xcode sont versionnés : un premier build ne demande donc rien d’autre que Xcode.
+The Xcode projects are committed, so the first build requires nothing beyond Xcode.
 
 ```bash
-# Tests du cœur partagé
+# Shared core tests
 swift test --package-path Packages/RemoteCore
 
-# App iOS — simulateur, sans signature
+# iOS app — simulator, unsigned
 xcodebuild \
   -project iOS/AppRemoteiOS.xcodeproj \
   -scheme AppRemoteiOS \
   -destination 'generic/platform=iOS Simulator' \
   CODE_SIGNING_ALLOWED=NO build
 
-# Compagnon macOS — sans signature
+# macOS companion — unsigned
 xcodebuild \
   -project macOS/AppRemoteMac.xcodeproj \
   -scheme AppRemoteMac \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-Après une modification de `project.yml`, exécutez `xcodegen generate` dans `iOS/` ou `macOS/`, puis validez également le projet régénéré.
+After changing a `project.yml`, run `xcodegen generate` from `iOS/` or `macOS/` and commit the regenerated project as well.
 
-Les Bundle IDs `com.nicolascleton.viberemote`, `.controls` et `.mac` restent stables car ils sont déjà liés à la fiche App Store et aux autorisations locales. Ils ne sont pas visibles par les utilisateurs. Pour signer un fork, surchargez l’identifiant et l’équipe dans une configuration locale non versionnée.
+The bundle IDs `com.nicolascleton.viberemote`, `.controls` and `.mac` remain unchanged because they are already tied to the App Store record and local permissions. They are not visible to users. To sign a fork, override the identifier and team in an untracked local configuration.
 
-## Architecture du dépôt
+## Repository architecture
 
 ```text
 Vibe Walkie
-├── iOS/                    application iPhone SwiftUI
-├── macOS/                  compagnon Mac SwiftUI
-├── Packages/RemoteCore/    protocole et modèles partagés
-├── Store/                  visuels et métadonnées App Store
-├── Documentation/          architecture, sécurité et releases
-└── scripts/                outils de build et de validation
+├── iOS/                    SwiftUI iPhone app
+├── macOS/                  SwiftUI Mac companion
+├── Packages/RemoteCore/    shared protocol and models
+├── Store/                  App Store visuals and metadata
+├── Documentation/          architecture, security and releases
+└── scripts/                build and validation tools
 ```
 
-Pour aller plus loin : [architecture](Documentation/ARCHITECTURE.md) · [protocole](Documentation/PROTOCOL.md) · [modèle de menace](Documentation/THREAT_MODEL.md).
+Learn more: [architecture](Documentation/ARCHITECTURE.md) · [protocol](Documentation/PROTOCOL.md) · [threat model](Documentation/THREAT_MODEL.md).
 
-## Sécurité et confidentialité
+## Security and privacy
 
-- TLS 1.3 avec une identité propre à chaque installation Mac ;
-- empreinte du certificat transmise dans le QR d’appairage ;
-- messages signés Curve25519, séquencés, bornés en taille et limités en débit ;
-- approbation explicite de chaque nouvel iPhone sur le Mac ;
-- capture et revérification de la cible avant toute insertion dictée ;
-- refus de la dictée dans les champs sécurisés ;
-- aucune publicité ni télémétrie tierce.
+- TLS 1.3 with an identity unique to each Mac installation;
+- certificate fingerprint included in the pairing QR code;
+- Curve25519-signed messages with sequencing, size limits and rate limiting;
+- explicit approval of every new iPhone on the Mac;
+- target capture and revalidation before inserting dictated text;
+- dictation is rejected in secure fields;
+- no advertising or third-party analytics.
 
-Tailscale est facultatif et agit uniquement comme transport réseau. Vibe Walkie ne reçoit ni compte, ni jeton OAuth, ni configuration d’ACL Tailscale ; l’empreinte TLS du Mac reste l’autorité d’authentification.
+Tailscale is optional and acts only as a network transport. Vibe Walkie receives no Tailscale account, OAuth token or ACL configuration; the Mac's TLS fingerprint remains the authentication authority.
 
-Une vulnérabilité ne doit jamais être publiée directement dans une issue. Suivez la procédure de signalement décrite dans [SECURITY.md](SECURITY.md).
+Never publish a vulnerability directly in an issue. Follow the reporting process in [SECURITY.md](SECURITY.md).
 
-## Contribuer
+## Contributing
 
-Les contributions sont bienvenues : correction, test, accessibilité, documentation ou proposition de protocole. Commencez par lire [CONTRIBUTING.md](CONTRIBUTING.md) et le [code de conduite](CODE_OF_CONDUCT.md).
+Contributions are welcome: fixes, tests, accessibility improvements, documentation and protocol proposals. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## Licence et marque
+## License and trademark
 
-Le code iOS, macOS et `RemoteCore` est publié sous [MPL-2.0](LICENSE). La marque **Vibe Walkie** et ses visuels restent protégés séparément ; consultez [TRADEMARKS.md](TRADEMARKS.md).
+The iOS, macOS and `RemoteCore` code is released under [MPL-2.0](LICENSE). The **Vibe Walkie** trademark and visuals are protected separately; see [TRADEMARKS.md](TRADEMARKS.md).
 
-Le statut de préparation commerciale et les portes restantes sont suivis dans [Documentation/RELEASE_STATUS.md](Documentation/RELEASE_STATUS.md).
+Commercial readiness and remaining release gates are tracked in [Documentation/RELEASE_STATUS.md](Documentation/RELEASE_STATUS.md).

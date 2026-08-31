@@ -1,11 +1,11 @@
-# Politique de marque
+# Trademark Policy
 
-**Vibe Walkie** est le nom public sélectionné et réservé dans App Store Connect. Cette réservation Apple ne vaut pas enregistrement de marque ; la publication commerciale reste conditionnée à la revue INPI et EUIPO documentée dans `Documentation/BRAND_REVIEW.md`.
+**Vibe Walkie** is the public name selected and reserved in App Store Connect. This Apple reservation is not a trademark registration; commercial publication remains subject to the INPI and EUIPO review documented in `Documentation/BRAND_REVIEW.md`.
 
-Le code source est sous MPL-2.0. Les noms **Vibe Walkie**, les logos, icônes, captures commerciales et signes distinctifs associés ne sont pas accordés par cette licence.
+The source code is licensed under MPL-2.0. The **Vibe Walkie** name, logos, icons, commercial screenshots and associated distinctive signs are not licensed under MPL-2.0.
 
-Vous pouvez mentionner honnêtement que votre logiciel dérive de Vibe Walkie. Vous ne pouvez pas présenter un fork, un build ou un service comme officiel, approuvé ou pris en charge par Nicolas Cléton sans autorisation écrite.
+You may truthfully state that your software is derived from Vibe Walkie. You may not present a fork, build or service as official, approved or supported by Nicolas Cléton without written permission.
 
-Un fork distribué au public doit utiliser un nom, des identifiants et des visuels distincts, sauf simple redistribution non modifiée d’un build officiel.
+A publicly distributed fork must use a distinct name, identifiers and visuals, except when simply redistributing an unmodified official build.
 
-Cette politique ne limite pas les usages autorisés par le droit applicable, notamment la citation descriptive.
+This policy does not restrict uses permitted by applicable law, including descriptive reference.

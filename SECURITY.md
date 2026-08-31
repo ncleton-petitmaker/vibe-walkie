@@ -1,20 +1,20 @@
-# Politique de sécurité
+# Security Policy
 
-## Versions prises en charge
+## Supported versions
 
-Seule la dernière version stable publiée reçoit des correctifs de sécurité. Une mise à jour Mac peut devenir obligatoire si une faille critique rend une ancienne version dangereuse.
+Only the latest published stable version receives security fixes. A Mac update may become mandatory if a critical vulnerability makes an older version unsafe.
 
-## Signaler une vulnérabilité
+## Reporting a vulnerability
 
-Utilisez **GitHub Security Advisories → Report a vulnerability** sur ce dépôt. N’ouvrez pas d’issue publique et n’envoyez aucun secret ou donnée personnelle dans les logs.
+Use **GitHub Security Advisories → Report a vulnerability** in this repository. Do not open a public issue or include secrets or personal data in logs.
 
-Indiquez la version, les préconditions, l’impact, les étapes minimales de reproduction et, si possible, une proposition de correction. Un accusé de réception est visé sous 72 heures. La divulgation coordonnée intervient après mise à disposition d’un correctif raisonnable.
+Include the version, preconditions, impact, minimal reproduction steps and, when possible, a suggested fix. We aim to acknowledge reports within 72 hours. Coordinated disclosure takes place after a reasonable fix has been made available.
 
-## Périmètre prioritaire
+## Priority scope
 
-- contournement de l’approbation d’appairage ;
-- usurpation de certificat ou de clé d’appareil ;
-- rejeu ou duplication de commandes ;
-- insertion dans une cible différente ou un champ sécurisé ;
-- exposition de transcription, secret ou matériel de signature ;
-- exécution de commande arbitraire depuis le réseau.
+- bypassing pairing approval;
+- certificate or device-key impersonation;
+- command replay or duplication;
+- insertion into a different target or a secure field;
+- exposure of transcripts, secrets or signing material;
+- arbitrary command execution from the network.

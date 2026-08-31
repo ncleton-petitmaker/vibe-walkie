@@ -1,17 +1,17 @@
-# Politique de confidentialité — Vibe Walkie
+# Privacy Policy — Vibe Walkie
 
-Dernière mise à jour : 29 août 2026.
+Last updated: August 29, 2026.
 
-Vibe Walkie fonctionne directement entre votre iPhone et votre Mac. La connexion utilise le réseau local par défaut. Le mode Nomade facultatif peut utiliser une installation Tailscale appartenant à l’utilisateur, y compris son infrastructure de relais DERP chiffrée lorsque les appareils ne peuvent pas établir une liaison directe. Aucun compte Vibe Walkie n’est créé et aucune donnée n’est vendue, louée, utilisée pour la publicité ou transmise à un service d’analyse tiers.
+Vibe Walkie works directly between your iPhone and Mac. It uses the local network by default. Optional Roaming mode can use a user-owned Tailscale installation, including its encrypted DERP relay infrastructure when the devices cannot establish a direct connection. No Vibe Walkie account is created, and no data is sold, rented, used for advertising or sent to a third-party analytics service.
 
-La voix est capturée et transcrite localement sur l’iPhone. Le Mac reçoit seulement le texte final après votre relâchement et après validation de la cible. Vibe Walkie ne conserve aucun historique de vos dictées.
+Voice is captured and transcribed locally on the iPhone. The Mac receives only the final text after you release the button and after the target has been validated. Vibe Walkie does not keep a history of your dictations.
 
-Le compagnon Mac conserve les clés publiques et noms des appareils autorisés ainsi qu’une identité TLS propre à l’installation dans le trousseau. La révocation et la réinitialisation sont disponibles dans l’interface.
+The Mac companion stores the public keys and names of authorized devices, together with an installation-specific TLS identity, in Keychain. Revocation and reset controls are available in the interface.
 
-La caméra sert uniquement à scanner le QR d’appairage. Lorsque l’utilisateur choisit une image avec le sélecteur Photos, cette image sert uniquement à lire localement un QR et n’est ni conservée ni transmise. Le microphone sert à la dictée. L’Accessibilité macOS permet de lire la cible active, d’insérer du texte et de piloter les applications. La Capture d’écran macOS n’est demandée qu’au premier usage du retour écran facultatif.
+The camera is used only to scan a pairing QR code. When the user selects an image with the Photos picker, that image is used only to read a QR code locally and is neither retained nor transmitted. The microphone is used for dictation. macOS Accessibility lets the app read the active target, insert text and control applications. macOS Screen Recording is requested only when the optional screen view is first used.
 
-En mode Nomade, Vibe Walkie conserve uniquement le nom MagicDNS du Mac et, si disponible, son adresse IPv4 Tailscale. L’app ne lit ni compte Tailscale, ni jeton OAuth, ni ACL. Tailscale est un service séparé soumis à ses propres conditions et à sa propre politique de confidentialité. TLS 1.3, l’épinglage du certificat et l’approbation des appareils Vibe Walkie restent actifs quel que soit le trajet réseau.
+In Roaming mode, Vibe Walkie stores only the Mac's MagicDNS name and, when available, its Tailscale IPv4 address. The app does not read a Tailscale account, OAuth token or ACL. Tailscale is a separate service governed by its own terms and privacy policy. TLS 1.3, certificate pinning and Vibe Walkie device approval remain active regardless of the network path.
 
-Les téléchargements et mises à jour peuvent générer les journaux techniques habituels de GitHub, de l’App Store ou de l’hébergeur du site, soumis à leurs propres politiques.
+Downloads and updates may generate the usual technical logs from GitHub, the App Store or the website host, subject to their respective policies.
 
-Pour une question ou une demande relative à vos données, utilisez la page <https://vibewalkie.app/support>.
+For questions or requests about your data, use <https://vibewalkie.app/support>.
