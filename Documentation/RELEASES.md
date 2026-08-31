@@ -1,30 +1,30 @@
-# Politique de release
+# Release Policy
 
-Vibe Walkie suit le versionnage sémantique. Chaque release possède un changelog, un tag signé et des notes utilisateur en français.
+Vibe Walkie follows semantic versioning. Every release has a changelog, signed tag and French user-facing notes.
 
-## Portes automatiques
+## Automated gates
 
-- tests RemoteCore, macOS et iOS verts ;
-- builds iOS Simulator et macOS arm64 verts ;
-- lint, détection de secrets et audit de dépendances verts ;
-- archive App Store validée ;
-- archive Developer ID, DMG, notarisation, stapling et Gatekeeper validés ;
-- mise à jour Sparkle signée EdDSA et testée depuis la version précédente.
+- passing RemoteCore, macOS and iOS tests;
+- passing iOS Simulator and macOS arm64 builds;
+- passing lint, secret detection and dependency audit;
+- validated App Store archive;
+- validated Developer ID archive, DMG, notarization, stapling and Gatekeeper;
+- EdDSA-signed Sparkle update tested from the previous release.
 
-## Portes manuelles
+## Manual gates
 
-- zéro défaut critique ou élevé ;
-- dix installations propres sans terminal, dont comptes sans outils développeur ;
-- matrice réelle iPhone/iOS 26 et Mac/macOS 15+ ;
-- TestFlight approuvé et blocages corrigés ;
-- confidentialité/DSA publiées ;
-- revue de marque favorable ;
-- approbation App Store.
+- no critical or high-severity defects;
+- ten clean installations without a terminal, including accounts without developer tools;
+- real-device matrix for iPhone/iOS 26 and Mac/macOS 15+;
+- approved TestFlight build with blockers resolved;
+- published privacy and DSA information;
+- favorable trademark review;
+- App Store approval.
 
-Le tableau synthétique des portes est dans [RELEASE_STATUS.md](RELEASE_STATUS.md). Le suivi probant des essais physiques se fait dans [QA_MATRIX.md](QA_MATRIX.md). Le statut du nom public est consigné dans [BRAND_REVIEW.md](BRAND_REVIEW.md).
+The gate summary is in [RELEASE_STATUS.md](RELEASE_STATUS.md). Evidence from physical testing is tracked in [QA_MATRIX.md](QA_MATRIX.md). Public-name status is recorded in [BRAND_REVIEW.md](BRAND_REVIEW.md).
 
-La CI ne promeut jamais automatiquement une version iOS approuvée : la publication reste manuelle dans App Store Connect. Une mise à jour Mac n’est forcée que pour une incompatibilité ou une faille critique.
+CI never promotes an approved iOS version automatically: release remains manual in App Store Connect. A Mac update is forced only for incompatibility or a critical vulnerability.
 
-## Secrets GitHub
+## GitHub secrets
 
-L’environnement protégé `release` attend les certificats Developer ID et Apple Distribution en base64, leurs mots de passe, la clé API App Store Connect et `SPARKLE_PRIVATE_KEY`. Aucun secret ne doit être défini comme variable publique ou commité.
+The protected `release` environment expects base64-encoded Developer ID and Apple Distribution certificates, their passwords, the App Store Connect API key and `SPARKLE_PRIVATE_KEY`. No secret may be committed or defined as a public variable.

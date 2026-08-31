@@ -1,96 +1,96 @@
-# Matrice de validation réelle V1
+# V1 Real-World QA Matrix
 
-Cette matrice est une porte de sortie. Une case ne passe à `RÉUSSI` qu’avec une date, un testeur, les modèles/versions utilisés et un lien vers le rapport ou le ticket. `NON TESTÉ` n’est jamais équivalent à une réussite.
+This matrix is a release gate. A row moves to `PASSED` only with a date, tester, device models and versions, plus a link to the report or ticket. `NOT TESTED` never counts as a pass.
 
-## Installations propres sans terminal
+## Clean installations without a terminal
 
-| N° | Mac / macOS | Compte sans outils dev | Réseau | Temps DMG → 1re dictée | Résultat | Preuve |
+| No. | Mac / macOS | Account without dev tools | Network | DMG → first dictation | Result | Evidence |
 |---:|---|:---:|---|---:|---|---|
-| 01 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 02 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 03 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 04 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 05 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 06 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 07 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 08 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 09 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
-| 10 | À renseigner | Oui | À renseigner | — | NON TESTÉ | — |
+| 01 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 02 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 03 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 04 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 05 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 06 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 07 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 08 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 09 | TBD | Yes | TBD | — | NOT TESTED | — |
+| 10 | TBD | Yes | TBD | — | NOT TESTED | — |
 
-Objectif UX : chacune des dix installations doit permettre une première dictée en moins de trois minutes après le téléchargement, sans Homebrew, Xcode ni Terminal.
+UX target: each of the ten installations must allow a first dictation within three minutes of download, without Homebrew, Xcode or Terminal.
 
-## Appareils et systèmes
+## Devices and systems
 
-- [ ] Plusieurs iPhone physiques sous iOS 26.
-- [ ] Plusieurs Mac Apple Silicon sous macOS 15 ou ultérieur.
-- [ ] Compte administrateur et compte standard macOS.
-- [ ] Tailles d’écran et tailles de texte iOS variées.
-- [ ] VoiceOver, contraste accru et réduction des animations.
+- [ ] Multiple physical iPhones running iOS 26.
+- [ ] Multiple Apple silicon Macs running macOS 15 or later.
+- [ ] Administrator and standard macOS accounts.
+- [ ] Different iOS screen and text sizes.
+- [ ] VoiceOver, increased contrast and reduced motion.
 
-## Réseau et cycle de vie
+## Network and lifecycle
 
-- [ ] Plusieurs Wi-Fi domestiques.
-- [ ] Pare-feu macOS actif.
-- [ ] Changement de réseau local.
-- [ ] Veille/réveil iPhone et Mac.
-- [ ] Redémarrage des deux appareils.
-- [ ] Perte réseau pendant dictée, commande et retour écran.
+- [ ] Multiple home Wi-Fi networks.
+- [ ] macOS firewall enabled.
+- [ ] Local-network change.
+- [ ] iPhone and Mac sleep/wake.
+- [ ] Restart both devices.
+- [ ] Network loss during dictation, commands and screen view.
 
-## Plusieurs Macs
+## Multiple Macs
 
-- [ ] Migration d’une installation mono-Mac sans nouvel appairage.
-- [ ] Ajout d’un deuxième puis d’un troisième compagnon sans écraser les précédents.
-- [ ] Bascule A → B → A sur le même LAN, sans commande livrée à l’ancienne cible.
-- [ ] Bascule entre un Mac local et un Mac accessible uniquement par Tailscale.
-- [ ] Annulation/refus d’un nouvel appairage puis reconnexion au Mac précédent.
-- [ ] Oubli du Mac actif avec sélection automatique du compagnon restant.
-- [ ] Oubli d’un Mac inactif sans interrompre la session courante.
-- [ ] Deux Macs portant le même nom restent distingués par leur certificat.
+- [ ] Migrate a single-Mac installation without pairing again.
+- [ ] Add a second and then third companion without replacing earlier ones.
+- [ ] Switch A → B → A on the same LAN, with no command delivered to the old target.
+- [ ] Switch between a local Mac and a Mac reachable only through Tailscale.
+- [ ] Cancel or deny new pairing, then reconnect to the previous Mac.
+- [ ] Forget the active Mac and automatically select the remaining companion.
+- [ ] Forget an inactive Mac without interrupting the current session.
+- [ ] Keep two Macs with the same name distinct through their certificates.
 
-## Applications cibles
+## Target applications
 
-| Cible | Dictée | Clavier | Trackpad | Changement de champ refusé | Champ sécurisé refusé |
+| Target | Dictation | Keyboard | Trackpad | Changed field rejected | Secure field rejected |
 |---|---|---|---|---|---|
-| Notes | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | N/A |
-| Mail | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | N/A |
-| Safari | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ |
-| Chrome | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ |
-| Slack/Teams | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | N/A |
-| Pages | NON TESTÉ | NON TESTÉ | NON TESTÉ | NON TESTÉ | N/A |
+| Notes | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | N/A |
+| Mail | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | N/A |
+| Safari | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED |
+| Chrome | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED |
+| Slack/Teams | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | N/A |
+| Pages | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | N/A |
 
-## Distribution et mise à jour
+## Distribution and updates
 
-- [ ] Montage du DMG et glisser-déposer vers Applications.
-- [ ] Lancement accidentel depuis le DMG expliqué et récupérable.
-- [ ] Accessibilité guidée avec vérification au retour.
-- [ ] Capture d’écran jamais demandée avant le premier retour écran.
-- [ ] Premier appairage et approbation Mac.
-- [ ] Reconnexion après redémarrage.
-- [ ] Révocation d’un iPhone et remise à zéro totale.
-- [ ] Mise à jour Sparkle entre deux DMG signés.
-- [ ] Désinstallation documentée et vérifiée.
+- [ ] Mount the DMG and drag to Applications.
+- [ ] Explain and recover from accidental launch inside the DMG.
+- [ ] Guided Accessibility permission with verification on return.
+- [ ] Never request Screen Recording before the first screen-view use.
+- [ ] First pairing and Mac approval.
+- [ ] Reconnect after restart.
+- [ ] Revoke an iPhone and perform a complete reset.
+- [ ] Sparkle update between two signed DMGs.
+- [ ] Documented and verified uninstallation.
 
-## Bêta publique
+## Public beta
 
-Le formulaire TestFlight doit recueillir : appareil/OS, installation du compagnon, compréhension des permissions, appairage, temps jusqu’à la première dictée, stabilité, retour écran, désinstallation et consentement à être recontacté. Chaque anomalie critique ou élevée bloque la Release Candidate.
+The TestFlight form must collect: device/OS, companion installation, permission comprehension, pairing, time to first dictation, stability, screen view, uninstallation and consent to follow-up. Every critical or high-severity issue blocks the Release Candidate.
 
-## Mode Nomade V1.1
+## Roaming mode V1.1
 
-Le site ne peut annoncer ce mode comme disponible qu’après validation de toutes les lignes suivantes.
+The website must not announce this mode as available until every row below is validated.
 
-| Scénario | Direct Tailscale | DERP | 5G | Résultat / preuve |
+| Scenario | Direct Tailscale | DERP | 5G | Result / evidence |
 |---|:---:|:---:|:---:|---|
-| Tailscale absent, arrêté ou déconnecté expliqué clairement | — | — | — | NON TESTÉ |
-| MagicDNS indisponible, repli IPv4 `100.64.0.0/10` | — | — | — | NON TESTÉ |
-| ACL bloquante et certificat falsifié refusés | — | — | — | NON TESTÉ |
-| Course Local/Nomade, annulation du perdant et retour automatique au LAN | — | — | — | Priorité de route automatisée ; course physique restante |
-| Veille/réveil et Wi‑Fi → 5G, reconnexion < 10 s une fois joignable | — | — | — | NON TESTÉ |
-| QR par caméra, image et code ; autorisation/refus/expiration/rejeu | — | — | — | NON TESTÉ |
-| Dictée, clavier, trackpad, raccourcis et sélection d’apps pendant 15 min | NON TESTÉ | NON TESTÉ | NON TESTÉ | — |
-| Retour écran adaptatif pendant 15 min | NON TESTÉ | NON TESTÉ | NON TESTÉ | — |
-| 50 séquences sans commande perdue ni dupliquée | NON TESTÉ | NON TESTÉ | NON TESTÉ | — |
-| Aucun ralentissement mesurable du trackpad local | — | — | — | NON TESTÉ |
+| Tailscale missing, stopped or disconnected is explained clearly | — | — | — | NOT TESTED |
+| MagicDNS unavailable, fallback to IPv4 `100.64.0.0/10` | — | — | — | NOT TESTED |
+| Blocking ACL and forged certificate are rejected | — | — | — | NOT TESTED |
+| Local/Roaming race, losing attempt cancelled and automatic return to LAN | — | — | — | Route priority automated; physical race still pending |
+| Sleep/wake and Wi-Fi → 5G, reconnect in < 10 s once reachable | — | — | — | NOT TESTED |
+| QR through camera, image and code; allow/deny/expiry/replay | — | — | — | NOT TESTED |
+| Dictation, keyboard, trackpad, shortcuts and app selection for 15 min | NOT TESTED | NOT TESTED | NOT TESTED | — |
+| Adaptive screen view for 15 min | NOT TESTED | NOT TESTED | NOT TESTED | — |
+| 50 sequences with no lost or duplicated command | NOT TESTED | NOT TESTED | NOT TESTED | — |
+| No measurable slowdown of the local trackpad | — | — | — | NOT TESTED |
 
-Le premier appairage distant n’est réussi que si une personne compare le code et clique **Autoriser** devant le Mac dans les 60 secondes. Une absence de personne, un refus ou une expiration doivent fermer la session.
+Initial remote pairing succeeds only when a person compares the code and clicks **Allow** in front of the Mac within 60 seconds. No person present, denial or expiry must close the session.
 
-Preuve locale du 29 août 2026 : Tailscale `Running`, endpoint MagicDNS et IPv4 CGNAT détectés par le compagnon signé Nicolas, et port TLS 54389 joignable via le nom MagicDNS et l’adresse Tailscale. Cette preuve valide le listener Mac, pas encore le trajet complet depuis l’iPhone en 5G ou via DERP.
+Local evidence from August 29, 2026: Tailscale `Running`, MagicDNS endpoint and CGNAT IPv4 detected by the Nicolas-signed companion, with TLS port 54389 reachable through both the MagicDNS name and Tailscale address. This validates the Mac listener, not yet the complete path from an iPhone over 5G or DERP.

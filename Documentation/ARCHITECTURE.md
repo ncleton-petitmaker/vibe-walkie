@@ -1,48 +1,48 @@
 # Architecture
 
-## Composants
+## Components
 
 ```text
-iPhone (iOS 26+)                       Mac Apple Silicon (macOS 15+)
+iPhone (iOS 26+)                       Apple silicon Mac (macOS 15+)
 ┌──────────────────────┐               ┌─────────────────────────┐
 │ SwiftUI              │               │ SwiftUI / menu bar      │
-│ Speech local         │               │ Accessibility / CGEvent │
-│ Gestes et dictée     │               │ ScreenCaptureKit        │
-│ Client Network       │── TLS 1.3 ───▶│ Serveur Network :54389  │
+│ On-device Speech     │               │ Accessibility / CGEvent │
+│ Touch and dictation  │               │ ScreenCaptureKit        │
+│ Network client       │── TLS 1.3 ───▶│ Network server :54389   │
 └──────────┬───────────┘               └────────────┬────────────┘
            └──────── RemoteCore V3 ─────────────────┘
 ```
 
-`RemoteCore` contient uniquement les modèles, le cadrage, les signatures, l’anti-rejeu et les limites partagés. Il ne dépend d’aucune interface utilisateur.
+`RemoteCore` contains only shared models, framing, signatures, replay protection and limits. It has no user-interface dependency.
 
-Le compagnon publie `_viberemote._tcp` avec Bonjour et écoute le port TLS fixe 54389. En mode standard, l’iPhone le découvre sur le LAN. En mode Nomade facultatif, le même listener est atteint directement par le nom MagicDNS ou l’adresse `100.64.0.0/10` fournis par Tailscale. Cet identifiant Bonjour historique reste stable entre les versions. Le serveur n’exécute jamais de chaîne arbitraire : chaque type de message est routé vers une action bornée.
+The companion advertises `_viberemote._tcp` with Bonjour and listens on fixed TLS port 54389. In standard mode, the iPhone discovers it on the LAN. In optional Roaming mode, the same listener is reached directly through the MagicDNS name or `100.64.0.0/10` address provided by Tailscale. This historical Bonjour identifier remains stable across versions. The server never executes arbitrary strings: every message type maps to a bounded action.
 
-Au lancement, l’iPhone démarre Bonjour immédiatement. Sans connexion TLS prête après 750 ms, il tente en parallèle le nom MagicDNS, puis l’IPv4 Tailscale si la résolution échoue. La première connexion dont le certificat correspond exactement à l’empreinte appairée gagne ; les autres sont annulées. L’écoute Bonjour reste active pendant une session Nomade : lorsque le Mac réapparaît sur le LAN, l’iPhone relance une course avec la même avance locale et revient automatiquement au trajet local. Un délai anti-boucle de dix secondes évite les bascules répétées sur un réseau instable.
+At launch, the iPhone starts Bonjour immediately. If no TLS connection is ready after 750 ms, it tries the MagicDNS name in parallel, followed by the Tailscale IPv4 address if resolution fails. The first connection whose certificate exactly matches the paired fingerprint wins; the others are cancelled. Bonjour discovery remains active during a Roaming session: when the Mac reappears on the LAN, the iPhone starts another race with the same local head start and automatically returns to the local path. A ten-second anti-loop delay prevents repeated switching on an unstable network.
 
-## Identité et confiance
+## Identity and trust
 
-Au premier lancement, le Mac crée une clé P-256 permanente et un certificat X.509 auto-signé avec Swift Certificates. Le certificat et la clé sont associés en `SecIdentity` dans le trousseau. L’empreinte SHA-256 est stable jusqu’à une réinitialisation volontaire.
+On first launch, the Mac creates a permanent P-256 key and a self-signed X.509 certificate with Swift Certificates. The certificate and key are associated as a `SecIdentity` in Keychain. The SHA-256 fingerprint remains stable until an intentional reset.
 
-Le QR transporte le nom du Mac, le service Bonjour, l’empreinte TLS, un secret aléatoire et une expiration de 120 secondes. Le QR Nomade ajoute un `NomadEndpoint` facultatif et reste valable dix minutes pour permettre son transfert par image ou code. Après preuve Curve25519, le Mac demande toujours une confirmation humaine de 60 secondes. Seul **Autoriser** persiste la clé publique de l’iPhone.
+The QR code carries the Mac name, Bonjour service, TLS fingerprint, a random secret and a 120-second expiry. The Roaming QR code adds an optional `NomadEndpoint` and remains valid for ten minutes so it can be transferred as an image or compact code. After Curve25519 proof, the Mac always requests 60-second human confirmation. Only **Allow** persists the iPhone public key.
 
-## Plusieurs Macs
+## Multiple Macs
 
-L’iPhone conserve un registre de compagnons, identifié par l’empreinte de leur certificat TLS, ainsi que l’identifiant du Mac sélectionné. Une installation qui ne connaissait qu’un seul Mac est migrée automatiquement vers ce registre. Ajouter un compagnon ne remplace donc plus le précédent.
+The iPhone keeps a registry of companions identified by their TLS certificate fingerprint, together with the selected Mac identifier. An installation that previously knew only one Mac is migrated automatically to this registry. Adding a companion therefore no longer replaces the previous one.
 
-Une seule session de contrôle est active à la fois. Lorsque l’utilisateur choisit un autre Mac, le client annule la connexion, les tentatives réseau et les réponses en attente de l’ancienne cible, efface son état d’interface, puis démarre un nouveau cycle Local/Nomade avec le certificat du Mac choisi. La même identité Curve25519 de l’iPhone peut être approuvée séparément sur plusieurs Macs ; aucune clé privée n’est dupliquée et aucun compte cloud n’est introduit.
+Only one control session is active at a time. When the user chooses another Mac, the client cancels the old target's connection, network attempts and pending replies, clears its interface state, then starts a new Local/Roaming cycle with the selected Mac's certificate. The same iPhone Curve25519 identity can be approved independently on multiple Macs; no private key is duplicated and no cloud account is introduced.
 
-## Transaction de dictée
+## Dictation transaction
 
-1. `recording_started` capture immédiatement l’élément AX, la fenêtre, le rôle et le processus.
-2. L’iPhone transcrit localement ; aucun texte n’est encore écrit sur le Mac.
-3. L’annulation consomme la cible sans insertion.
-4. Au relâchement, l’iPhone envoie un unique `insert_text`.
-5. Le Mac refuse une cible sécurisée, expirée, absente ou différente.
-6. L’iPhone affiche « livré » uniquement après l’ACK contenant le résultat d’insertion.
+1. `recording_started` immediately captures the AX element, window, role and process.
+2. The iPhone transcribes locally; no text has been written to the Mac yet.
+3. Cancellation consumes the target without insertion.
+4. On release, the iPhone sends one `insert_text` message.
+5. The Mac rejects a secure, expired, missing or changed target.
+6. The iPhone displays “delivered” only after the ACK containing the insertion result.
 
-## Persistance
+## Persistence
 
-- iOS : clé Curve25519 dans le trousseau, registre des Macs appairés et cible sélectionnée dans `UserDefaults`. Aucune transcription n’est persistée.
-- macOS : identité TLS dans le trousseau, pairs approuvés dans Application Support avec protection jusqu’à la première authentification.
-- aucune base distante, aucun identifiant utilisateur et aucune télémétrie ;
-- l’endpoint Nomade facultatif contient uniquement un nom `*.ts.net`, une IPv4 Tailscale facultative et le port fixe. Aucun compte ou jeton Tailscale n’entre dans `RemoteCore`.
+- iOS: Curve25519 key in Keychain, paired-Mac registry and selected target in `UserDefaults`. No transcript is persisted.
+- macOS: TLS identity in Keychain, approved peers in Application Support with protection until first authentication.
+- no remote database, user identifier or telemetry;
+- the optional Roaming endpoint contains only a `*.ts.net` name, optional Tailscale IPv4 address and fixed port. No Tailscale account or token enters `RemoteCore`.

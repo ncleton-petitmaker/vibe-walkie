@@ -1,22 +1,22 @@
-# Compilation reproductible
+# Reproducible Builds
 
-## Prérequis
+## Requirements
 
-- macOS avec Xcode 26 ou supérieur ;
-- Swift 6 ;
-- XcodeGen uniquement si `project.yml` est modifié ;
-- aucun Homebrew, OpenSSL, serveur ou shell requis par l’utilisateur final.
+- macOS with Xcode 26 or later;
+- Swift 6;
+- XcodeGen only when `project.yml` changes;
+- no Homebrew, OpenSSL, server or shell required by the end user.
 
-## Tests et builds non signés
+## Tests and unsigned builds
 
-Exécutez `scripts/ci-local.sh`. Le script lance RemoteCore, régénère les projets lorsque XcodeGen est présent, puis compile iOS Simulator et macOS arm64 sans signature.
+Run `scripts/ci-local.sh`. The script tests RemoteCore, regenerates projects when XcodeGen is available, then builds iOS Simulator and macOS arm64 without signing.
 
-## Signature d’un fork
+## Signing a fork
 
-Ne modifiez pas les identifiants de travail directement. Copiez `Config/Developer.example.xcconfig` vers `Config/Developer.xcconfig`, renseignez les cinq identifiants et votre Team ID, puis ajoutez `-xcconfig Config/Developer.xcconfig` à votre commande `xcodebuild`. Ce fichier est ignoré par Git.
+Do not edit the working identifiers directly. Copy `Config/Developer.example.xcconfig` to `Config/Developer.xcconfig`, enter the five identifiers and your Team ID, then add `-xcconfig Config/Developer.xcconfig` to your `xcodebuild` command. Git ignores this file.
 
-L’installation personnelle iOS nécessite un compte Apple Developer et les limites habituelles du provisioning Apple. Le compagnon Mac peut être lancé depuis Xcode pour le développement ; une distribution à d’autres utilisateurs exige Developer ID et notarisation.
+A personal iOS installation requires an Apple Developer account and is subject to Apple's usual provisioning limits. The Mac companion can be launched from Xcode during development; distributing it to other users requires Developer ID and notarization.
 
-## Dépendances
+## Dependencies
 
-Les versions exactes sont décrites dans `macOS/project.yml` et figées dans `Package.resolved`. Vérifiez toute mise à jour de dépendance, sa licence et son impact sur le manifeste de confidentialité.
+Exact versions are declared in `macOS/project.yml` and pinned in `Package.resolved`. Review every dependency update, its license and its effect on the privacy manifest.

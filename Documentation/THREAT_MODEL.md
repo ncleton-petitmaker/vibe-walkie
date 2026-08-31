@@ -1,43 +1,43 @@
-# Modèle de menace
+# Threat Model
 
-## Actifs
+## Assets
 
-- texte dicté pendant son traitement en mémoire ;
-- capacité de frappe, clic et pilotage du Mac ;
-- images du retour écran ;
-- clés d’appareil, identité TLS et secret éphémère d’appairage ;
-- chaîne de mise à jour et certificats de distribution.
+- dictated text while it is processed in memory;
+- ability to type, click and control the Mac;
+- screen-view images;
+- device keys, TLS identity and ephemeral pairing secret;
+- update chain and distribution certificates.
 
-## Adversaires considérés
+## Considered adversaries
 
-- appareil hostile sur le même Wi‑Fi ;
-- pair hostile ou ACL trop large dans le même tailnet Tailscale ;
-- interception ou empoisonnement de la découverte Bonjour ;
-- capture/rejeu de trames ;
-- QR photographié mais expiré ;
-- iPhone précédemment autorisé puis révoqué ;
-- cible AX changée pendant la dictée ;
-- compromission d’un artefact de mise à jour ;
-- contribution publique contenant un secret.
+- hostile device on the same Wi-Fi network;
+- hostile peer or overly broad ACL in the same Tailscale tailnet;
+- interception or poisoning of Bonjour discovery;
+- frame capture and replay;
+- photographed but expired QR code;
+- previously authorized and later revoked iPhone;
+- AX target changed during dictation;
+- compromised update artifact;
+- public contribution containing a secret.
 
-## Mesures
+## Mitigations
 
-| Menace | Mesure |
+| Threat | Mitigation |
 |---|---|
-| Interception locale | TLS 1.3 et empreinte exacte transmise hors bande par QR |
-| Interception via Tailscale ou DERP | tunnel WireGuard Tailscale plus TLS 1.3 épinglé propre à Vibe Walkie |
-| Faux iPhone | signature Curve25519, secret QR et approbation explicite sur le Mac |
-| Rejeu | séquences monotones, identifiants de message et cache d’ACK idempotent |
-| Déni de service | trames et payloads bornés, rate limiting global, huit sessions non authentifiées au maximum et délai de dix secondes |
-| Mauvaise cible | capture AX immédiate, token court, identité stricte, refus des champs sécurisés |
-| Double insertion | un seul `insert_text`, consommation du token, ACK rejoué sans réexécution |
-| Mise à jour falsifiée | Developer ID, notarisation, EdDSA Sparkle et HTTPS GitHub |
-| Secret dans Git | Gitleaks, Dependabot, revue et environnement `release` protégé |
+| Local interception | TLS 1.3 and exact fingerprint transferred out of band through the QR code |
+| Interception through Tailscale or DERP | Tailscale WireGuard tunnel plus Vibe Walkie's own pinned TLS 1.3 |
+| Impersonated iPhone | Curve25519 signature, QR secret and explicit approval on the Mac |
+| Replay | monotonic sequences, message identifiers and idempotent ACK cache |
+| Denial of service | bounded frames and payloads, global rate limiting, at most eight unauthenticated sessions and a ten-second timeout |
+| Wrong target | immediate AX capture, short-lived token, strict identity and secure-field rejection |
+| Double insertion | a single `insert_text`, token consumption and replayed ACK without re-execution |
+| Forged update | Developer ID, notarization, Sparkle EdDSA and GitHub HTTPS |
+| Secret in Git | Gitleaks, Dependabot, review and protected `release` environment |
 
-## Limites assumées
+## Accepted limitations
 
-Un Mac ou iPhone déjà compromis au niveau du compte utilisateur peut lire ce que cet utilisateur voit ou saisit. Le protocole ne protège pas contre un attaquant ayant déverrouillé physiquement les deux appareils. Bonjour révèle la présence du service sur le LAN. En mode Nomade, le tailnet et ses ACL restent sous la responsabilité de l’utilisateur et soumis aux conditions de Tailscale. Le retour écran transmet nécessairement les pixels affichés à l’iPhone autorisé.
+A Mac or iPhone already compromised at the user-account level can read what that user sees or enters. The protocol does not protect against an attacker who has physically unlocked both devices. Bonjour reveals the service's presence on the LAN. In Roaming mode, the tailnet and its ACLs remain the user's responsibility and are subject to Tailscale's terms. Screen view necessarily transmits displayed pixels to the authorized iPhone.
 
-## Hors périmètre V1
+## Out of scope for V1
 
-Serveur Vibe Walkie, accès public/Funnel, comptes Vibe Walkie, multi-tenant, synchronisation cloud, Mac Intel et compatibilité protocole V1.
+Vibe Walkie server, public/Funnel access, Vibe Walkie accounts, multitenancy, cloud synchronization, Intel Macs and protocol V1 compatibility.

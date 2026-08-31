@@ -1,20 +1,20 @@
-# Dossier App Store V1
+# App Store V1 Package
 
-> Le dossier de contenu est prêt dans [`Store/fr-FR`](../Store/fr-FR/). Le nom, les URLs et les identifiants définitifs sont bloqués par la [revue de marque](BRAND_REVIEW.md).
+> The French content package is ready in [`Store/fr-FR`](../Store/fr-FR/). Final naming, URLs and identifiers remain subject to the [trademark review](BRAND_REVIEW.md).
 
-- Territoire : France.
-- Langue : français.
-- Prix : 14,99 €, achat initial unique.
-- Aucun abonnement, IAP, compte, publicité ou tracking.
-- Vendeur : Nicolas Cléton, individuel.
-- Statut DSA attendu pour cette activité commerciale : trader individuel, coordonnées vérifiées dans App Store Connect.
+- Territory: France.
+- Language: French.
+- Price: €14.99, one-time purchase.
+- No subscription, IAP, account, advertising or tracking.
+- Seller: Nicolas Cléton, individual.
+- Expected DSA status for this commercial activity: individual trader, with contact details verified in App Store Connect.
 
-## Notes de revue
+## Review notes
 
-Le compagnon Mac signé et notarisé sera disponible à l’URL publique renseignée après validation du nom. L’onboarding explique le téléchargement, le QR et l’approbation sur le Mac. Le mode **Découvrir sans Mac** est en lecture seule et ne simule aucune commande réussie.
+The signed and notarized Mac companion will be available from the public URL listed after final name approval. Onboarding explains the download, QR code and approval on the Mac. **Explore without a Mac** is read-only and does not simulate successful commands.
 
-La caméra n’est demandée qu’à l’ouverture du scanner. Le microphone et Speech ne sont demandés qu’au premier démarrage d’une dictée. L’Accessibilité est requise sur le Mac pour cibler et insérer ; la Capture d’écran n’est demandée qu’à l’activation facultative du retour écran.
+The camera is requested only when the scanner opens. Microphone and Speech permissions are requested only when dictation first starts. Accessibility is required on the Mac for targeting and insertion; Screen Recording is requested only when the optional screen view is enabled.
 
-Le mode Nomade V1.1 est facultatif et nécessite l’application Tailscale installée séparément. Aucun compte ou jeton Tailscale n’est transmis à Vibe Walkie. La revue peut utiliser le parcours local sans Tailscale ; les notes de revue décrivent aussi le test Nomade et sa validation humaine obligatoire sur le Mac.
+Roaming mode V1.1 is optional and requires the separately installed Tailscale app. No Tailscale account or token is transmitted to Vibe Walkie. Reviewers can use the local flow without Tailscale; the review notes also describe Roaming testing and its mandatory human approval on the Mac.
 
-App Privacy : aucune donnée collectée par le développeur, aucun tracking et aucun historique de dictées. Le chiffrement repose sur les API système et des bibliothèques open source ; `ITSAppUsesNonExemptEncryption` vaut `false` sous réserve de confirmation finale dans App Store Connect.
+App Privacy: no data collected by the developer, no tracking and no dictation history. Encryption relies on system APIs and open-source libraries; `ITSAppUsesNonExemptEncryption` is `false`, subject to final confirmation in App Store Connect.

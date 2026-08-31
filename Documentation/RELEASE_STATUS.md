@@ -1,26 +1,26 @@
-# État des portes de sortie V1
+# V1 Release Gate Status
 
-Mis à jour le 29 août 2026. `PRÊT` signifie qu’une preuve locale reproductible existe ; `EXTERNE` exige un compte, un certificat, du matériel ou une validation tierce ; `BLOQUÉ` empêche explicitement la publication.
+Updated August 29, 2026. `READY` means reproducible local evidence exists; `EXTERNAL` requires an account, certificate, hardware or third-party approval; `BLOCKED` explicitly prevents release.
 
-| Porte | Statut | Preuve / action suivante |
+| Gate | Status | Evidence / next action |
 |---|---|---|
-| Protocole V3, appairage, dictée transactionnelle et bloc configurable | PRÊT | 59 tests `RemoteCore`, 18 tests iOS et 39 tests macOS verts |
-| Mode Nomade Tailscale — code et tests unitaires | PRÊT | Détection réelle `Running`, MagicDNS/IP, listener signé et port 54389 joignable sur l’adresse Tailscale du Mac de validation ; builds iOS/macOS et suites automatiques verts |
-| Mode Nomade Tailscale — matrice physique | EXTERNE | Direct, DERP, 5G, veille et 50 séquences à documenter dans [QA_MATRIX.md](QA_MATRIX.md) avant annonce publique. L’installation iPhone de développement attend un nouveau profil Nicolas : la session du compte Xcode est actuellement rejetée. |
-| Identité TLS Swift autonome et stable | PRÊT | Tests création, corruption, stabilité, régénération |
-| Builds iOS Simulator et macOS arm64 | PRÊT | `scripts/ci-local.sh`, builds Release non signés iOS/macOS et DMG arm64 contrôlé |
-| Lint Swift et scripts | PRÊT | SwiftLint strict et ShellCheck |
-| Scan des secrets et fichiers interdits | PRÊT | Gitleaks sans fuite sur tout l’historique actuel + garde CI ; à répéter sur l’historique final |
-| Dépôt open source documenté | PRÊT en local | Publication volontairement gelée jusqu’au nouveau nom |
-| Nom public disponible | **BLOQUÉ** | Titre exact absent de la recherche publique et formulaire Apple préparé, mais produit concurrent homonyme actif ; voir [BRAND_REVIEW.md](BRAND_REVIEW.md) |
-| Certificat Developer ID Application | EXTERNE | Créer/télécharger depuis le compte Apple Developer |
-| Signature, notarisation, stapling, Gatekeeper | EXTERNE | Exécuter le workflow Mac avec le certificat et les identifiants de notarisation |
-| Mise à jour Sparkle entre deux versions signées | EXTERNE | Publier deux bêtas après gel du nom et du feed |
-| Certificat Apple Distribution / App Store Connect | EXTERNE | Configurer le compte individuel, contrats et clé API |
-| DSA, confidentialité et export compliance | EXTERNE | Publier les URLs, vérifier trader individuel et qualification chiffrement |
-| Dix installations propres en moins de trois minutes | EXTERNE | Exécuter et documenter [QA_MATRIX.md](QA_MATRIX.md) |
-| Bêta TestFlight publique | EXTERNE | Nécessite nom, enregistrement App Store et archive signée |
-| Approbation App Store | EXTERNE | Soumission manuelle après toutes les portes précédentes |
-| Tag `1.0.0` signé et DMG final | EXTERNE | Seulement après approbation et tests réels |
+| V3 protocol, pairing, transactional dictation and configurable controls | READY | 59 passing `RemoteCore` tests, 18 iOS tests and 39 macOS tests |
+| Tailscale Roaming — code and unit tests | READY | Real `Running` detection, MagicDNS/IP, signed listener and port 54389 reachable through the validation Mac's Tailscale address; passing iOS/macOS builds and automated suites |
+| Tailscale Roaming — physical matrix | EXTERNAL | Direct, DERP, 5G, sleep and 50 sequences must be documented in [QA_MATRIX.md](QA_MATRIX.md) before public announcement. The development iPhone installation is waiting for a new Nicolas profile because Xcode currently rejects the account session. |
+| Self-contained and stable Swift TLS identity | READY | Creation, corruption, stability and regeneration tests |
+| iOS Simulator and macOS arm64 builds | READY | `scripts/ci-local.sh`, unsigned iOS/macOS Release builds and verified arm64 DMG |
+| Swift and script linting | READY | Strict SwiftLint and ShellCheck |
+| Secret and forbidden-file scanning | READY | Gitleaks clean across current history plus CI guard; repeat against final history |
+| Documented open-source repository | READY locally | Publication intentionally frozen until the new name |
+| Public name available | **BLOCKED** | Exact title absent from public search and Apple form prepared, but a competing product uses the same name; see [BRAND_REVIEW.md](BRAND_REVIEW.md) |
+| Developer ID Application certificate | EXTERNAL | Create or download it from the Apple Developer account |
+| Signing, notarization, stapling and Gatekeeper | EXTERNAL | Run the Mac workflow with the certificate and notarization credentials |
+| Sparkle update between two signed releases | EXTERNAL | Publish two betas after freezing the name and feed |
+| Apple Distribution certificate / App Store Connect | EXTERNAL | Configure the individual account, agreements and API key |
+| DSA, privacy and export compliance | EXTERNAL | Publish URLs and verify individual-trader and encryption classifications |
+| Ten clean installations in under three minutes | EXTERNAL | Run and document [QA_MATRIX.md](QA_MATRIX.md) |
+| Public TestFlight beta | EXTERNAL | Requires name, App Store record and signed archive |
+| App Store approval | EXTERNAL | Submit manually after all previous gates |
+| Signed `1.0.0` tag and final DMG | EXTERNAL | Only after approval and real-device testing |
 
-La version `1.0.0` ne doit pas être taguée tant qu’une ligne est `BLOQUÉE` ou `EXTERNE` sans preuve attachée.
+Version `1.0.0` must not be tagged while any row is `BLOCKED` or `EXTERNAL` without attached evidence.
