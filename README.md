@@ -93,7 +93,7 @@ Optional Roaming mode is configured from the Mac companion. It detects Tailscale
 - **iPhone** — [available through TestFlight](https://testflight.apple.com/join/9AUshVWm).
 - **Apple silicon Mac** — the free companion will be available from [vibewalkie.app](https://vibewalkie.app) as a signed and notarized DMG.
 
-The purchase supports official signed builds, updates and support. The source remains freely buildable with your own Apple Developer account.
+The source remains freely buildable with your own Apple Developer account.
 
 ### Build it yourself
 
