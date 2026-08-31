@@ -21,7 +21,7 @@ jobs:
           XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort | tail -1)"
           if [[ -n "$XCODE_APP" ]]; then sudo xcode-select --switch "$XCODE_APP"; fi
           xcodebuild -version | tee /tmp/xcode-version
-          rg '^Xcode 26' /tmp/xcode-version
+          grep -Eq '^Xcode 26' /tmp/xcode-version
       - name: Installer les outils de validation
         run: brew install xcodegen swiftlint gitleaks ripgrep
       - name: Régénérer les projets
