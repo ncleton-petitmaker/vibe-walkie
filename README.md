@@ -90,7 +90,7 @@ Optional Roaming mode is configured from the Mac companion. It detects Tailscale
 
 ### Official release
 
-- **iPhone** — the public beta is [available through TestFlight](https://testflight.apple.com/join/9AUshVWm), subject to Apple's beta review. The commercial release is planned at **€14.99** as a one-time purchase on the French App Store.
+- **iPhone** — [available through TestFlight](https://testflight.apple.com/join/9AUshVWm).
 - **Apple silicon Mac** — the free companion will be available from [vibewalkie.app](https://vibewalkie.app) as a signed and notarized DMG.
 
 The purchase supports official signed builds, updates and support. The source remains freely buildable with your own Apple Developer account.
