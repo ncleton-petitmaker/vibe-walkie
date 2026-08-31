@@ -20,6 +20,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>VibeWalkieNomadModeEnabled</key>
+	<string>$(NOMAD_MODE_ENABLED)</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_viberemote._tcp</string>
@@ -27,7 +29,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>La caméra sert uniquement à scanner le code affiché par votre Mac lors de l’appairage.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Vibe Walkie se connecte directement à votre Mac uniquement sur votre réseau local.</string>
+	<string>Vibe Walkie se connecte directement à votre Mac par le réseau local ou votre réseau privé Tailscale.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Vibe Walkie transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
@@ -39,6 +41,8 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>

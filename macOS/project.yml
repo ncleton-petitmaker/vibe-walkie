@@ -1,6 +1,7 @@
 name: AppRemoteMac
 options:
   bundleIdPrefix: com.nicolascleton
+  developmentLanguage: fr
   deploymentTarget:
     macOS: "15.0"
   createIntermediateGroups: true
@@ -26,6 +27,11 @@ settings:
     # Les Bundle IDs historiques restent stables pour la signature et les autorisations macOS.
     VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac
     VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac.tests
+  configs:
+    Debug:
+      NOMAD_MODE_ENABLED: YES
+    Release:
+      NOMAD_MODE_ENABLED: YES
 
 targets:
   AppRemoteMac:

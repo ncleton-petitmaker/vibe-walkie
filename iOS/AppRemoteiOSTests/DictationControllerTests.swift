@@ -4,40 +4,40 @@ import RemoteCore
 
 @MainActor
 final class DictationControllerTests: XCTestCase {
-    private var directory: URL!
-    private var defaults: UserDefaults!
-    private var suiteName: String!
-    private var history: TranscriptHistoryStore!
+    func testExpandedTrackpadSpeedMigrationRaisesLegacyMaximumsOnlyOnce() {
+        let suiteName = "TrackpadSettingsTests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(3.0, forKey: "trackpadSensitivity")
+        defaults.set(2.0, forKey: "scrollSensitivity")
+
+        TrackpadSettings.migrateExpandedSpeedRange(defaults: defaults)
+
+        XCTAssertEqual(defaults.double(forKey: "trackpadSensitivity"), 5.0)
+        XCTAssertEqual(defaults.double(forKey: "scrollSensitivity"), 4.0)
+
+        defaults.set(5.7, forKey: "trackpadSensitivity")
+        defaults.set(4.6, forKey: "scrollSensitivity")
+        TrackpadSettings.migrateExpandedSpeedRange(defaults: defaults)
+        XCTAssertEqual(defaults.double(forKey: "trackpadSensitivity"), 5.7)
+        XCTAssertEqual(defaults.double(forKey: "scrollSensitivity"), 4.6)
+    }
+
     private var transport: FakeDictationTransport!
     private var engine: FakeSpeechEngine!
     private var controller: DictationController!
 
     override func setUp() async throws {
         try await super.setUp()
-        directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        suiteName = "DictationControllerTests-\(UUID().uuidString)"
-        defaults = UserDefaults(suiteName: suiteName)!
-        defaults.removePersistentDomain(forName: suiteName)
-        history = TranscriptHistoryStore(
-            fileURL: directory.appendingPathComponent("history.json"),
-            defaults: defaults
-        )
         transport = FakeDictationTransport()
         engine = FakeSpeechEngine(finalText: "Bonjour depuis le test")
-        controller = DictationController(client: transport, history: history, engine: engine)
+        controller = DictationController(client: transport, engine: engine)
     }
 
     override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: directory)
-        defaults.removePersistentDomain(forName: suiteName)
         controller = nil
         engine = nil
         transport = nil
-        history = nil
-        defaults = nil
-        suiteName = nil
-        directory = nil
         try await super.tearDown()
     }
 
@@ -50,14 +50,12 @@ final class DictationControllerTests: XCTestCase {
 
         XCTAssertEqual(controller.phase, .sending)
         XCTAssertEqual(transport.insertPayloads.first?.text, "Bonjour depuis le test")
-        XCTAssertEqual(history.entries.first?.delivery, .pending)
 
         transport.completeInsertReply()
         try await waitUntil {
             if case .delivered = self.controller.phase { return true }
             return false
         }
-        XCTAssertEqual(history.entries.first?.delivery, .delivered)
         XCTAssertEqual(transport.insertPayloads.count, 1)
     }
 
@@ -70,7 +68,6 @@ final class DictationControllerTests: XCTestCase {
         try await waitUntil { self.engine.didCancel }
         XCTAssertTrue(transport.insertPayloads.isEmpty)
         XCTAssertEqual(transport.cancelPayloads.count, 1)
-        XCTAssertTrue(history.entries.isEmpty)
     }
 
     func testSystemCancellationNeverInsertsText() async throws {
@@ -91,7 +88,6 @@ final class DictationControllerTests: XCTestCase {
 
         try await waitUntil { self.transport.cancelPayloads.count == 1 }
         XCTAssertTrue(transport.insertPayloads.isEmpty)
-        XCTAssertTrue(history.entries.isEmpty)
     }
 
     func testSecureTargetFailurePreventsMicrophoneStart() async throws {
@@ -106,14 +102,16 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertTrue(transport.insertPayloads.isEmpty)
     }
 
-    func testAcknowledgementTimeoutKeepsTextAsUnknownForResend() async throws {
+    func testAcknowledgementTimeoutIsReportedWithoutResending() async throws {
         transport.insertError = RemoteErrorPayload(code: .internalFailure, detail: "timeout")
         controller.pressBegan()
         try await waitUntil { self.engine.didStart }
         controller.pressEnded()
 
-        try await waitUntil { self.history.entries.first?.delivery == .unknown }
-        XCTAssertEqual(history.entries.first?.text, "Bonjour depuis le test")
+        try await waitUntil {
+            if case .failed = self.controller.phase { return true }
+            return false
+        }
         XCTAssertEqual(transport.insertPayloads.count, 1)
     }
 
@@ -127,8 +125,27 @@ final class DictationControllerTests: XCTestCase {
             if case .sentUnverified = self.controller.phase { return true }
             return false
         }
-        XCTAssertEqual(history.entries.first?.delivery, .unknown)
         XCTAssertEqual(transport.insertPayloads.count, 1)
+    }
+
+    func testSelectedDictationLocaleIsSentToMac() async throws {
+        controller = DictationController(
+            client: transport,
+            engine: engine,
+            localeIdentifier: "en-US"
+        )
+
+        controller.pressBegan()
+        try await waitUntil { self.engine.didStart }
+
+        XCTAssertEqual(transport.recordingPayloads.first?.locale, "en-US")
+        controller.pressCancelled()
+    }
+
+    func testUnsupportedSystemLanguageFallsBackToFrench() {
+        let locale = DictationLanguage.deviceLocaleIdentifier
+        XCTAssertFalse(locale.isEmpty)
+        XCTAssertTrue(locale.hasPrefix("fr") || locale.hasPrefix("en"))
     }
 
     func testAnalyzerPromotesLastHypothesisAfterEndOfInput() {
@@ -156,15 +173,36 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(state.finalUpdate.finalizedText, "Bonjour tout le monde")
     }
 
-    func testResendAlwaysCapturesANewTarget() async throws {
-        let entry = history.record("Texte à renvoyer", delivery: .unknown, applicationName: nil)
-        controller.resend(entry)
+    func testModernTranscriberIsPreferredWhenAvailable() {
+        XCTAssertEqual(
+            AppleSpeechTranscriberKind.candidates(speechTranscriberIsAvailable: true),
+            [.speechTranscriber, .dictationTranscriber]
+        )
+    }
 
-        try await waitUntil { self.history.entries.first?.delivery == .delivered }
-        XCTAssertEqual(transport.recordingPayloads.count, 1)
-        XCTAssertEqual(transport.insertPayloads.count, 1)
-        XCTAssertEqual(transport.insertPayloads.first?.text, "Texte à renvoyer")
-        XCTAssertEqual(transport.insertPayloads.first?.dictationID, transport.recordingPayloads.first?.dictationID)
+    func testDictationTranscriberRemainsFallbackOnOlderHardware() {
+        XCTAssertEqual(
+            AppleSpeechTranscriberKind.candidates(speechTranscriberIsAvailable: false),
+            [.dictationTranscriber]
+        )
+    }
+
+    func testLegacyTranscriptCleanupDeletesExistingData() throws {
+        let suiteName = "LegacyTranscriptCleanupTests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(true, forKey: "com.nicolascleton.viberemote.historyEnabled")
+
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let fileURL = directory.appendingPathComponent("transcripts.json")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try Data("ancienne dictée".utf8).write(to: fileURL)
+
+        LegacyTranscriptCleanup.run(defaults: defaults, fileURL: fileURL)
+
+        XCTAssertNil(defaults.object(forKey: "com.nicolascleton.viberemote.historyEnabled"))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
     private func waitUntil(

@@ -15,4 +15,6 @@ Le compagnon Mac signé et notarisé sera disponible à l’URL publique renseig
 
 La caméra n’est demandée qu’à l’ouverture du scanner. Le microphone et Speech ne sont demandés qu’au premier démarrage d’une dictée. L’Accessibilité est requise sur le Mac pour cibler et insérer ; la Capture d’écran n’est demandée qu’à l’activation facultative du retour écran.
 
-App Privacy : aucune donnée collectée par le développeur, aucun tracking. L’historique optionnel reste sur l’iPhone. Le chiffrement repose sur les API système et des bibliothèques open source ; `ITSAppUsesNonExemptEncryption` vaut `false` sous réserve de confirmation finale dans App Store Connect.
+Le mode Nomade V1.1 est facultatif et nécessite l’application Tailscale installée séparément. Aucun compte ou jeton Tailscale n’est transmis à Vibe Walkie. La revue peut utiliser le parcours local sans Tailscale ; les notes de revue décrivent aussi le test Nomade et sa validation humaine obligatoire sur le Mac.
+
+App Privacy : aucune donnée collectée par le développeur, aucun tracking et aucun historique de dictées. Le chiffrement repose sur les API système et des bibliothèques open source ; `ITSAppUsesNonExemptEncryption` vaut `false` sous réserve de confirmation finale dans App Store Connect.

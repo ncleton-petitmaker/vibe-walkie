@@ -46,11 +46,43 @@ final class PairingAuthorityTests: XCTestCase {
         XCTAssertEqual(peers.peers.count, 1)
 
         let nonce = SecureRandom.bytes(32)
-        let reconnect = try makeResponse(key: signed.key, nonce: nonce, secret: nil)
+        let reconnect = try makeResponse(key: signed.signer, nonce: nonce, secret: nil)
         guard case .approved(let peer) = try authority.authenticate(response: reconnect, nonce: nonce) else {
             return XCTFail("Reconnexion connue attendue")
         }
         XCTAssertEqual(peer.id, "iphone-test")
+    }
+
+    func testForgottenIPhoneCanReplaceItsKeyAfterQRAndHumanApproval() throws {
+        let original = try responseForActivePairing()
+        guard case .requiresApproval(let firstApproval) = try authority.authenticate(
+            response: original.response,
+            nonce: original.nonce
+        ) else {
+            return XCTFail("Première approbation attendue")
+        }
+        _ = authority.approve(firstApproval.id)
+
+        _ = authority.beginPairing(
+            macName: "Mac Test",
+            serviceName: "VibeRemote-Test",
+            fingerprint: "empreinte"
+        )
+        let replacementKey = Curve25519.Signing.PrivateKey()
+        let nonce = SecureRandom.bytes(32)
+        let secret = Data(base64Encoded: authority.activeSession!.payload.pairingSecret)!
+        let replacement = try makeResponse(key: replacementKey, nonce: nonce, secret: secret)
+
+        guard case .requiresApproval(let replacementApproval) = try authority.authenticate(
+            response: replacement,
+            nonce: nonce
+        ) else {
+            return XCTFail("Le remplacement de clé doit être confirmé sur le Mac")
+        }
+        XCTAssertEqual(peers.peers.first?.publicKey, original.signer.publicKey.rawRepresentation)
+
+        _ = authority.approve(replacementApproval.id)
+        XCTAssertEqual(peers.peers.first?.publicKey, replacementKey.publicKey.rawRepresentation)
     }
 
     func testDenialDoesNotPersistDevice() throws {
@@ -84,14 +116,34 @@ final class PairingAuthorityTests: XCTestCase {
         peers.revoke("iphone-test")
 
         let nonce = SecureRandom.bytes(32)
-        let reconnect = try makeResponse(key: signed.key, nonce: nonce, secret: nil)
+        let reconnect = try makeResponse(key: signed.signer, nonce: nonce, secret: nil)
         XCTAssertThrowsError(try authority.authenticate(response: reconnect, nonce: nonce))
+    }
+
+    func testRemotePairingPublishesTailscaleEndpointForTenMinutes() {
+        let endpoint = NomadEndpoint(
+            magicDNSName: "mac-vibe.tail123.ts.net",
+            ipv4Address: "100.101.22.8"
+        )
+        let startedAt = Date()
+        let session = authority.beginPairing(
+            macName: "Mac Test",
+            serviceName: "VibeWalkie-Test",
+            fingerprint: "empreinte",
+            nomadEndpoint: endpoint,
+            validity: VibeWalkieInfo.nomadPairingWindow
+        )
+
+        XCTAssertEqual(session.nomadEndpoint, endpoint)
+        XCTAssertGreaterThanOrEqual(session.expiresAt.timeIntervalSince(startedAt), 599)
+        XCTAssertLessThanOrEqual(session.expiresAt.timeIntervalSince(startedAt), 601)
+        XCTAssertEqual(session.confirmationCode.count, 6)
     }
 
     private func responseForActivePairing() throws -> (
         response: PairingResponsePayload,
         nonce: Data,
-        key: Curve25519.Signing.PrivateKey
+        signer: Curve25519.Signing.PrivateKey
     ) {
         _ = authority.beginPairing(macName: "Mac Test", serviceName: "VibeWalkie-Test", fingerprint: "empreinte")
         let key = Curve25519.Signing.PrivateKey()

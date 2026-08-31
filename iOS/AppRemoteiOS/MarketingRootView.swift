@@ -7,24 +7,30 @@ import SwiftUI
 struct MarketingRootView: View {
     let mode: String
     @ObservedObject var client: MacConnectionClient
-    @ObservedObject var history: TranscriptHistoryStore
 
     var body: some View {
         Group {
             switch mode {
             case "--marketing-home":
-                RemoteHomeView(client: client, history: history)
+                RemoteHomeView(client: client)
             case "--marketing-home-idle", "--marketing-home-delivered":
-                RemoteHomeView(client: client, history: history)
+                RemoteHomeView(client: client)
+            case "--marketing-global":
+                RemoteHomeView(client: client)
             case "--marketing-apps":
                 AppSwitcherView()
                     .environmentObject(client)
             case "--marketing-screen":
-                MarketingScreenRoot(client: client, history: history)
+                MarketingScreenRoot(client: client)
             case "--marketing-settings":
                 MarketingSettingsPreview(client: client)
+            case "--marketing-controls":
+                NavigationStack {
+                    ControlConfiguratorView()
+                        .environmentObject(client)
+                }
             default:
-                RemoteHomeView(client: client, history: history)
+                RemoteHomeView(client: client)
             }
         }
         .task { client.configureMarketingPreview() }
@@ -35,9 +41,9 @@ private struct MarketingScreenRoot: View {
     @StateObject private var dictation: DictationController
     @ObservedObject var client: MacConnectionClient
 
-    init(client: MacConnectionClient, history: TranscriptHistoryStore) {
+    init(client: MacConnectionClient) {
         self.client = client
-        _dictation = StateObject(wrappedValue: DictationController(client: client, history: history))
+        _dictation = StateObject(wrappedValue: DictationController(client: client))
     }
 
     var body: some View {
@@ -82,6 +88,11 @@ private struct MarketingSettingsPreview: View {
                             sliderRow("Vitesse du curseur", value: "1,6×", progress: 0.48, left: "tortoise", right: "hare")
                             divider
                             sliderRow("Vitesse du défilement", value: "0,8×", progress: 0.36, left: "tortoise", right: "hare")
+                        }
+
+                        sectionTitle("Commandes")
+                        card {
+                            row("Configurer le bloc de boutons", value: "7 zones + Global", symbol: "rectangle.3.group", tint: .white)
                         }
 
                         sectionTitle("Retour écran")

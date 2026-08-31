@@ -9,6 +9,9 @@ excluded:
   - build
   - iOS/build
   - iOS/build-direct
+  - iOS/build-device
   - iOS/build-landing
+  - iOS/build-simulator
   - macOS/build
+  - macOS/build-local
 reporter: xcode

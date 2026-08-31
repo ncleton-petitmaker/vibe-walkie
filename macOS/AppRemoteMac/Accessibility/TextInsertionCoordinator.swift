@@ -11,6 +11,12 @@ import RemoteCore
 @MainActor
 final class TextInsertionCoordinator {
 
+    private enum Attempt {
+        case unsupported
+        case noEffect
+        case completed(InsertionResult)
+    }
+
     /// Ce que chaque application a accepté au cours de la session.
     ///
     /// Utilisé pour aller plus vite la fois suivante, jamais pour sauter la
@@ -38,20 +44,44 @@ final class TextInsertionCoordinator {
             throw RemoteErrorPayload(code: .payloadTooLarge)
         }
 
+        if InsertionMethodPolicy.requiresKeyboardEvents(bundleIdentifier: target.bundleIdentifier) {
+            // L'éditeur OpenAI publie un arbre AX utile à la détection du
+            // curseur, mais ses écritures sont différées et non transactionnelles.
+            // Les essayer avant CGEvent peut donc insérer la même dictée deux
+            // fois et matérialiser son texte d'aide comme du vrai contenu.
+            let result = try insertViaKeyboardEvents(preparedText, target: target)
+            remember(.keyboardEvents, for: target)
+            return result
+        }
+
+        var accessibilityAcceptedWithoutEffect = false
         if target.element != nil {
-            if let result = insertViaSelectedText(preparedText, target: target) {
+            switch insertViaSelectedText(preparedText, target: target) {
+            case .completed(let result):
                 remember(.axSelectedText, for: target)
                 return result
+            case .noEffect:
+                accessibilityAcceptedWithoutEffect = true
+            case .unsupported:
+                break
             }
-            if let result = insertViaValueRange(preparedText, target: target) {
+
+            switch insertViaValueRange(preparedText, target: target) {
+            case .completed(let result):
                 remember(.axRange, for: target)
                 return result
+            case .noEffect:
+                accessibilityAcceptedWithoutEffect = true
+            case .unsupported:
+                break
             }
-        } else {
+        }
+
+        if target.element == nil || accessibilityAcceptedWithoutEffect {
             // Certaines apps web natives (dont ChatGPT/Codex) masquent toute
-            // leur hiérarchie AX. Le collage y est parfois lu après notre
-            // restauration transactionnelle et disparaît. Les événements
-            // Unicode n'utilisent pas le presse-papiers et sont synchrones.
+            // leur hiérarchie AX, ou annoncent une écriture AX réussie sans
+            // modifier leur contenu. Les événements Unicode n'utilisent pas
+            // le presse-papiers et fonctionnent dans leur éditeur réel.
             let result = try insertViaKeyboardEvents(preparedText, target: target)
             remember(.keyboardEvents, for: target)
             return result
@@ -85,42 +115,55 @@ final class TextInsertionCoordinator {
 
     // MARK: - Méthode 1 : texte sélectionné
 
-    private func insertViaSelectedText(_ text: String, target: CapturedTarget) -> InsertionResult? {
-        guard let element = target.element else { return nil }
-        guard AccessibilityClient.isSettable(element, kAXSelectedTextAttribute) else { return nil }
+    private func insertViaSelectedText(_ text: String, target: CapturedTarget) -> Attempt {
+        guard let element = target.element else { return .unsupported }
+        guard AccessibilityClient.isSettable(element, kAXSelectedTextAttribute) else { return .unsupported }
 
+        let valueBefore = AccessibilityClient.string(element, kAXValueAttribute)
         let before = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute)
         guard AccessibilityClient.setValue(element, kAXSelectedTextAttribute, text as CFString) else {
-            return nil
+            return .unsupported
         }
 
-        // Le curseur doit avoir avancé de la longueur écrite. Sans ce contrôle,
-        // une application qui accepte l'attribut sans rien faire passerait pour
-        // un succès et le texte serait perdu en silence.
+        let valueAfter = AccessibilityClient.string(element, kAXValueAttribute)
         let after = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute)
-        let verified: Bool
-        if let before, let after {
-            verified = after.location >= before.location
-        } else {
-            verified = after != nil
+
+        // ChatGPT peut retourner kAXErrorSuccess tout en gardant exactement la
+        // même valeur et la même sélection. C'est un non-effet explicite : on
+        // doit continuer vers les événements clavier, pas annoncer une écriture.
+        if InsertionVerificationPolicy.isConfirmedNoEffect(
+            valueBefore: valueBefore,
+            valueAfter: valueAfter,
+            rangeBefore: before,
+            rangeAfter: after
+        ) {
+            return .noEffect
         }
 
-        return InsertionResult(
+        let verified = InsertionVerificationPolicy.didApplySelectedText(
+            insertedText: text,
+            valueBefore: valueBefore,
+            valueAfter: valueAfter,
+            rangeBefore: before,
+            rangeAfter: after
+        )
+
+        return .completed(InsertionResult(
             method: .axSelectedText,
             verified: verified,
             pasteboardRestored: nil,
             applicationName: target.applicationName
-        )
+        ))
     }
 
     // MARK: - Méthode 2 : remplacement de plage
 
-    private func insertViaValueRange(_ text: String, target: CapturedTarget) -> InsertionResult? {
-        guard let element = target.element else { return nil }
+    private func insertViaValueRange(_ text: String, target: CapturedTarget) -> Attempt {
+        guard let element = target.element else { return .unsupported }
         guard AccessibilityClient.isSettable(element, kAXValueAttribute),
               let current = AccessibilityClient.string(element, kAXValueAttribute),
               let selection = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute) else {
-            return nil
+            return .unsupported
         }
 
         let nsCurrent = current as NSString
@@ -129,10 +172,13 @@ final class TextInsertionCoordinator {
         let updated = nsCurrent.replacingCharacters(in: NSRange(location: location, length: length), with: text)
 
         guard AccessibilityClient.setValue(element, kAXValueAttribute, updated as CFString) else {
-            return nil
+            return .unsupported
         }
 
         let written = AccessibilityClient.string(element, kAXValueAttribute)
+        if written == current, updated != current {
+            return .noEffect
+        }
         let verified = written == updated
 
         // Replace le curseur après le texte inséré : sans cela, la dictée
@@ -142,23 +188,48 @@ final class TextInsertionCoordinator {
             AccessibilityClient.setValue(element, kAXSelectedTextRangeAttribute, value)
         }
 
-        return InsertionResult(
+        return .completed(InsertionResult(
             method: .axRange,
             verified: verified,
             pasteboardRestored: nil,
             applicationName: target.applicationName
-        )
+        ))
     }
 
-    // MARK: - Méthode 3 : collage transactionnel
+    // MARK: - Replis compatibles
 
     private func insertViaKeyboardEvents(_ text: String, target: CapturedTarget) throws -> InsertionResult {
+        let valueBefore = target.element.flatMap {
+            AccessibilityClient.string($0, kAXValueAttribute)
+        }
+        let rangeBefore = target.element.flatMap {
+            AccessibilityClient.range($0, kAXSelectedTextRangeAttribute)
+        }
+
         guard CGEventFactory.type(text) else {
             throw RemoteErrorPayload(code: .internalFailure, detail: "événements clavier indisponibles")
         }
+
+        // CGEventPost est asynchrone. Une courte attente permet de vérifier le
+        // champ réel sans annoncer prématurément une livraison réussie.
+        Thread.sleep(forTimeInterval: 0.06)
+        let valueAfter = target.element.flatMap {
+            AccessibilityClient.string($0, kAXValueAttribute)
+        }
+        let rangeAfter = target.element.flatMap {
+            AccessibilityClient.range($0, kAXSelectedTextRangeAttribute)
+        }
+        let verified = InsertionVerificationPolicy.didApplySelectedText(
+            insertedText: text,
+            valueBefore: valueBefore,
+            valueAfter: valueAfter,
+            rangeBefore: rangeBefore,
+            rangeAfter: rangeAfter
+        )
+
         return InsertionResult(
             method: .keyboardEvents,
-            verified: false,
+            verified: verified,
             pasteboardRestored: nil,
             applicationName: target.applicationName
         )
@@ -234,5 +305,59 @@ final class TextInsertionCoordinator {
         // « dossier/ » + « fichier », etc. ne doivent pas recevoir d'espace.
         let noSpaceAfter: Set<Character> = ["(", "[", "{", "'", "’", "-", "–", "—", "/", "\\"]
         return !noSpaceAfter.contains(previous)
+    }
+}
+
+/// Règles pures séparées de l'API C afin de tester les faux succès AX.
+enum InsertionVerificationPolicy {
+    static func isConfirmedNoEffect(
+        valueBefore: String?,
+        valueAfter: String?,
+        rangeBefore: CFRange?,
+        rangeAfter: CFRange?
+    ) -> Bool {
+        let valueDidNotChange = valueBefore != nil && valueBefore == valueAfter
+        let rangeDidNotChange: Bool = {
+            guard let rangeBefore, let rangeAfter else { return true }
+            return rangeBefore.location == rangeAfter.location
+                && rangeBefore.length == rangeAfter.length
+        }()
+        return valueDidNotChange && rangeDidNotChange
+    }
+
+    static func didApplySelectedText(
+        insertedText: String,
+        valueBefore: String?,
+        valueAfter: String?,
+        rangeBefore: CFRange?,
+        rangeAfter: CFRange?
+    ) -> Bool {
+        if let valueBefore, let valueAfter, let rangeBefore {
+            let source = valueBefore as NSString
+            let location = min(max(0, rangeBefore.location), source.length)
+            let length = min(max(0, rangeBefore.length), source.length - location)
+            let expected = source.replacingCharacters(
+                in: NSRange(location: location, length: length),
+                with: insertedText
+            )
+            if valueAfter == expected { return true }
+        }
+        guard let rangeBefore, let rangeAfter else { return false }
+        return rangeAfter.location > rangeBefore.location
+    }
+}
+
+/// Exceptions de compatibilité fondées sur un comportement vérifié de l'app.
+///
+/// Cette liste reste volontairement exacte : on ne dégrade pas toutes les apps
+/// Electron parce qu'un éditeur particulier implémente mal les écritures AX.
+enum InsertionMethodPolicy {
+    static func requiresKeyboardEvents(bundleIdentifier: String?) -> Bool {
+        guard let bundleIdentifier else { return false }
+        return [
+            "com.openai.codex",
+            "com.openai.chat",
+            "com.openai.chatgpt"
+        ].contains(bundleIdentifier.lowercased())
     }
 }

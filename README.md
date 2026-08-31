@@ -23,11 +23,18 @@
   <img alt="iOS 26+" src="https://img.shields.io/badge/iOS-26%2B-111111?logo=apple">
   <img alt="macOS 15+" src="https://img.shields.io/badge/macOS-15%2B-111111?logo=apple">
   <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white">
-  <img alt="Réseau local" src="https://img.shields.io/badge/réseau-local-0A84FF">
+  <img alt="Local et Tailscale" src="https://img.shields.io/badge/réseau-local%20%2B%20Tailscale-0A84FF">
   <a href="LICENSE"><img alt="Licence MPL 2.0" src="https://img.shields.io/badge/licence-MPL--2.0-7B42BC"></a>
 </p>
 
-Vibe Walkie transforme l’iPhone en télécommande locale pour Mac : dictée sur l’appareil, clavier, trackpad, sélection des applications et retour d’écran facultatif. Aucun compte Vibe Walkie, aucun abonnement et aucun service cloud ne sont nécessaires.
+Vibe Walkie transforme l’iPhone en télécommande pour Mac : dictée sur l’appareil, clavier, trackpad, sélection des applications et retour d’écran facultatif. La connexion est locale par défaut ; le mode Nomade peut emprunter votre propre réseau Tailscale. Aucun compte Vibe Walkie, abonnement ou serveur Vibe Walkie n’est nécessaire.
+
+## Nouveautés
+
+- **Multi‑Mac** — associez plusieurs Macs au même iPhone et changez de machine depuis le bouton en haut à gauche.
+- **Mode Nomade** — rejoignez votre Mac à distance via Tailscale, avec retour automatique au réseau local lorsqu’il est disponible.
+- **Commandes personnalisables** — organisez les touches rapides, leurs noms et leurs icônes selon votre façon de travailler.
+- **Contrôle plus complet** — clavier intégré, pavé tactile amélioré et retour d’écran réunis dans la même télécommande.
 
 ## Vibe Walkie en images
 
@@ -44,7 +51,7 @@ Vibe Walkie transforme l’iPhone en télécommande locale pour Mac : dictée su
   &nbsp;
   <img src="Store/fr-FR/screenshots/iphone-6.9/05-changer-application.png" width="31%" alt="Changez d’application Mac depuis l’iPhone">
   &nbsp;
-  <img src="Store/fr-FR/screenshots/iphone-6.9/06-confidentialite-locale.png" width="31%" alt="Connexion locale et privée entre l’iPhone et le Mac">
+  <img src="Store/fr-FR/screenshots/iphone-6.9/06-multi-mac-nomade.png" width="31%" alt="Choisissez entre plusieurs Macs et contrôlez-les localement ou via Tailscale">
 </p>
 
 ## Ce que l’app permet
@@ -56,21 +63,27 @@ Vibe Walkie transforme l’iPhone en télécommande locale pour Mac : dictée su
 | **Changer d’application** | Retrouvez les fenêtres ouvertes sur le Mac et activez la bonne cible du pouce. |
 | **Voir l’écran du Mac** | Activez le retour visuel uniquement lorsque vous en avez besoin. |
 | **Garder les gestes utiles** | Clavier, Effacer, Espace, Entrée et raccourcis restent immédiatement accessibles. |
+| **Changer de Mac** | Associez plusieurs compagnons et basculez vers la bonne machine depuis le sélecteur « Mes Macs ». |
+| **Travailler à distance** | Utilisez le réseau local en priorité, puis votre tailnet Tailscale lorsque le Mac est ailleurs. |
+| **Personnaliser les commandes** | Configurez les sept boutons visibles et la palette globale avec vos touches, noms et icônes. |
 
 La voix ne quitte jamais l’iPhone. Le Mac reçoit uniquement le texte final et les commandes validées, après un appairage confirmé physiquement.
 
 ## Comment ça fonctionne
 
 1. Ouvrez le compagnon Vibe Walkie sur le Mac.
-2. Scannez son QR avec l’iPhone, sur le même réseau local.
+2. Scannez son QR avec l’iPhone ; utilisez le QR Nomade si le Mac est à distance.
 3. Confirmez l’iPhone depuis la demande affichée sur le Mac.
 4. Dictez, pointez ou changez d’application depuis l’iPhone.
+5. Répétez l’appairage sur vos autres Macs, puis changez de machine depuis le bouton en haut à gauche.
+
+Le mode Nomade facultatif se configure ensuite depuis le compagnon Mac. Il détecte Tailscale sans modifier le tailnet ni ses ACL, et conserve l’approbation humaine de chaque nouvel iPhone.
 
 ```text
-┌──────────────┐       réseau local chiffré       ┌─────────────────┐
+┌──────────────┐   local ou Tailscale + TLS 1.3   ┌─────────────────┐
 │    iPhone    │  ─────────────────────────────▶  │       Mac       │
 │ voix + gestes│  ◀─────────────────────────────  │ texte + contrôle│
-└──────────────┘       aucune infrastructure cloud └─────────────────┘
+└──────────────┘       aucun serveur Vibe Walkie   └─────────────────┘
 ```
 
 ## Obtenir l’application
@@ -91,7 +104,8 @@ Le dépôt contient l’app iOS, le compagnon macOS, le protocole partagé `Remo
 - iOS 26 ou supérieur ;
 - macOS 15 ou supérieur ;
 - Mac Apple Silicon ;
-- iPhone et Mac sur le même réseau local.
+- iPhone et Mac sur le même réseau local pour le fonctionnement standard ;
+- pour le mode Nomade : Tailscale installé séparément sur les deux appareils et accès au même tailnet (ou Mac partagé).
 
 Le protocole courant est la **version 3**. Les versions antérieures ne sont volontairement pas compatibles : mettez à jour les deux applications ensemble.
 
@@ -150,6 +164,8 @@ Pour aller plus loin : [architecture](Documentation/ARCHITECTURE.md) · [protoco
 - capture et revérification de la cible avant toute insertion dictée ;
 - refus de la dictée dans les champs sécurisés ;
 - aucune publicité ni télémétrie tierce.
+
+Tailscale est facultatif et agit uniquement comme transport réseau. Vibe Walkie ne reçoit ni compte, ni jeton OAuth, ni configuration d’ACL Tailscale ; l’empreinte TLS du Mac reste l’autorité d’authentification.
 
 Une vulnérabilité ne doit jamais être publiée directement dans une issue. Suivez la procédure de signalement décrite dans [SECURITY.md](SECURITY.md).
 

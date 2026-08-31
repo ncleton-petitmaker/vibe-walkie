@@ -66,6 +66,13 @@ struct MessageFramerTests {
 @Suite("Enveloppe")
 struct EnvelopeTests {
 
+    @Test("Le réseau local est toujours préféré au Mode Nomade")
+    func localRoutePriority() {
+        #expect(ConnectionRoute.local.isPreferred(over: .nomad))
+        #expect(!ConnectionRoute.nomad.isPreferred(over: .local))
+        #expect(!ConnectionRoute.local.isPreferred(over: .local))
+    }
+
     @Test("La charge utile typée survit à l'aller-retour")
     func payloadRoundTrip() throws {
         let payload = InsertTextPayload(targetToken: "abc", text: "Bonjour, ça va ?", dictationID: UUID())
@@ -128,8 +135,8 @@ struct EnvelopeTests {
         #expect(RemoteMessageType.insertText.rawValue == "insert_text")
         #expect(RemoteMessageType.activateWindow.rawValue == "activate_window")
         #expect(RemoteMessageType.pairingPending.rawValue == "pairing_pending")
-        #expect(RemoteMessageType.allCases.count == 23)
-        #expect(ProtocolVersion.current == 2)
+        #expect(RemoteMessageType.allCases.count == 27)
+        #expect(ProtocolVersion.current == 3)
     }
 
     @Test("La commande du switcher d'app conserve sa valeur réseau")
@@ -140,6 +147,59 @@ struct EnvelopeTests {
             from: Data(#"{"key":"application_switcher"}"#.utf8)
         )
         #expect(payload.key == .applicationSwitcher)
+    }
+
+    @Test("La commande de conversation suivante conserve sa valeur réseau")
+    func nextConversationKeyIsStable() throws {
+        #expect(RemoteKey.nextConversation.rawValue == "next_conversation")
+        let payload = try RemoteCoding.decoder.decode(
+            KeyPressPayload.self,
+            from: Data(#"{"key":"next_conversation"}"#.utf8)
+        )
+        #expect(payload.key == .nextConversation)
+    }
+
+    @Test("La configuration du bloc et un raccourci Mac survivent à l’encodage")
+    func controlConfigurationRoundTrip() throws {
+        let shortcut = MacKeyboardShortcut(
+            keyCode: 40,
+            modifiers: [.command, .shift],
+            displayName: "⌘⇧K"
+        )
+        var configuration = ControlConfiguration.standard
+        configuration.setButton(ControlButtonConfiguration(
+            zone: .upperLeft,
+            title: "Mon raccourci",
+            icon: .system("command"),
+            action: .macShortcut(shortcut)
+        ))
+        let available = configuration.availableGlobalButtons
+        let rightArrow = try #require(available.first(where: { $0.id == "standard.right" }))
+        configuration.setAvailableGlobalButtonOrder([rightArrow] + available.filter { $0.id != rightArrow.id })
+
+        let data = try RemoteCoding.encoder.encode(ControlConfigurationPayload(configuration: configuration))
+        let decoded = try RemoteCoding.decoder.decode(ControlConfigurationPayload.self, from: data)
+
+        #expect(decoded.configuration.button(in: .upperLeft).title == "Mon raccourci")
+        #expect(decoded.configuration.button(in: .upperLeft).action == .macShortcut(shortcut))
+        #expect(decoded.configuration.availableGlobalButtons.first?.id == "standard.right")
+        #expect(decoded.configuration.availableGlobalButtons.allSatisfy { candidate in
+            !decoded.configuration.buttons.contains { $0.action == candidate.action }
+        })
+        #expect(ControlZone.allCases.count == 7)
+    }
+
+    @Test("Une ancienne configuration reçoit automatiquement l’ordre Global par défaut")
+    func legacyControlConfigurationGetsGlobalOrder() throws {
+        let encoded = try RemoteCoding.encoder.encode(ControlConfiguration.standard)
+        var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object.removeValue(forKey: "globalButtons")
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+
+        let decoded = try RemoteCoding.decoder.decode(ControlConfiguration.self, from: legacyData)
+
+        #expect(decoded.globalButtons == ControlConfiguration.standardGlobalButtons)
+        #expect(decoded.availableGlobalButtons.count == 9)
     }
 }
 
@@ -203,14 +263,30 @@ struct RateLimiterTests {
 @Suite("Appairage")
 struct PairingTests {
 
-    private func makePayload(expires: Date = Date().addingTimeInterval(120)) -> PairingQRPayload {
+    private func makePayload(
+        expires: Date = Date().addingTimeInterval(120),
+        nomadEndpoint: NomadEndpoint? = nil
+    ) -> PairingQRPayload {
         PairingQRPayload(
             macName: "Mac de Nicolas",
             serviceName: "appremote-1234",
             certificateFingerprint: SecureRandom.bytes(32).base64EncodedString(),
             pairingSecret: SecureRandom.bytes(16).base64EncodedString(),
-            expiresAt: expires
+            expiresAt: expires,
+            nomadEndpoint: nomadEndpoint
         )
+    }
+
+    @Test("Le QR Nomade conserve le point d'accès Tailscale")
+    func nomadQRRoundTrip() throws {
+        let endpoint = NomadEndpoint(
+            magicDNSName: "MacBook-Pro.tail1234.ts.net.",
+            ipv4Address: "100.105.79.12"
+        )
+        let payload = makePayload(nomadEndpoint: endpoint)
+        let decoded = try PairingQRPayload.decode(try payload.encoded())
+        #expect(decoded.nomadEndpoint == endpoint)
+        #expect(decoded.nomadEndpoint?.isValid == true)
     }
 
     @Test("Le QR survit à l'encodage base64")

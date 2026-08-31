@@ -1,0 +1,30 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "NSCameraUsageDescription" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La caméra sert uniquement à scanner le code affiché par votre Mac lors de l’appairage." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The camera is used only to scan the code shown by your Mac during pairing." } }
+      }
+    },
+    "NSLocalNetworkUsageDescription" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie se connecte directement à votre Mac uniquement sur votre réseau local." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie connects directly to your Mac over your local network." } }
+      }
+    },
+    "NSMicrophoneUsageDescription" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie transcribes your voice directly on this iPhone to type it on your Mac. No audio is sent anywhere else." } }
+      }
+    },
+    "NSSpeechRecognitionUsageDescription" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie utilise la reconnaissance vocale locale de cet iPhone pour écrire votre dictée sur votre Mac." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie uses on-device speech recognition on this iPhone to type your dictation on your Mac." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

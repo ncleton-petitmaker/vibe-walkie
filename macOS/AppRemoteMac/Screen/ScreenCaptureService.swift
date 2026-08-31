@@ -13,9 +13,9 @@ enum ScreenCaptureServiceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return "Autorisez l’enregistrement de l’écran sur le Mac, puis relancez Vibe Walkie."
+            return MacL10n.text("Autorisez l’enregistrement de l’écran sur le Mac, puis relancez Vibe Walkie.")
         case .noDisplay:
-            return "L’écran du Mac est verrouillé ou indisponible. Déverrouillez la session Mac pour reprendre le contrôle."
+            return MacL10n.text("L’écran du Mac est verrouillé ou indisponible. Déverrouillez la session Mac pour reprendre le contrôle.")
         }
     }
 }

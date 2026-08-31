@@ -1,21 +1,131 @@
 import SwiftUI
 import RemoteCore
+import UIKit
 import WidgetKit
+
+/// Supprime les transcriptions créées par les prototypes qui proposaient un
+/// historique local. La suppression est répétée sans danger à chaque lancement
+/// afin qu'aucune ancienne phrase ne subsiste après la mise à jour.
+enum LegacyTranscriptCleanup {
+    private static let enabledKey = "com.nicolascleton.viberemote.historyEnabled"
+
+    static func run(defaults: UserDefaults = .standard, fileURL: URL? = nil) {
+        defaults.removeObject(forKey: enabledKey)
+        let transcriptURL = fileURL
+            ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("transcripts.json")
+        try? FileManager.default.removeItem(at: transcriptURL)
+    }
+}
+
+/// L'app reste verticale au quotidien. Seul le retour d'écran du Mac peut
+/// pivoter, car c'est le seul endroit où le paysage apporte une vraie surface
+/// de travail supplémentaire.
+@MainActor
+enum AppOrientationPolicy {
+    static var supported: UIInterfaceOrientationMask = .portrait
+
+    static func setRemoteScreenActive(_ isActive: Bool) {
+        supported = isActive ? .allButUpsideDown : .portrait
+
+        for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: supported))
+        }
+    }
+}
+
+final class VibeWalkieAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        supportedInterfaceOrientationsFor window: UIWindow?
+    ) -> UIInterfaceOrientationMask {
+        AppOrientationPolicy.supported
+    }
+}
+
+/// Canal privé de développement. Le symbole `OTA_UPDATES` n'est défini que
+/// pour les archives Ad Hoc publiées sur le VPS ; ce code est donc absent des
+/// builds TestFlight et App Store.
+#if !DEBUG && OTA_UPDATES
+@MainActor
+private final class OTAUpdateCoordinator: ObservableObject {
+    @Published var isUpdateAvailable = false
+    private var manifestURL: URL?
+    private var isChecking = false
+
+    private struct UpdateResponse: Decodable {
+        let hasUpdate: Bool
+        let manifestUrl: URL?
+    }
+
+    func checkForUpdate() async {
+        guard !isChecking, !isUpdateAvailable else { return }
+        isChecking = true
+        defer { isChecking = false }
+
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+        guard var components = URLComponents(
+            string: "https://app-remote.92.222.247.135.sslip.io/api/releases/ios/check"
+        ) else { return }
+        components.queryItems = [URLQueryItem(name: "build", value: build)]
+        guard let url = components.url,
+              let (data, response) = try? await URLSession.shared.data(from: url),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let update = try? JSONDecoder().decode(UpdateResponse.self, from: data),
+              update.hasUpdate,
+              let manifestURL = update.manifestUrl else { return }
+
+        self.manifestURL = manifestURL
+        isUpdateAvailable = true
+    }
+
+    func install() {
+        guard let manifestURL,
+              let encoded = manifestURL.absoluteString.addingPercentEncoding(
+                withAllowedCharacters: .urlQueryAllowed
+              ),
+              let installURL = URL(
+                string: "itms-services://?action=download-manifest&url=\(encoded)"
+              ) else { return }
+        UIApplication.shared.open(installURL)
+    }
+}
+#endif
 
 @main
 struct VibeWalkieApp: App {
+    @UIApplicationDelegateAdaptor(VibeWalkieAppDelegate.self) private var appDelegate
     @StateObject private var client = MacConnectionClient()
-    @StateObject private var history = TranscriptHistoryStore()
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage(AppLanguage.storageKey) private var appLanguage: AppLanguage = .system
+#if !DEBUG && OTA_UPDATES
+    @StateObject private var updater = OTAUpdateCoordinator()
+#endif
+
+    init() {
+        LegacyTranscriptCleanup.run()
+        TrackpadSettings.migrateExpandedSpeedRange()
+    }
 
     var body: some Scene {
         WindowGroup {
             rootContent
                 .environmentObject(client)
-                .environmentObject(history)
+                .environment(\.locale, appLanguage.locale)
                 .task {
                     ControlCenter.shared.reloadAllControls()
+#if !DEBUG && OTA_UPDATES
+                    await updater.checkForUpdate()
+#endif
                 }
+#if !DEBUG && OTA_UPDATES
+                .alert("Mise à jour disponible", isPresented: $updater.isUpdateAvailable) {
+                    Button("Installer") { updater.install() }
+                    Button("Plus tard", role: .cancel) {}
+                } message: {
+                    Text("Une nouvelle version de Vibe Walkie est prête.")
+                }
+#endif
         }
         .onChange(of: scenePhase) { _, phase in
             // iOS suspend l'application en arrière-plan : la connexion est
@@ -26,7 +136,10 @@ struct VibeWalkieApp: App {
                 // iOS avec une socket apparemment vivante mais inutilisable.
                 // Recréer la connexion au retour au premier plan est rapide et
                 // garantit que le bouton Reconnecter n’est jamais nécessaire.
-                if client.isPaired { client.reconnectNow() }
+                client.resumeAfterForeground()
+#if !DEBUG && OTA_UPDATES
+                Task { await updater.checkForUpdate() }
+#endif
             case .background: client.disconnect()
             default: break
             }
@@ -40,7 +153,7 @@ struct VibeWalkieApp: App {
             if mode == "--marketing-welcome" {
                 RootView()
             } else {
-                MarketingRootView(mode: mode, client: client, history: history)
+                MarketingRootView(mode: mode, client: client)
             }
         } else {
             RootView()
@@ -53,12 +166,11 @@ struct VibeWalkieApp: App {
 
 private struct RootView: View {
     @EnvironmentObject private var client: MacConnectionClient
-    @EnvironmentObject private var history: TranscriptHistoryStore
     @State private var showDiscovery = false
 
     var body: some View {
         if client.isPaired {
-            RemoteHomeView(client: client, history: history)
+            RemoteHomeView(client: client)
         } else {
             WelcomeView(showDiscovery: $showDiscovery)
                 .fullScreenCover(isPresented: $showDiscovery) { DiscoveryView() }

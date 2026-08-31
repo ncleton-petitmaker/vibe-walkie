@@ -171,6 +171,46 @@ final class TargetMatchPolicyTests: XCTestCase {
         }
     }
 
+    func testAccessibilitySuccessWithoutAnyMutationIsANoEffect() {
+        XCTAssertTrue(InsertionVerificationPolicy.isConfirmedNoEffect(
+            valueBefore: "Message ChatGPT",
+            valueAfter: "Message ChatGPT",
+            rangeBefore: CFRange(location: 0, length: 0),
+            rangeAfter: CFRange(location: 0, length: 0)
+        ))
+    }
+
+    func testSelectedTextRequiresARealValueOrCursorChange() {
+        XCTAssertFalse(InsertionVerificationPolicy.didApplySelectedText(
+            insertedText: "Bonjour",
+            valueBefore: "Message ChatGPT",
+            valueAfter: "Message ChatGPT",
+            rangeBefore: CFRange(location: 0, length: 0),
+            rangeAfter: CFRange(location: 0, length: 0)
+        ))
+
+        XCTAssertTrue(InsertionVerificationPolicy.didApplySelectedText(
+            insertedText: "Bonjour",
+            valueBefore: "",
+            valueAfter: "Bonjour",
+            rangeBefore: CFRange(location: 0, length: 0),
+            rangeAfter: CFRange(location: 7, length: 0)
+        ))
+    }
+
+    func testOpenAIEditorBypassesNonTransactionalAccessibilityWrites() {
+        XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: "com.openai.codex"
+        ))
+        XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: "COM.OPENAI.CHATGPT"
+        ))
+        XCTAssertFalse(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: "com.apple.TextEdit"
+        ))
+        XCTAssertFalse(InsertionMethodPolicy.requiresKeyboardEvents(bundleIdentifier: nil))
+    }
+
     private func assertError(
         _ expected: RemoteErrorCode,
         operation: () throws -> Void,

@@ -1,5 +1,17 @@
 import Foundation
 
+/// Chemin réseau effectivement utilisé par la session courante.
+public enum ConnectionRoute: String, Codable, Equatable, Sendable {
+    case local
+    case nomad
+
+    /// Le LAN reste le chemin préféré : moins de latence, pas de tunnel à
+    /// réveiller et davantage de débit pour le retour écran.
+    public func isPreferred(over current: ConnectionRoute) -> Bool {
+        self == .local && current == .nomad
+    }
+}
+
 /// États visibles de la liaison iPhone -> Mac.
 public enum ConnectionState: Equatable, Sendable {
     case idle
@@ -52,17 +64,4 @@ public struct RetryPolicy: Sendable {
     }
 
     public var attemptCount: Int { attempt }
-}
-
-/// État d'envoi d'une transcription, du point de vue de l'iPhone.
-///
-/// `unknown` existe parce qu'une perte d'accusé n'est pas un échec : le texte
-/// est peut-être déjà dans le champ. Renvoyer automatiquement écrirait deux
-/// fois ; c'est à l'utilisateur de trancher.
-public enum DeliveryState: String, Codable, Sendable {
-    case pending
-    case delivered
-    case notSent = "not_sent"
-    case unknown
-    case failed
 }

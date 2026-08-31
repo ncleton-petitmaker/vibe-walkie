@@ -14,17 +14,24 @@ private final class VibeWalkieDependencies {
     let permissions: PermissionCoordinator
     let authority: PairingAuthority
     let server: MacConnectionServer
+    let tailscale: TailscaleCoordinator
     let updates: UpdateController
 
     private init() {
         let peers = ApprovedPeersStore()
         let authority = PairingAuthority(peers: peers)
-        let server = MacConnectionServer(peers: peers, authority: authority)
+        let tailscale = TailscaleCoordinator()
+        let server = MacConnectionServer(
+            peers: peers,
+            authority: authority,
+            nomadEndpoint: NomadFeatureFlag.isEnabled ? tailscale.activeEndpoint : nil
+        )
 
         self.peers = peers
         self.permissions = PermissionCoordinator()
         self.authority = authority
         self.server = server
+        self.tailscale = tailscale
         self.updates = UpdateController()
         if InstallationLocation.isSuitable { server.start() }
     }
@@ -37,9 +44,9 @@ struct VibeWalkieMacApp: App {
     var body: some Scene {
         WindowGroup("Vibe Walkie") {
             controlPanel
-                .frame(minWidth: 380, idealWidth: 400, minHeight: 440, maxHeight: .infinity, alignment: .top)
+                .frame(minWidth: 340, idealWidth: 340, minHeight: 420, maxHeight: .infinity, alignment: .top)
         }
-        .defaultSize(width: 400, height: 560)
+        .defaultSize(width: 340, height: 520)
 
         MenuBarExtra("Vibe Walkie", systemImage: "iphone.gen3.radiowaves.left.and.right") {
             controlPanel
@@ -53,6 +60,7 @@ struct VibeWalkieMacApp: App {
             .environmentObject(dependencies.permissions)
             .environmentObject(dependencies.authority)
             .environmentObject(dependencies.peers)
+            .environmentObject(dependencies.tailscale)
             .environmentObject(dependencies.updates)
     }
 }

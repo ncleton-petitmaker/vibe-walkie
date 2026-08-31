@@ -32,6 +32,9 @@ final class SessionRouter {
         case acknowledge(AcknowledgementPayload)
         case snapshot(WindowsSnapshotPayload)
         case screenRequest(ScreenStreamRequestPayload)
+        case controlConfigurationRequest
+        case controlConfigurationUpdate(ControlConfiguration)
+        case macShortcutPress(MacKeyboardShortcut)
         case failure(RemoteErrorPayload)
         case ignore
     }
@@ -111,6 +114,20 @@ final class SessionRouter {
             CGEventFactory.press(payload.key)
             return record(envelope, AcknowledgementPayload(ok: true))
 
+        case .macShortcutPress:
+            let payload = try envelope.decodePayload(MacShortcutPressPayload.self)
+            guard payload.shortcut.isValid else {
+                throw RemoteErrorPayload(code: .internalFailure, detail: "Raccourci clavier invalide")
+            }
+            return .macShortcutPress(payload.shortcut)
+
+        case .controlConfigurationRequest:
+            return .controlConfigurationRequest
+
+        case .controlConfigurationUpdate:
+            let payload = try envelope.decodePayload(ControlConfigurationPayload.self)
+            return .controlConfigurationUpdate(payload.configuration)
+
         case .pointerMove:
             let payload = try envelope.decodePayload(PointerMovePayload.self)
             CGEventFactory.move(
@@ -163,7 +180,7 @@ final class SessionRouter {
 
         case .pairingChallenge, .pairingResponse, .pairingPending, .acknowledgement,
              .connectionStatus, .error, .windowsSnapshot, .screenStreamStatus,
-             .screenFrame:
+             .screenFrame, .controlConfigurationSnapshot:
             return .ignore
         }
     }

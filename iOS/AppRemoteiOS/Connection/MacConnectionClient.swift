@@ -16,6 +16,31 @@ final class MacConnectionClient: ObservableObject {
         isStreaming: false,
         permissionGranted: true
     )
+    @Published private(set) var controlConfiguration: ControlConfiguration
+    @Published private(set) var connectionRoute: ConnectionRoute = .local
+    @Published private(set) var connectionIsExpensive = false
+    @Published private(set) var connectionIsConstrained = false
+    @Published private(set) var nomadEndpoint: NomadEndpoint?
+    @Published private(set) var pairedMacs: [PairedMac]
+    @Published private(set) var selectedMacID: PairedMac.ID?
+
+    private enum AttemptKind: Hashable {
+        case local
+        case nomadDNS
+        case nomadIPv4
+    }
+
+    private final class ConnectionAttempt {
+        let connection: NWConnection
+        let kind: AttemptKind
+        let generation: UUID
+
+        init(connection: NWConnection, kind: AttemptKind, generation: UUID) {
+            self.connection = connection
+            self.kind = kind
+            self.generation = generation
+        }
+    }
 
     private var connection: NWConnection?
     private var browser: NWBrowser?
@@ -25,15 +50,34 @@ final class MacConnectionClient: ObservableObject {
     private var retry = RetryPolicy()
     private var reconnectTask: Task<Void, Never>?
     private var watchdogTask: Task<Void, Never>?
+    private var foregroundReconnectTask: Task<Void, Never>?
+    private var pairingTimeoutTask: Task<Void, Never>?
+    private var nomadFallbackTask: Task<Void, Never>?
+    private var activeServiceName: String?
+    private var connectionGeneration = UUID()
+    private var connectionAttempts: [ObjectIdentifier: ConnectionAttempt] = [:]
+    private var startedAttemptKinds: Set<AttemptKind> = []
+    private var lastLocalPreferenceAttemptAt: Date?
 
-    private var pairedMac: PairedMac?
+    var selectedMac: PairedMac? {
+        guard let selectedMacID else { return pairedMacs.first }
+        return pairedMacs.first { $0.id == selectedMacID } ?? pairedMacs.first
+    }
+
+    private var pairedMac: PairedMac? { selectedMac }
     /// Renseigné le temps d'un appairage, puis effacé.
     private var pendingPairing: PairingQRPayload?
 
     private var pendingReplies: [UUID: CheckedContinuation<RemoteEnvelope, Error>] = [:]
+    private var pendingControlConfiguration: ControlConfiguration?
 
     init() {
-        pairedMac = PairedMac.load()
+        let storedMacs = PairedMacStore.load()
+        pairedMacs = storedMacs.macs
+        selectedMacID = storedMacs.selectedMacID
+        nomadEndpoint = NomadFeatureFlag.isEnabled ? storedMacs.selectedMac?.nomadEndpoint : nil
+        controlConfiguration = Self.loadControlConfiguration()
+        pendingControlConfiguration = Self.loadPendingControlConfiguration()
     }
 
 #if DEBUG
@@ -98,7 +142,8 @@ final class MacConnectionClient: ObservableObject {
     }
 #endif
 
-    var isPaired: Bool { pairedMac != nil }
+    var isPaired: Bool { !pairedMacs.isEmpty }
+    var isNomadModeEnabled: Bool { NomadFeatureFlag.isEnabled }
     // MARK: - Appairage
 
     /// Prend en compte un QR scanné et lance la connexion.
@@ -109,8 +154,13 @@ final class MacConnectionClient: ObservableObject {
         guard payload.version == ProtocolVersion.current else {
             throw RemoteErrorPayload(code: .protocolMismatch)
         }
+        guard payload.nomadEndpoint == nil || payload.nomadEndpoint?.isValid == true else {
+            throw RemoteErrorPayload(code: .notPaired, detail: "Point d’accès Nomade invalide")
+        }
         pendingPairing = payload
+        nomadEndpoint = NomadFeatureFlag.isEnabled ? payload.nomadEndpoint : nil
         state = .pairing(macName: payload.macName, confirmationCode: payload.confirmationCode)
+        startPairingTimeout()
         connect(
             to: payload.serviceName,
             fingerprint: payload.certificateFingerprint,
@@ -118,11 +168,45 @@ final class MacConnectionClient: ObservableObject {
         )
     }
 
-    func forgetMac() {
+    func selectMac(_ id: PairedMac.ID) {
+        guard id != selectedMacID,
+              pairedMacs.contains(where: { $0.id == id }) else { return }
+
         disconnect()
-        PairedMac.forget()
-        pairedMac = nil
-        state = .idle
+        apply(PairedMacStore.select(id))
+        resetTargetState()
+        state = .searching
+        connectIfPossible()
+    }
+
+    func forgetMac(_ id: PairedMac.ID? = nil) {
+        guard let id = id ?? selectedMacID else { return }
+        let wasSelected = id == selectedMacID
+        if wasSelected { disconnect() }
+        apply(PairedMacStore.remove(id))
+
+        guard wasSelected else { return }
+        resetTargetState()
+        if pairedMac == nil {
+            state = .idle
+        } else {
+            state = .searching
+            connectIfPossible()
+        }
+    }
+
+    /// Abandonne proprement un QR qui n'a pas abouti afin que le scanner
+    /// puisse immédiatement en accepter un nouveau.
+    func cancelPairing() {
+        pairingTimeoutTask?.cancel()
+        pairingTimeoutTask = nil
+        pendingPairing = nil
+        reconnectTask?.cancel()
+        reconnectTask = nil
+        cancelConnectionCycle()
+        nomadEndpoint = NomadFeatureFlag.isEnabled ? pairedMac?.nomadEndpoint : nil
+        state = pairedMac == nil ? .idle : .searching
+        if pairedMac != nil { connectIfPossible() }
     }
 
     // MARK: - Connexion
@@ -130,6 +214,7 @@ final class MacConnectionClient: ObservableObject {
     func connectIfPossible() {
         guard let mac = pairedMac, connection == nil else { return }
         state = .searching
+        browseForPairedMac(mac)
         connect(
             to: mac.serviceName,
             fingerprint: mac.certificateFingerprint,
@@ -145,9 +230,9 @@ final class MacConnectionClient: ObservableObject {
         guard let mac = pairedMac else { return }
         reconnectTask?.cancel()
         reconnectTask = nil
-        connection?.cancel()
-        connection = nil
+        cancelConnectionCycle()
         state = .searching
+        browseForPairedMac(mac)
         connect(
             to: mac.serviceName,
             fingerprint: mac.certificateFingerprint,
@@ -155,15 +240,45 @@ final class MacConnectionClient: ObservableObject {
         )
     }
 
+    /// iOS met brièvement le réseau local en pause lors d'un changement
+    /// d'application. Attendre quelques centaines de millisecondes évite une
+    /// fausse tentative pendant que le Wi‑Fi et Bonjour se réactivent.
+    func resumeAfterForeground() {
+        foregroundReconnectTask?.cancel()
+        guard pairedMac != nil || pendingPairing != nil else { return }
+        foregroundReconnectTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled, let self else { return }
+            if let pairing = self.pendingPairing {
+                guard !pairing.isExpired else {
+                    self.failPairing(.pairingApprovalExpired)
+                    return
+                }
+                self.startPairingTimeout()
+                self.connect(
+                    to: pairing.serviceName,
+                    fingerprint: pairing.certificateFingerprint,
+                    macName: pairing.macName
+                )
+            } else {
+                self.reconnectNow()
+            }
+        }
+    }
+
     func disconnect() {
+        foregroundReconnectTask?.cancel()
+        foregroundReconnectTask = nil
         reconnectTask?.cancel()
         reconnectTask = nil
         watchdogTask?.cancel()
         watchdogTask = nil
-        connection?.cancel()
-        connection = nil
+        pairingTimeoutTask?.cancel()
+        pairingTimeoutTask = nil
+        cancelConnectionCycle()
         browser?.cancel()
         browser = nil
+        activeServiceName = nil
         framer.reset()
         latestScreenFrame = nil
         lastScreenFrameAt = nil
@@ -176,50 +291,160 @@ final class MacConnectionClient: ObservableObject {
         fingerprint: String,
         macName: String
     ) {
-        connection?.cancel()
+        // Une découverte Bonjour peut trouver le bon nom pendant qu'une
+        // ancienne relance différée est encore planifiée. Cette dernière ne
+        // doit pas venir écraser la nouvelle connexion quelques secondes plus
+        // tard.
+        reconnectTask?.cancel()
+        reconnectTask = nil
+        cancelConnectionCycle()
         framer.reset()
         sequence = 0
         sessionID = UUID().uuidString
         state = .connecting(macName: macName)
+        activeServiceName = serviceName
 
-        let parameters = makeParameters(expecting: fingerprint)
-        let endpoint = NWEndpoint.service(
+        let generation = UUID()
+        connectionGeneration = generation
+        let localEndpoint = NWEndpoint.service(
             name: serviceName,
             type: VibeWalkieInfo.bonjourServiceType,
             domain: "local.",
             interface: nil
         )
-        let connection = NWConnection(to: endpoint, using: parameters)
+        startAttempt(
+            to: localEndpoint,
+            kind: .local,
+            generation: generation,
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
 
-        connection.stateUpdateHandler = { [weak self] newState in
+        let endpoint = NomadFeatureFlag.isEnabled
+            ? (pendingPairing?.nomadEndpoint ?? pairedMac?.nomadEndpoint)
+            : nil
+        guard endpoint?.isValid == true else { return }
+        nomadFallbackTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(750))
+            guard !Task.isCancelled, let self,
+                  self.connectionGeneration == generation,
+                  self.connection == nil else { return }
+            self.nomadFallbackTask = nil
+            self.startNomadAttempts(
+                endpoint: endpoint,
+                generation: generation,
+                macName: macName,
+                serviceName: serviceName,
+                fingerprint: fingerprint
+            )
+        }
+    }
+
+    private func startNomadAttempts(
+        endpoint: NomadEndpoint?,
+        generation: UUID,
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
+        guard let endpoint, endpoint.isValid,
+              connectionGeneration == generation,
+              connection == nil else {
+            finishAttemptCycleIfNeeded(
+                generation: generation,
+                macName: macName,
+                serviceName: serviceName,
+                fingerprint: fingerprint
+            )
+            return
+        }
+        let port = NWEndpoint.Port(rawValue: UInt16(endpoint.port))!
+        startAttempt(
+            to: .hostPort(host: NWEndpoint.Host(endpoint.magicDNSName), port: port),
+            kind: .nomadDNS,
+            generation: generation,
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+
+        // MagicDNS peut rester longtemps en `.preparing` sur iOS lorsque le
+        // tunnel Tailscale vient de se réveiller. Dans ce cas, attendre son
+        // échec avant de tenter l'adresse 100.x fait expirer l'appairage alors
+        // que le Mac est joignable. Les deux routes sont sûres (le certificat
+        // reste épinglé) : on les met donc en concurrence et la première
+        // connexion TLS valide gagne.
+        startIPv4FallbackIfNeeded(
+            after: .nomadDNS,
+            generation: generation,
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+    }
+
+    private func startAttempt(
+        to endpoint: NWEndpoint,
+        kind: AttemptKind,
+        generation: UUID,
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
+        guard connectionGeneration == generation,
+              connection == nil,
+              !startedAttemptKinds.contains(kind) else { return }
+
+        startedAttemptKinds.insert(kind)
+        let candidate = NWConnection(to: endpoint, using: makeParameters(expecting: fingerprint))
+        let attempt = ConnectionAttempt(connection: candidate, kind: kind, generation: generation)
+        connectionAttempts[ObjectIdentifier(candidate)] = attempt
+
+        candidate.stateUpdateHandler = { [weak self] newState in
             Task { @MainActor in
                 guard let self else { return }
-                // Une ancienne connexion annulée peut publier son état après
-                // qu'une nouvelle a déjà été créée. Elle ne doit jamais
-                // débrancher ou replanifier la connexion courante.
-                guard self.connection === connection else { return }
+                if self.connection === candidate {
+                    switch newState {
+                    case .waiting, .failed, .cancelled:
+                        candidate.cancel()
+                        self.handleDisconnection(
+                            macName: macName,
+                            serviceName: serviceName,
+                            fingerprint: fingerprint
+                        )
+                    default:
+                        break
+                    }
+                    return
+                }
+
+                let identifier = ObjectIdentifier(candidate)
+                guard let current = self.connectionAttempts[identifier],
+                      current.generation == generation,
+                      self.connectionGeneration == generation else { return }
                 switch newState {
                 case .ready:
-                    self.retry.reset()
-                    self.receive(
-                        on: connection,
+                    self.selectWinningConnection(
+                        candidate,
+                        kind: kind,
+                        generation: generation,
                         macName: macName,
                         serviceName: serviceName,
                         fingerprint: fingerprint
                     )
-                case .waiting:
-                    // `cancel()` depuis `.waiting` ne produit pas toujours un
-                    // second callback `.cancelled` sur iOS. Attendre ce
-                    // callback laissait la reconnexion bloquée après le
-                    // redémarrage du Mac ou une transition entre réseaux Wi‑Fi.
-                    connection.cancel()
-                    self.handleDisconnection(
+                case .waiting, .failed, .cancelled:
+                    candidate.cancel()
+                    self.connectionAttempts.removeValue(forKey: identifier)
+                    self.startIPv4FallbackIfNeeded(
+                        after: kind,
+                        generation: generation,
                         macName: macName,
                         serviceName: serviceName,
                         fingerprint: fingerprint
                     )
-                case .failed, .cancelled:
-                    self.handleDisconnection(
+                    self.finishAttemptCycleIfNeeded(
+                        generation: generation,
                         macName: macName,
                         serviceName: serviceName,
                         fingerprint: fingerprint
@@ -229,8 +454,204 @@ final class MacConnectionClient: ObservableObject {
                 }
             }
         }
-        connection.start(queue: .main)
-        self.connection = connection
+        candidate.start(queue: .main)
+    }
+
+    private func startIPv4FallbackIfNeeded(
+        after kind: AttemptKind,
+        generation: UUID,
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
+        guard kind == .nomadDNS,
+              let endpoint = pendingPairing?.nomadEndpoint ?? pairedMac?.nomadEndpoint,
+              let address = endpoint.ipv4Address,
+              NomadEndpoint.isValidTailscaleIPv4(address),
+              let port = NWEndpoint.Port(rawValue: UInt16(endpoint.port)) else { return }
+        startAttempt(
+            to: .hostPort(host: NWEndpoint.Host(address), port: port),
+            kind: .nomadIPv4,
+            generation: generation,
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+    }
+
+    private func selectWinningConnection(
+        _ winner: NWConnection,
+        kind: AttemptKind,
+        generation: UUID,
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
+        guard connectionGeneration == generation, connection == nil else {
+            winner.cancel()
+            return
+        }
+        connection = winner
+        connectionAttempts.removeValue(forKey: ObjectIdentifier(winner))
+        let losingAttempts = connectionAttempts.values
+        connectionAttempts.removeAll()
+        losingAttempts.forEach { $0.connection.cancel() }
+        nomadFallbackTask?.cancel()
+        nomadFallbackTask = nil
+        retry.reset()
+        connectionRoute = kind == .local ? .local : .nomad
+        updatePath(from: winner.currentPath, for: winner)
+        winner.pathUpdateHandler = { [weak self, weak winner] path in
+            guard let winner else { return }
+            Task { @MainActor in
+                self?.updatePath(from: path, for: winner)
+            }
+        }
+        receive(
+            on: winner,
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+    }
+
+    private func updatePath(from path: NWPath?, for candidate: NWConnection) {
+        guard connection === candidate else { return }
+        connectionIsExpensive = path?.isExpensive ?? false
+        connectionIsConstrained = path?.isConstrained ?? false
+    }
+
+    private func finishAttemptCycleIfNeeded(
+        generation: UUID,
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
+        guard connectionGeneration == generation,
+              connection == nil,
+              connectionAttempts.isEmpty,
+              nomadFallbackTask == nil else { return }
+        scheduleReconnect(
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+    }
+
+    private func cancelConnectionCycle() {
+        connectionGeneration = UUID()
+        nomadFallbackTask?.cancel()
+        nomadFallbackTask = nil
+        let attempts = connectionAttempts.values
+        connectionAttempts.removeAll()
+        attempts.forEach { $0.connection.cancel() }
+        startedAttemptKinds.removeAll()
+        let current = connection
+        connection = nil
+        current?.cancel()
+        connectionIsExpensive = false
+        connectionIsConstrained = false
+    }
+
+    /// Redécouvre le service par son empreinte si macOS ou Bonjour a modifié
+    /// son nom. Le TLS épinglé reste l'autorité de sécurité : un autre Mac ne
+    /// peut pas être accepté même s'il imite le nom publié.
+    private func browseForPairedMac(_ mac: PairedMac) {
+        browser?.cancel()
+
+        let parameters = NWParameters.tcp
+        parameters.includePeerToPeer = true
+        let browser = NWBrowser(
+            for: .bonjour(type: VibeWalkieInfo.bonjourServiceType, domain: "local."),
+            using: parameters
+        )
+        let fingerprintSuffix = String(
+            mac.certificateFingerprint.filter { $0.isLetter || $0.isNumber }.prefix(8)
+        )
+
+        browser.browseResultsChangedHandler = { [weak self] results, _ in
+            Task { @MainActor in
+                guard let self, self.browser === browser, self.pendingPairing == nil else { return }
+                let names = results.compactMap { result -> String? in
+                    guard case .service(let name, _, _, _) = result.endpoint else { return nil }
+                    return name
+                }
+                guard let discovered = names.first(where: { $0 == mac.serviceName })
+                        ?? names.first(where: { $0.contains(fingerprintSuffix) }),
+                      !discovered.isEmpty else { return }
+
+                // Une session Tailscale ne masque jamais le réseau local. Si
+                // Bonjour réapparaît (retour à la maison, Wi-Fi réactivé), on
+                // relance une course avec 750 ms d'avance pour le LAN. La
+                // reconnexion reste protégée par le même certificat épinglé.
+                if ConnectionRoute.local.isPreferred(over: self.connectionRoute),
+                   self.connection != nil,
+                   self.state.isReady {
+                    let now = Date()
+                    guard self.lastLocalPreferenceAttemptAt.map({ now.timeIntervalSince($0) >= 10 }) ?? true else {
+                        return
+                    }
+                    self.lastLocalPreferenceAttemptAt = now
+                    self.connect(
+                        to: discovered,
+                        fingerprint: mac.certificateFingerprint,
+                        macName: mac.name
+                    )
+                    return
+                }
+
+                guard discovered != self.activeServiceName else { return }
+                self.connect(
+                    to: discovered,
+                    fingerprint: mac.certificateFingerprint,
+                    macName: mac.name
+                )
+            }
+        }
+        browser.stateUpdateHandler = { [weak self] state in
+            guard case .failed = state else { return }
+            Task { @MainActor in
+                guard self?.browser === browser else { return }
+                self?.browser = nil
+            }
+        }
+        browser.start(queue: .main)
+        self.browser = browser
+    }
+
+    private func startPairingTimeout() {
+        pairingTimeoutTask?.cancel()
+        pairingTimeoutTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(15))
+            guard !Task.isCancelled, let self, self.pendingPairing != nil else { return }
+            if case .awaitingApproval = self.state { return }
+            self.failPairing(.macUnavailable)
+        }
+    }
+
+    /// Une approbation distante ne doit jamais laisser le scanner tourner
+    /// indéfiniment. Le compagnon transmet son échéance exacte ; passée cette
+    /// date, l'iPhone rend la main et demande un nouveau QR.
+    private func startApprovalTimeout(expiresAt: Date) {
+        pairingTimeoutTask?.cancel()
+        let delay = max(0, expiresAt.timeIntervalSinceNow + 1)
+        pairingTimeoutTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard !Task.isCancelled, let self, self.pendingPairing != nil,
+                  case .awaitingApproval = self.state else { return }
+            self.failPairing(.pairingApprovalExpired)
+        }
+    }
+
+    private func failPairing(_ error: RemoteErrorCode) {
+        pairingTimeoutTask?.cancel()
+        pairingTimeoutTask = nil
+        pendingPairing = nil
+        reconnectTask?.cancel()
+        reconnectTask = nil
+        cancelConnectionCycle()
+        nomadEndpoint = NomadFeatureFlag.isEnabled ? pairedMac?.nomadEndpoint : nil
+        state = .failed(error)
     }
 
     /// Paramètres TLS avec épinglage strict.
@@ -283,6 +704,18 @@ final class MacConnectionClient: ObservableObject {
         }
         state = .searching
 
+        scheduleReconnect(
+            macName: macName,
+            serviceName: serviceName,
+            fingerprint: fingerprint
+        )
+    }
+
+    private func scheduleReconnect(
+        macName: String,
+        serviceName: String,
+        fingerprint: String
+    ) {
         reconnectTask?.cancel()
         let delay = retry.nextDelay()
         reconnectTask = Task { [weak self] in
@@ -384,22 +817,57 @@ final class MacConnectionClient: ObservableObject {
                 macName: pending.macName,
                 confirmationCode: payload.confirmationCode
             )
+            startApprovalTimeout(expiresAt: payload.expiresAt)
 
         case .connectionStatus:
             guard let payload = try? envelope.decodePayload(ConnectionStatusPayload.self) else { return }
             accessibilityGranted = payload.accessibilityGranted
             state = .ready(macName: payload.macName)
+            pairingTimeoutTask?.cancel()
+            pairingTimeoutTask = nil
             startWatchdog()
+
+            if let pendingControlConfiguration {
+                sendFireAndForget(
+                    type: .controlConfigurationUpdate,
+                    payload: ControlConfigurationPayload(configuration: pendingControlConfiguration)
+                )
+            } else {
+                sendFireAndForget(type: .controlConfigurationRequest, payload: EmptyPayload())
+            }
+
+            let advertisedNomadEndpoint = NomadFeatureFlag.isEnabled && payload.nomadEndpoint?.isValid == true
+                ? payload.nomadEndpoint
+                : nil
 
             if let pending = pendingPairing {
                 let mac = PairedMac(
                     name: payload.macName,
                     serviceName: pending.serviceName,
-                    certificateFingerprint: pending.certificateFingerprint
+                    certificateFingerprint: pending.certificateFingerprint,
+                    nomadEndpoint: advertisedNomadEndpoint ?? pending.nomadEndpoint
                 )
-                mac.save()
-                pairedMac = mac
+                apply(PairedMacStore.upsert(mac, select: true))
                 pendingPairing = nil
+            } else if let current = pairedMac,
+                      let activeServiceName {
+                let refreshed = PairedMac(
+                    name: payload.macName,
+                    serviceName: activeServiceName,
+                    certificateFingerprint: current.certificateFingerprint,
+                    nomadEndpoint: advertisedNomadEndpoint
+                )
+                if refreshed != current {
+                    apply(PairedMacStore.upsert(refreshed, select: false))
+                }
+                nomadEndpoint = refreshed.nomadEndpoint
+            }
+
+            // L'écoute Bonjour reste active pendant une session Nomade. Elle
+            // permet de revenir automatiquement au LAN dès que l'iPhone et le
+            // Mac partagent de nouveau le même réseau.
+            if browser == nil, let pairedMac {
+                browseForPairedMac(pairedMac)
             }
 
         case .windowsSnapshot:
@@ -417,13 +885,32 @@ final class MacConnectionClient: ObservableObject {
                 if !payload.isStreaming { latestScreenFrame = nil }
             }
 
+        case .controlConfigurationSnapshot:
+            guard let payload = try? envelope.decodePayload(ControlConfigurationPayload.self) else { return }
+            if let pendingControlConfiguration,
+               (
+                   pendingControlConfiguration.buttons != payload.configuration.buttons ||
+                   pendingControlConfiguration.globalButtons != payload.configuration.globalButtons
+               ),
+               payload.configuration.revision <= pendingControlConfiguration.revision {
+                // Le premier instantané peut avoir été mis en file avant la
+                // mise à jour locale envoyée juste après la reconnexion.
+                sendFireAndForget(
+                    type: .controlConfigurationUpdate,
+                    payload: ControlConfigurationPayload(configuration: pendingControlConfiguration)
+                )
+                return
+            }
+            controlConfiguration = payload.configuration
+            pendingControlConfiguration = nil
+            Self.persistControlConfiguration(payload.configuration, pending: false)
+
         case .error:
             if let payload = try? envelope.decodePayload(RemoteErrorPayload.self) {
                 if pendingPairing != nil,
                    [.pairingDenied, .pairingApprovalExpired, .notPaired, .protocolMismatch].contains(payload.code) {
-                    pendingPairing = nil
-                    connection?.cancel()
-                    connection = nil
+                    failPairing(payload.code)
+                    return
                 }
                 state = .failed(payload.code)
             }
@@ -431,6 +918,21 @@ final class MacConnectionClient: ObservableObject {
         default:
             break
         }
+    }
+
+    private func apply(_ storedMacs: PairedMacStore.State) {
+        pairedMacs = storedMacs.macs
+        selectedMacID = storedMacs.selectedMacID
+        nomadEndpoint = NomadFeatureFlag.isEnabled ? storedMacs.selectedMac?.nomadEndpoint : nil
+    }
+
+    private func resetTargetState() {
+        snapshot = nil
+        accessibilityGranted = true
+        latestScreenFrame = nil
+        lastScreenFrameAt = nil
+        screenStreamStatus = ScreenStreamStatusPayload(isStreaming: false, permissionGranted: true)
+        connectionRoute = .local
     }
 
     func startScreenStream(maxWidth: Int = 1_280, framesPerSecond: Int = 10, jpegQuality: Double = 0.45) {
@@ -453,6 +955,52 @@ final class MacConnectionClient: ObservableObject {
         latestScreenFrame = nil
         lastScreenFrameAt = nil
         screenStreamStatus = ScreenStreamStatusPayload(isStreaming: false, permissionGranted: true)
+    }
+
+    // MARK: - Bloc de commandes
+
+    func updateControlConfiguration(_ configuration: ControlConfiguration) {
+        var local = configuration
+        local.updatedAt = Date()
+        controlConfiguration = local
+        pendingControlConfiguration = local
+        Self.persistControlConfiguration(local, pending: true)
+
+        guard state.isReady else { return }
+        sendFireAndForget(
+            type: .controlConfigurationUpdate,
+            payload: ControlConfigurationPayload(configuration: local)
+        )
+    }
+
+    func resetControlConfiguration() {
+        updateControlConfiguration(.standard)
+    }
+
+    private static let controlConfigurationDefaultsKey = "controlConfiguration.v1"
+    private static let pendingControlConfigurationDefaultsKey = "controlConfiguration.pending.v1"
+
+    private static func loadControlConfiguration() -> ControlConfiguration {
+        guard let data = UserDefaults.standard.data(forKey: controlConfigurationDefaultsKey),
+              let configuration = try? RemoteCoding.decoder.decode(ControlConfiguration.self, from: data) else {
+            return .standard
+        }
+        return configuration
+    }
+
+    private static func loadPendingControlConfiguration() -> ControlConfiguration? {
+        guard let data = UserDefaults.standard.data(forKey: pendingControlConfigurationDefaultsKey) else { return nil }
+        return try? RemoteCoding.decoder.decode(ControlConfiguration.self, from: data)
+    }
+
+    private static func persistControlConfiguration(_ configuration: ControlConfiguration, pending: Bool) {
+        guard let data = try? RemoteCoding.encoder.encode(configuration) else { return }
+        UserDefaults.standard.set(data, forKey: controlConfigurationDefaultsKey)
+        if pending {
+            UserDefaults.standard.set(data, forKey: pendingControlConfigurationDefaultsKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: pendingControlConfigurationDefaultsKey)
+        }
     }
 
     /// Battement de cœur indépendant des vues présentées. Le plein écran peut

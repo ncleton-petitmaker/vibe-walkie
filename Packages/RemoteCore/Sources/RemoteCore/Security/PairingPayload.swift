@@ -16,6 +16,8 @@ public struct PairingQRPayload: Codable, Sendable, Equatable {
     /// Secret aléatoire de 128 bits, à usage unique, encodé en base64.
     public let pairingSecret: String
     public let expiresAt: Date
+    /// Point d'accès privé facultatif pour le Mode Nomade Tailscale.
+    public let nomadEndpoint: NomadEndpoint?
 
     public init(
         version: Int = ProtocolVersion.current,
@@ -23,7 +25,8 @@ public struct PairingQRPayload: Codable, Sendable, Equatable {
         serviceName: String,
         certificateFingerprint: String,
         pairingSecret: String,
-        expiresAt: Date
+        expiresAt: Date,
+        nomadEndpoint: NomadEndpoint? = nil
     ) {
         self.version = version
         self.macName = macName
@@ -31,6 +34,7 @@ public struct PairingQRPayload: Codable, Sendable, Equatable {
         self.certificateFingerprint = certificateFingerprint
         self.pairingSecret = pairingSecret
         self.expiresAt = expiresAt
+        self.nomadEndpoint = nomadEndpoint
     }
 
     public var isExpired: Bool { Date() >= expiresAt }
@@ -76,6 +80,7 @@ private struct CompactPairingQRPayload: Codable {
     let certificateFingerprint: String
     let pairingSecret: String
     let expiresAt: Date
+    let nomadEndpoint: NomadEndpoint?
 
     enum CodingKeys: String, CodingKey {
         case version = "v"
@@ -84,6 +89,7 @@ private struct CompactPairingQRPayload: Codable {
         case certificateFingerprint = "f"
         case pairingSecret = "k"
         case expiresAt = "e"
+        case nomadEndpoint = "n"
     }
 
     init(_ payload: PairingQRPayload) {
@@ -93,6 +99,7 @@ private struct CompactPairingQRPayload: Codable {
         certificateFingerprint = payload.certificateFingerprint
         pairingSecret = payload.pairingSecret
         expiresAt = payload.expiresAt
+        nomadEndpoint = payload.nomadEndpoint
     }
 
     var expanded: PairingQRPayload {
@@ -102,7 +109,8 @@ private struct CompactPairingQRPayload: Codable {
             serviceName: serviceName,
             certificateFingerprint: certificateFingerprint,
             pairingSecret: pairingSecret,
-            expiresAt: expiresAt
+            expiresAt: expiresAt,
+            nomadEndpoint: nomadEndpoint
         )
     }
 }

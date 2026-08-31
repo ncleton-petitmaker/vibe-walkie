@@ -8,11 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		0E255BAFEC9FA7113A4D8E24 /* RemoteScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E252D774E2C2580E77988AFC /* RemoteScreenView.swift */; };
+		11D28748EB66BD7C2E681BE7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8C66D8FF7563BD6F2C097857 /* Localizable.xcstrings */; };
 		1AFB51F6855DC4B45CCCE4AF /* CommercializationConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */; };
 		2345B807E607C053D9AC768E /* MacConnectionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */; };
 		2F127D9F956AA6F20136D848 /* DeviceKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */; };
+		314077642B1100978296F880 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F11EBACBBF5156D9F4ACA1 /* SettingsSheet.swift */; };
 		37AACFEAC8AB8DD92E22801A /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3891F57B111648029F8C1544 /* HapticFeedback.swift */; };
-		6726856E6A019126609BAD2A /* TranscriptHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */; };
 		696B10390E8BA94C43696E4D /* AppSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */; };
 		6C17056F3C3E9BA2BDA47999 /* AppleSpeechAnalyzerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */; };
 		6DC8CA4F081BEE2EABCD37F5 /* DiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */; };
@@ -22,6 +23,7 @@
 		718AC88DA610623032D2D605 /* MarketingRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */; };
 		735845A4B0CD8875C7E0B8C7 /* TrackpadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */; };
 		81D3835B6C9FDAAA8A32DAAB /* OpenVibeWalkieIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6353152161E016133B85F50 /* OpenVibeWalkieIntent.swift */; };
+		8592CF2D523207428FE1D767 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE85A2795ECB9AE8FEB8C12 /* AppLanguage.swift */; };
 		8B0F430A68D2DBB1706A4919 /* AppRemoteControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326A965F1E790D986CC0E32D /* AppRemoteControls.swift */; };
 		991D4955B618B8958754773C /* DictationControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3C21643286EE581CB8747DB /* DictationControllerTests.swift */; };
 		A2AE5E8574D6F40A1DA45FA5 /* RemoteHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */; };
@@ -31,10 +33,10 @@
 		AB34B6BF5CFD28E4D5534276 /* AppRemoteControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB18E8737ED48CC3EBF7FBBA /* AppRemoteControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B886FFBF54E8AAE8EBF8A177 /* SpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */; };
 		BDAEB491ECF3F545CE385374 /* TargetPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A1C39536CF44A9F4492373 /* TargetPill.swift */; };
-		C79B80FD0111169245176655 /* TranscriptHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */; };
+		C464189A6DF4976A6995195A /* ControlConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B82016AEAE491C9388833D /* ControlConfiguratorView.swift */; };
 		D1F81461658A3D8D98DFC358 /* RemoteKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */; };
+		E460B4ACD103714C9233B7A3 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 394D25205000108713321D56 /* InfoPlist.xcstrings */; };
 		F0DAA0378147D5A7E449FB2E /* DictationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17289738EA7034957924ABD3 /* DictationController.swift */; };
-		F706F063F34C9F260831D812 /* TranscriptHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */; };
 		F8C8A8DC54E671AFDD38C6F2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */; };
 		F96DA0AABA402DE4CF5839CB /* PTTButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271BCA3204B6B76C81DAA24F /* PTTButton.swift */; };
 /* End PBXBuildFile section */
@@ -72,29 +74,31 @@
 
 /* Begin PBXFileReference section */
 		061478AC2C7D5412D65F6743 /* RemoteCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RemoteCore; path = ../Packages/RemoteCore; sourceTree = SOURCE_ROOT; };
+		0BE85A2795ECB9AE8FEB8C12 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
 		0F4AD3CECE4EE64FDD47DDA3 /* TrackpadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadView.swift; sourceTree = "<group>"; };
 		17289738EA7034957924ABD3 /* DictationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationController.swift; sourceTree = "<group>"; };
-		2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryStore.swift; sourceTree = "<group>"; };
 		24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketingRootView.swift; sourceTree = "<group>"; };
 		271BCA3204B6B76C81DAA24F /* PTTButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PTTButton.swift; sourceTree = "<group>"; };
 		27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryView.swift; sourceTree = "<group>"; };
 		282F2AB543131F01EFC0BECB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		30F11EBACBBF5156D9F4ACA1 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
 		326A965F1E790D986CC0E32D /* AppRemoteControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteControls.swift; sourceTree = "<group>"; };
 		34F5E115C77CB1562B9E682E /* PressAndHoldGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressAndHoldGesture.swift; sourceTree = "<group>"; };
 		3891F57B111648029F8C1544 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
-		4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryStoreTests.swift; sourceTree = "<group>"; };
+		394D25205000108713321D56 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		54FF5777C50B57E18B16BF59 /* PairingScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingScannerView.swift; sourceTree = "<group>"; };
 		57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6040F0A1C840D2BB0BCE0806 /* SpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechEngine.swift; sourceTree = "<group>"; };
 		6132A8BCF5F37FEA653ED460 /* AppRemoteiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppRemoteiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptHistoryView.swift; sourceTree = "<group>"; };
 		6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteHomeView.swift; sourceTree = "<group>"; };
 		75B0E3618DB6F6ED4A2A80FB /* AppleSpeechAnalyzerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechAnalyzerEngine.swift; sourceTree = "<group>"; };
 		7F706F54092076BEA79B78BC /* AppRemoteiOSTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AppRemoteiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C66D8FF7563BD6F2C097857 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B04D3B7DD8891482327132F1 /* DeviceKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceKeyStore.swift; sourceTree = "<group>"; };
 		B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteKeyboardView.swift; sourceTree = "<group>"; };
 		BB1FC7919ACC444BF23B3405 /* MacConnectionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionClient.swift; sourceTree = "<group>"; };
 		C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommercializationConfigurationTests.swift; sourceTree = "<group>"; };
+		C6B82016AEAE491C9388833D /* ControlConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlConfiguratorView.swift; sourceTree = "<group>"; };
 		E252D774E2C2580E77988AFC /* RemoteScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteScreenView.swift; sourceTree = "<group>"; };
 		E3C21643286EE581CB8747DB /* DictationControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationControllerTests.swift; sourceTree = "<group>"; };
 		E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoteApp.swift; sourceTree = "<group>"; };
@@ -123,7 +127,6 @@
 			children = (
 				C3844B1B998E34A8E18A83B8 /* CommercializationConfigurationTests.swift */,
 				E3C21643286EE581CB8747DB /* DictationControllerTests.swift */,
-				4441FEB0D50CE27CEAA10EB5 /* TranscriptHistoryStoreTests.swift */,
 			);
 			path = AppRemoteiOSTests;
 			sourceTree = "<group>";
@@ -164,6 +167,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		6ECCDF6F2E7DD14E436DAC9A /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				0BE85A2795ECB9AE8FEB8C12 /* AppLanguage.swift */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
 		823AC83899824A8864EF7903 /* Pairing */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,21 +192,32 @@
 			path = Speech;
 			sourceTree = "<group>";
 		};
+		9210B2A32C1B9815A851CD57 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				30F11EBACBBF5156D9F4ACA1 /* SettingsSheet.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		ADBA9F3E6132AAD041B7C92D /* AppRemoteiOS */ = {
 			isa = PBXGroup;
 			children = (
 				E5EEE963DD5C8B2810BA3169 /* AppRemoteApp.swift */,
 				282F2AB543131F01EFC0BECB /* Assets.xcassets */,
 				F360446662D29D256CCCF175 /* Info.plist */,
+				394D25205000108713321D56 /* InfoPlist.xcstrings */,
+				8C66D8FF7563BD6F2C097857 /* Localizable.xcstrings */,
 				24A1B0E85DFEACF0216E217B /* MarketingRootView.swift */,
 				57CB2CE91AF042271AE17F16 /* PrivacyInfo.xcprivacy */,
 				6BE015561F8522A4C77BA1DD /* RemoteHomeView.swift */,
 				5C7AAE1DF903254918D15078 /* Connection */,
-				F02CE7EB1052A5D674819F59 /* History */,
+				6ECCDF6F2E7DD14E436DAC9A /* Localization */,
 				D0093D0576826CE7A679BBC3 /* Onboarding */,
 				823AC83899824A8864EF7903 /* Pairing */,
 				CE85F9AEFCBC402ABC98096A /* PTT */,
 				B119C3DF6198EF40071F50BA /* RemoteControl */,
+				9210B2A32C1B9815A851CD57 /* Settings */,
 				8B2722D825A67AB3059C5948 /* Speech */,
 			);
 			path = AppRemoteiOS;
@@ -205,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				EAF4414EF6FB8E3D3561A0A7 /* AppSwitcherView.swift */,
+				C6B82016AEAE491C9388833D /* ControlConfiguratorView.swift */,
 				B42537BBEF0BA515CA83624F /* RemoteKeyboardView.swift */,
 				E252D774E2C2580E77988AFC /* RemoteScreenView.swift */,
 				F6A1C39536CF44A9F4492373 /* TargetPill.swift */,
@@ -230,15 +253,6 @@
 				27A6D19DA1675408B2DACF33 /* DiscoveryView.swift */,
 			);
 			path = Onboarding;
-			sourceTree = "<group>";
-		};
-		F02CE7EB1052A5D674819F59 /* History */ = {
-			isa = PBXGroup;
-			children = (
-				2202B205BEC4BA50F6B38B52 /* TranscriptHistoryStore.swift */,
-				660FF6BCFFF08A1CDF33B2AB /* TranscriptHistoryView.swift */,
-			);
-			path = History;
 			sourceTree = "<group>";
 		};
 		FDC6BFE3BF10EB33FBD39C6F = {
@@ -343,11 +357,12 @@
 			};
 			buildConfigurationList = 197B870623D0733A1A6A31C9 /* Build configuration list for PBXProject "AppRemoteiOS" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = fr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
+				fr,
 			);
 			mainGroup = FDC6BFE3BF10EB33FBD39C6F;
 			minimizedProjectReferenceProxies = 1;
@@ -371,6 +386,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A91183D17317D5D514027DCD /* Assets.xcassets in Resources */,
+				E460B4ACD103714C9233B7A3 /* InfoPlist.xcstrings in Resources */,
+				11D28748EB66BD7C2E681BE7 /* Localizable.xcstrings in Resources */,
 				F8C8A8DC54E671AFDD38C6F2 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -382,9 +399,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8592CF2D523207428FE1D767 /* AppLanguage.swift in Sources */,
 				6F4EB65C8EB76C447F68F93A /* AppRemoteApp.swift in Sources */,
 				696B10390E8BA94C43696E4D /* AppSwitcherView.swift in Sources */,
 				6C17056F3C3E9BA2BDA47999 /* AppleSpeechAnalyzerEngine.swift in Sources */,
+				C464189A6DF4976A6995195A /* ControlConfiguratorView.swift in Sources */,
 				2F127D9F956AA6F20136D848 /* DeviceKeyStore.swift in Sources */,
 				F0DAA0378147D5A7E449FB2E /* DictationController.swift in Sources */,
 				6DC8CA4F081BEE2EABCD37F5 /* DiscoveryView.swift in Sources */,
@@ -398,11 +417,10 @@
 				A2AE5E8574D6F40A1DA45FA5 /* RemoteHomeView.swift in Sources */,
 				D1F81461658A3D8D98DFC358 /* RemoteKeyboardView.swift in Sources */,
 				0E255BAFEC9FA7113A4D8E24 /* RemoteScreenView.swift in Sources */,
+				314077642B1100978296F880 /* SettingsSheet.swift in Sources */,
 				B886FFBF54E8AAE8EBF8A177 /* SpeechEngine.swift in Sources */,
 				BDAEB491ECF3F545CE385374 /* TargetPill.swift in Sources */,
 				735845A4B0CD8875C7E0B8C7 /* TrackpadView.swift in Sources */,
-				6726856E6A019126609BAD2A /* TranscriptHistoryStore.swift in Sources */,
-				C79B80FD0111169245176655 /* TranscriptHistoryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,7 +430,6 @@
 			files = (
 				1AFB51F6855DC4B45CCCE4AF /* CommercializationConfigurationTests.swift in Sources */,
 				991D4955B618B8958754773C /* DictationControllerTests.swift in Sources */,
-				F706F063F34C9F260831D812 /* TranscriptHistoryStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,7 +550,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026083103;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -555,6 +572,7 @@
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NOMAD_MODE_ENABLED = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -659,7 +677,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026083103;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -675,6 +693,7 @@
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NOMAD_MODE_ENABLED = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

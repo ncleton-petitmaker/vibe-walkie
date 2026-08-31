@@ -106,9 +106,9 @@ struct AppSwitcherView: View {
             _ = try await client.send(type: .listWindows, payload: ListWindowsPayload())
             errorMessage = nil
         } catch let error as RemoteErrorPayload {
-            errorMessage = error.message
+            errorMessage = AppL10n.remoteError(error.code)
         } catch {
-            errorMessage = "Impossible de lire les applications du Mac."
+            errorMessage = AppL10n.text("Impossible de lire les applications du Mac.")
         }
     }
 
@@ -125,9 +125,9 @@ struct AppSwitcherView: View {
                 // Pas de faux succès : si le Mac n'a pas pu activer la fenêtre,
                 // la feuille reste ouverte avec la raison.
                 HapticFeedback.shared.failed()
-                errorMessage = error.message
+                errorMessage = AppL10n.remoteError(error.code)
             } catch {
-                errorMessage = "L'application n'a pas pu être activée."
+                errorMessage = AppL10n.text("L'application n'a pas pu être activée.")
             }
         }
     }

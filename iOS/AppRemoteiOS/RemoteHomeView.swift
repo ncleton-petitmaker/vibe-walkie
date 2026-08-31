@@ -9,17 +9,25 @@ import RemoteCore
 /// sans regarder l'écran.
 struct RemoteHomeView: View {
     @EnvironmentObject private var client: MacConnectionClient
-    @EnvironmentObject private var history: TranscriptHistoryStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var dictation: DictationController
 
     @State private var showSwitcher = false
+    @State private var showMacSwitcher = false
     @State private var showKeyboard = false
     @State private var showSettings = false
     @State private var showScreen = false
+    @State private var showControlConfigurator = false
+    @State private var showGlobalPalette = false
+    @AppStorage(DictationLanguage.storageKey) private var dictationLanguage: DictationLanguage = .automatic
 
-    init(client: MacConnectionClient, history: TranscriptHistoryStore) {
-        _dictation = StateObject(wrappedValue: DictationController(client: client, history: history))
+    init(client: MacConnectionClient) {
+        _dictation = StateObject(wrappedValue: DictationController(client: client))
+#if DEBUG
+        _showGlobalPalette = State(
+            initialValue: ProcessInfo.processInfo.arguments.contains("--marketing-global")
+        )
+#endif
     }
 
     var body: some View {
@@ -38,15 +46,44 @@ struct RemoteHomeView: View {
                                 .padding(.bottom, 8)
                                 .allowsHitTesting(false)
                         }
-                    dictationBar
+                        .overlay(alignment: .bottomTrailing) {
+                            if showKeyboard {
+                                Button {
+                                    withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                                        showKeyboard = false
+                                    }
+                                } label: {
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundStyle(Color.remoteBlue)
+                                        .frame(width: 44, height: 44)
+                                        .background(Circle().fill(Color.controlSurface))
+                                        .overlay(Circle().stroke(.white.opacity(0.1), lineWidth: 1))
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.trailing, 12)
+                                .padding(.bottom, 58)
+                                .transition(.scale.combined(with: .opacity))
+                                .accessibilityLabel("Fermer le clavier")
+                                .accessibilityHint("Rétablit les commandes de dictée.")
+                            }
+                        }
+
+                    if !showKeyboard {
+                        dictationBar
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 14)
 
+                if showKeyboard {
+                    RemoteKeyboardView(presentation: .inline)
+                }
             }
         }
         .preferredColorScheme(.dark)
-        .task {
+        .task(id: dictationLanguage) {
             client.connectIfPossible()
 #if DEBUG
             let arguments = ProcessInfo.processInfo.arguments
@@ -59,6 +96,7 @@ struct RemoteHomeView: View {
                 return
             }
             if arguments.contains("--marketing-home-idle") { return }
+            if arguments.contains("--marketing-global") { return }
 #endif
             // Le test écran ne dépend ni du micro ni de la transcription.
             // Le lancer en premier évite qu'une initialisation Speech lente
@@ -67,7 +105,7 @@ struct RemoteHomeView: View {
                 await runScreenSmokeTestIfRequested()
                 return
             }
-            await dictation.prepareEngine()
+            await dictation.prepareEngine(localeIdentifier: dictationLanguage.localeIdentifier)
             await runPTTSmokeTestIfRequested()
         }
         .task(id: client.state.isReady) {
@@ -76,14 +114,23 @@ struct RemoteHomeView: View {
         .sheet(isPresented: $showSwitcher) {
             AppSwitcherView().environmentObject(client)
         }
-        .sheet(isPresented: $showKeyboard) {
-            RemoteKeyboardView().environmentObject(client)
-                .presentationDetents([.medium])
+        .sheet(isPresented: $showMacSwitcher) {
+            MacSwitcherView().environmentObject(client)
         }
         .sheet(isPresented: $showSettings) {
-            SettingsSheet(dictation: dictation)
+            SettingsSheet()
                 .environmentObject(client)
-                .environmentObject(history)
+        }
+        .sheet(isPresented: $showControlConfigurator) {
+            NavigationStack {
+                ControlConfiguratorView()
+                    .environmentObject(client)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Fermer") { showControlConfigurator = false }
+                        }
+                    }
+            }
         }
         .fullScreenCover(isPresented: $showScreen) {
             RemoteScreenView(dictation: dictation)
@@ -167,7 +214,7 @@ struct RemoteHomeView: View {
         let frame = client.latestScreenFrame
         let report: [String: Any] = [
             "connected": client.state.isReady,
-            "connection": "local",
+            "connection": client.connectionRoute.rawValue,
             "screenPermissionGranted": client.screenStreamStatus.permissionGranted,
             "screenStreaming": client.screenStreamStatus.isStreaming,
             "screenError": client.screenStreamStatus.detail ?? NSNull(),
@@ -186,17 +233,13 @@ struct RemoteHomeView: View {
     private var topRow: some View {
         HStack(spacing: 12) {
             CircularControlButton(
-                systemImage: client.state.isReady ? "escape" : "arrow.clockwise",
+                systemImage: "desktopcomputer.and.macbook",
                 size: 44,
                 iconSize: 15,
-                accessibilityText: client.state.isReady ? "Échap" : "Reconnecter le Mac"
+                accessibilityText: "Changer de Mac"
             ) {
                 HapticFeedback.shared.tick()
-                if client.state.isReady {
-                    client.sendFireAndForget(type: .keyPress, payload: KeyPressPayload(key: .escape))
-                } else {
-                    client.reconnectNow()
-                }
+                showMacSwitcher = true
             }
 
             TargetPill { showSwitcher = true }
@@ -257,61 +300,33 @@ struct RemoteHomeView: View {
     }
 
     private var dictationBar: some View {
-        ZStack {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(dictation.isRecording ? "Je vous écoute…" : "Maintenez pour dicter")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text("Relâchez pour envoyer au Mac")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.68))
-                }
-                .frame(maxWidth: 88, alignment: .leading)
-
-                Spacer()
-
-                VStack(spacing: 8) {
-                    CircularControlButton(
-                        systemImage: "arrow.left.arrow.right",
-                        size: 52,
-                        iconSize: 18,
-                        accessibilityText: "Revenir à l’application précédente"
-                    ) {
-                        sendKey(.applicationSwitcher)
+        VStack(spacing: 6) {
+            ZStack {
+                HStack {
+                    VStack(spacing: 7) {
+                        configuredButton(.upperLeft, style: .side)
+                        configuredButton(.lowerLeft, style: .side)
                     }
-
-                    CircularControlButton(
-                        systemImage: "return",
-                        size: 52,
-                        iconSize: 20,
-                        isProminent: true,
-                        accessibilityText: "Entrée"
-                    ) {
-                        sendKey(.enter)
+                    Spacer(minLength: 96)
+                    VStack(spacing: 7) {
+                        configuredButton(.upperRight, style: .side)
+                        configuredButton(.lowerRight, style: .side)
                     }
                 }
+
+                PTTButton(dictation: dictation)
             }
 
-            VStack(spacing: 0) {
-                PTTButton(dictation: dictation)
-
-                HStack(spacing: 6) {
-                    quickActionButton("Saisie", systemImage: "keyboard") {
-                        showKeyboard = true
-                    }
-                    quickKeyButton("Effacer", systemImage: "delete.left", key: .backspace)
-                    quickKeyButton("Espace", systemImage: "space", key: .space)
-                }
-                .offset(y: -4)
+            HStack(spacing: 7) {
+                configuredButton(.bottomLeft, style: .bottom)
+                configuredButton(.bottomCenter, style: .bottom)
+                configuredButton(.bottomRight, style: .bottom)
+                globalPaletteButton
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        // La zone de commandes gagne un peu de hauteur pour accueillir le
-        // switcher au-dessus d'Entrée ; le pavé tactile cède naturellement
-        // cet espace sans déplacer les commandes essentielles.
-        .frame(minHeight: 190)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(minHeight: 218)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(Color.controlSurface)
@@ -320,49 +335,125 @@ struct RemoteHomeView: View {
                         .stroke(.white.opacity(0.06), lineWidth: 1)
                 )
         )
-    }
-
-    private func quickKeyButton(
-        _ title: String,
-        systemImage: String,
-        key: RemoteKey
-    ) -> some View {
-        Button {
-            sendKey(key)
-        } label: {
-            Label(title, systemImage: systemImage)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.88))
-                .minimumScaleFactor(0.8)
-                .frame(width: 72)
-                .frame(minHeight: 44)
-                .background(Capsule().fill(Color.white.opacity(0.08)))
-                .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .overlay(alignment: .bottom) {
+            if showGlobalPalette {
+                GlobalShortcutBubble(
+                    buttons: client.controlConfiguration.availableGlobalButtons,
+                    perform: { action in
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.16)) {
+                            showGlobalPalette = false
+                        }
+                        perform(action)
+                    },
+                    configure: {
+                        showGlobalPalette = false
+                        showControlConfigurator = true
+                    },
+                    close: {
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.16)) {
+                            showGlobalPalette = false
+                        }
+                    }
+                )
+                .padding(.horizontal, 10)
+                .padding(.bottom, 54)
+                .transition(.scale(scale: 0.92, anchor: .bottomTrailing).combined(with: .opacity))
+                .zIndex(10)
+            }
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(title)
     }
 
-    private func quickActionButton(
-        _ title: String,
-        systemImage: String,
-        action: @escaping () -> Void
-    ) -> some View {
+    private var globalPaletteButton: some View {
         Button {
             HapticFeedback.shared.tick()
-            action()
+            withAnimation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.84)) {
+                showGlobalPalette.toggle()
+            }
         } label: {
-            Label(title, systemImage: systemImage)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.88))
-                .minimumScaleFactor(0.8)
-                .frame(width: 72)
-                .frame(minHeight: 44)
-                .background(Capsule().fill(Color.white.opacity(0.08)))
-                .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+            VStack(spacing: 3) {
+                Image(systemName: showGlobalPalette ? "xmark" : "circle.grid.2x2.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                Text("Global")
+                    .font(.system(size: 9, weight: .semibold))
+            }
+            .foregroundStyle(showGlobalPalette ? Color.remoteBlue : .white.opacity(0.92))
+            .frame(maxWidth: .infinity)
+            .frame(height: 43)
+            .background(
+                (showGlobalPalette ? Color.remoteBlue.opacity(0.18) : Color.white.opacity(0.075)),
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(showGlobalPalette ? Color.remoteBlue.opacity(0.7) : .white.opacity(0.08), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(title)
+        .accessibilityLabel(showGlobalPalette ? "Fermer les commandes globales" : "Ouvrir les commandes globales")
+    }
+
+    private enum ConfiguredButtonStyle {
+        case side
+        case bottom
+    }
+
+    private func configuredButton(_ zone: ControlZone, style: ConfiguredButtonStyle) -> some View {
+        let configuration = client.controlConfiguration.button(in: zone)
+        return Button {
+            perform(configuration.action)
+        } label: {
+            VStack(spacing: 3) {
+                ControlIconImage(icon: configuration.icon)
+                    .frame(width: style == .side ? 17 : 15, height: style == .side ? 17 : 15)
+                Text(configuration.title)
+                    .font(.system(size: style == .side ? 8 : 9, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+            .foregroundStyle(.white.opacity(actionIsEmpty(configuration.action) ? 0.48 : 0.9))
+            .frame(maxWidth: style == .bottom ? .infinity : nil)
+            .frame(width: style == .side ? 68 : nil, height: style == .side ? 55 : 43)
+            .background(Color.white.opacity(0.075), in: RoundedRectangle(cornerRadius: style == .side ? 16 : 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: style == .side ? 16 : 14, style: .continuous)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(configuration.title)
+        .accessibilityHint(actionIsEmpty(configuration.action) ? "Ouvre la configuration de cette zone." : "Maintenez pour modifier ce bouton.")
+        .contextMenu {
+            Button {
+                showControlConfigurator = true
+            } label: {
+                Label("Modifier ce bouton", systemImage: "slider.horizontal.3")
+            }
+        }
+    }
+
+    private func actionIsEmpty(_ action: ControlButtonAction) -> Bool {
+        if case .none = action { return true }
+        return false
+    }
+
+    private func perform(_ action: ControlButtonAction) {
+        switch action {
+        case .none:
+            showControlConfigurator = true
+        case .standardKey(let key):
+            sendKey(key)
+        case .macShortcut(let shortcut):
+            HapticFeedback.shared.tick()
+            client.sendFireAndForget(
+                type: .macShortcutPress,
+                payload: MacShortcutPressPayload(shortcut: shortcut)
+            )
+        case .showKeyboard:
+            HapticFeedback.shared.tick()
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                showKeyboard = true
+            }
+        }
     }
 
     private func sendKey(_ key: RemoteKey) {
@@ -370,4 +461,67 @@ struct RemoteHomeView: View {
         client.sendFireAndForget(type: .keyPress, payload: KeyPressPayload(key: key))
     }
 
+}
+
+struct GlobalShortcutBubble: View {
+    let buttons: [GlobalButtonConfiguration]
+    let perform: (ControlButtonAction) -> Void
+    let configure: () -> Void
+    let close: () -> Void
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 7), count: 4)
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                Label("Global", systemImage: "circle.grid.2x2.fill")
+                    .font(.subheadline.bold())
+                Text("Autres commandes")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button(action: configure) {
+                    Image(systemName: "arrow.up.arrow.down")
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Changer l’ordre des commandes globales")
+                Button(action: close) {
+                    Image(systemName: "xmark")
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Fermer")
+            }
+
+            LazyVGrid(columns: columns, spacing: 7) {
+                ForEach(buttons) { button in
+                    Button {
+                        perform(button.action)
+                    } label: {
+                        VStack(spacing: 4) {
+                            ControlIconImage(icon: button.icon)
+                                .frame(width: 18, height: 18)
+                            Text(button.title)
+                                .font(.system(size: 9, weight: .semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                        }
+                        .foregroundStyle(.white.opacity(0.92))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .background(.white.opacity(0.075), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(button.title)
+                }
+            }
+        }
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(.white.opacity(0.14), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.35), radius: 18, y: 8)
+    }
 }

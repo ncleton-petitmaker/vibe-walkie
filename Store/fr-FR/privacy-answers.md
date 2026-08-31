@@ -6,8 +6,9 @@ Réponse prévue dans App Store Connect : **Non, nous ne collectons pas de donn�
 - Aucun suivi publicitaire ou inter-apps.
 - Aucun SDK de télémétrie, publicité ou crash reporting tiers.
 - L’audio reste sur l’iPhone et n’est pas transmis au développeur ni au Mac.
-- Le texte et les commandes vont uniquement au Mac approuvé sur le réseau local.
-- L’historique facultatif est stocké localement, borné à 50 éléments et 7 jours, effaçable et désactivable. Il n’est pas « collecté » par le développeur.
+- Le texte et les commandes vont uniquement au Mac approuvé, directement sur le réseau local ou via le réseau Tailscale facultatif de l’utilisateur. Ils ne sont pas reçus par le développeur.
+- Aucune transcription n’est conservée dans un historique.
+- Le mode Nomade ne lit ni compte, ni jeton OAuth, ni ACL Tailscale. Il mémorise localement le nom MagicDNS du Mac et son adresse Tailscale facultative.
 - Sparkle appartient uniquement au compagnon Mac et son profilage système est désactivé.
 
 Avant soumission, comparer cette déclaration au comportement du binaire final et de toutes ses dépendances. Tout ajout futur de diagnostic distant impose une nouvelle analyse et une mise à jour des réponses.

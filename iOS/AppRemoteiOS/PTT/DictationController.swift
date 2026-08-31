@@ -29,8 +29,8 @@ final class DictationController: ObservableObject {
     @Published private(set) var level: CGFloat = 0
 
     private let client: any DictationTransport
-    private let history: TranscriptHistoryStore
     private var engine: (any SpeechEngine)?
+    private var dictationLocaleIdentifier: String
     private var dictationID = UUID()
     private var targetToken: TargetToken?
     private var captureTask: Task<Void, Never>?
@@ -41,12 +41,12 @@ final class DictationController: ObservableObject {
 
     init(
         client: any DictationTransport,
-        history: TranscriptHistoryStore,
-        engine: (any SpeechEngine)? = nil
+        engine: (any SpeechEngine)? = nil,
+        localeIdentifier: String = DictationLanguage.deviceLocaleIdentifier
     ) {
         self.client = client
-        self.history = history
         self.engine = engine
+        dictationLocaleIdentifier = localeIdentifier
     }
 
     var isRecording: Bool {
@@ -67,12 +67,15 @@ final class DictationController: ObservableObject {
     }
 #endif
 
-    func prepareEngine() async {
+    func prepareEngine(localeIdentifier: String) async {
         guard #available(iOS 26.0, *) else {
             phase = .failed("Vibe Walkie nécessite iOS 26.")
             return
         }
-        let engine = AppleSpeechAnalyzerEngine()
+        if isRecording || phase == .finalizing || phase == .sending { return }
+        await engine?.cancel()
+        let engine = AppleSpeechAnalyzerEngine(localeIdentifier: localeIdentifier)
+        dictationLocaleIdentifier = localeIdentifier
         do {
             try await engine.prepare()
             self.engine = engine
@@ -105,7 +108,7 @@ final class DictationController: ObservableObject {
             } catch is CancellationError {
                 await cancelRemoteTarget(for: currentID)
             } catch let error as RemoteErrorPayload {
-                await fail(error.message)
+                await fail(AppL10n.remoteError(error.code))
             } catch {
                 await fail(error.localizedDescription)
             }
@@ -143,7 +146,7 @@ final class DictationController: ObservableObject {
     private func requestTarget(for id: UUID) async throws -> TargetToken {
         let response = try await client.send(
             type: .recordingStarted,
-            payload: RecordingStartedPayload(locale: VibeWalkieInfo.dictationLocale, dictationID: id)
+            payload: RecordingStartedPayload(locale: dictationLocaleIdentifier, dictationID: id)
         )
         let ack = try response.decodePayload(AcknowledgementPayload.self)
         guard let token = ack.targetToken else {
@@ -195,17 +198,15 @@ final class DictationController: ObservableObject {
             partialText = finalText
             guard !finalText.isEmpty else {
                 await cancelRemoteTarget(for: currentID)
-                await fail("Aucune parole détectée")
+                await fail(AppL10n.text("Aucune parole détectée"))
                 return
             }
             guard let token else {
-                history.record(finalText, delivery: .notSent, applicationName: nil)
-                await fail("Aucun champ actif sur le Mac")
+                await fail(AppL10n.text("Aucun champ actif sur le Mac"))
                 return
             }
 
             phase = .sending
-            let entry = history.record(finalText, delivery: .pending, applicationName: token.applicationName)
             do {
                 let response = try await client.send(
                     type: .insertText,
@@ -216,21 +217,16 @@ final class DictationController: ObservableObject {
                     throw RemoteErrorPayload(code: .internalFailure, detail: "accusé incomplet")
                 }
                 if insertion.verified {
-                    history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
                     HapticFeedback.shared.delivered()
-                    phase = .delivered("Écrit dans \(insertion.applicationName)")
+                    phase = .delivered(AppL10n.text("Écrit dans \(insertion.applicationName)"))
                 } else {
-                    history.update(entry.id, delivery: .unknown, applicationName: insertion.applicationName)
-                    phase = .sentUnverified("Envoyé à \(insertion.applicationName) — vérifiez le champ")
+                    phase = .sentUnverified(AppL10n.text("Envoyé à \(insertion.applicationName) — vérifiez le champ"))
                 }
                 scheduleReset()
             } catch let error as RemoteErrorPayload {
-                let delivery: DeliveryState = error.detail == "timeout" ? .unknown : .notSent
-                history.update(entry.id, delivery: delivery)
-                await fail(error.message)
+                await fail(AppL10n.remoteError(error.code))
             } catch {
-                history.update(entry.id, delivery: .unknown)
-                await fail("Livraison non confirmée. Le texte reste dans l’historique.")
+                await fail(AppL10n.text("Livraison non confirmée. Vérifiez le champ actif."))
             }
         }
     }
@@ -277,38 +273,4 @@ final class DictationController: ObservableObject {
         }
     }
 
-    /// Renvoie une transcription en capturant toujours une nouvelle cible.
-    func resend(_ entry: TranscriptEntry) {
-        Task { [weak self] in
-            guard let self else { return }
-            phase = .sending
-            let resendID = UUID()
-            do {
-                let token = try await requestTarget(for: resendID)
-                let response = try await client.send(
-                    type: .insertText,
-                    payload: InsertTextPayload(targetToken: token.token, text: entry.text, dictationID: resendID)
-                )
-                let ack = try response.decodePayload(AcknowledgementPayload.self)
-                guard ack.ok, let insertion = ack.insertion else {
-                    throw RemoteErrorPayload(code: .internalFailure, detail: "accusé incomplet")
-                }
-                if insertion.verified {
-                    history.update(entry.id, delivery: .delivered, applicationName: insertion.applicationName)
-                    HapticFeedback.shared.delivered()
-                    phase = .delivered("Renvoyé dans \(insertion.applicationName)")
-                } else {
-                    history.update(entry.id, delivery: .unknown, applicationName: insertion.applicationName)
-                    phase = .sentUnverified("Renvoyé à \(insertion.applicationName) — vérifiez le champ")
-                }
-                scheduleReset()
-            } catch let error as RemoteErrorPayload {
-                history.update(entry.id, delivery: .notSent)
-                await fail(error.message)
-            } catch {
-                history.update(entry.id, delivery: .unknown)
-                await fail("Livraison non confirmée")
-            }
-        }
-    }
 }

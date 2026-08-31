@@ -2,6 +2,38 @@ import SwiftUI
 import UIKit
 import RemoteCore
 
+enum TrackpadSettings {
+    static let pointerRange = 0.5...6.0
+    static let scrollRange = 0.2...5.0
+    static let defaultPointerSpeed = 2.0
+    static let defaultScrollSpeed = 1.2
+
+    private static let pointerKey = "trackpadSensitivity"
+    private static let scrollKey = "scrollSensitivity"
+    private static let expandedSpeedMigrationKey = "expandedTrackpadSpeedRangeV1"
+
+    /// Conserve l'intention des personnes qui avaient choisi l'ancien maximum,
+    /// sans les propulser brutalement au nouveau plafond dès la mise à jour.
+    static func migrateExpandedSpeedRange(defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: expandedSpeedMigrationKey) else { return }
+
+        if defaults.object(forKey: pointerKey) != nil,
+           defaults.double(forKey: pointerKey) >= 2.95 {
+            defaults.set(5.0, forKey: pointerKey)
+        }
+        if defaults.object(forKey: scrollKey) != nil,
+           defaults.double(forKey: scrollKey) >= 1.95 {
+            defaults.set(4.0, forKey: scrollKey)
+        }
+        defaults.set(true, forKey: expandedSpeedMigrationKey)
+    }
+}
+
+enum TrackpadAppearance: Equatable {
+    case surface
+    case screenOverlay
+}
+
 /// Grande surface tactile, inspirée de la disposition de la Télécommande Apple.
 ///
 /// Les événements sont envoyés sans attendre d'accusé : un pointeur qui
@@ -10,62 +42,72 @@ import RemoteCore
 /// perte d'une insertion de texte.
 struct TrackpadView: View {
     @EnvironmentObject private var client: MacConnectionClient
-    @AppStorage("trackpadSensitivity") private var sensitivity: Double = 1.6
-    @AppStorage("scrollSensitivity") private var scrollSensitivity: Double = 0.8
+    @AppStorage("trackpadSensitivity") private var sensitivity: Double = TrackpadSettings.defaultPointerSpeed
+    @AppStorage("scrollSensitivity") private var scrollSensitivity: Double = TrackpadSettings.defaultScrollSpeed
+    var appearance: TrackpadAppearance = .surface
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 28, style: .continuous)
-            .fill(Color.trackpadSurface)
-            .overlay(
+        ZStack {
+            if appearance == .surface {
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
-            )
-            .overlay(hint)
-            .overlay {
-                TouchpadSurface(
-                    onMove: { delta in
-                        client.sendFireAndForget(
-                            type: .pointerMove,
-                            payload: PointerMovePayload(
-                                deltaX: delta.x * sensitivity,
-                                deltaY: delta.y * sensitivity
-                            )
-                        )
-                    },
-                    onScroll: { delta in
-                        client.sendFireAndForget(
-                            type: .scroll,
-                            payload: ScrollPayload(
-                                deltaX: delta.x * scrollSensitivity,
-                                deltaY: delta.y * scrollSensitivity
-                            )
-                        )
-                    },
-                    onClick: {
-                        HapticFeedback.shared.tick()
-                        client.sendFireAndForget(
-                            type: .pointerClick,
-                            payload: PointerClickPayload(button: .left, clickCount: 1)
-                        )
-                    },
-                    onDrag: { phase, delta in
-                        client.sendFireAndForget(
-                            type: .pointerDrag,
-                            payload: PointerDragPayload(
-                                phase: phase,
-                                deltaX: delta.x * sensitivity,
-                                deltaY: delta.y * sensitivity
-                            )
-                        )
-                    }
+                    .fill(Color.trackpadSurface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                    )
+                    .overlay(hint)
+            } else {
+                Color.clear
+            }
+
+            touchSurface
+        }
+        .overlay(alignment: .trailing) {
+            scrollStripHint
+        }
+        .contentShape(Rectangle())
+        .accessibilityLabel("Pavé tactile")
+        .accessibilityHint("Un doigt déplace le curseur, un toucher clique, et la bande à droite ou deux doigts font défiler.")
+    }
+
+    private var touchSurface: some View {
+        TouchpadSurface(
+            onMove: { delta in
+                client.sendFireAndForget(
+                    type: .pointerMove,
+                    payload: PointerMovePayload(
+                        deltaX: delta.x * sensitivity,
+                        deltaY: delta.y * sensitivity
+                    )
+                )
+            },
+            onScroll: { delta in
+                client.sendFireAndForget(
+                    type: .scroll,
+                    payload: ScrollPayload(
+                        deltaX: delta.x * scrollSensitivity,
+                        deltaY: delta.y * scrollSensitivity
+                    )
+                )
+            },
+            onClick: {
+                HapticFeedback.shared.tick()
+                client.sendFireAndForget(
+                    type: .pointerClick,
+                    payload: PointerClickPayload(button: .left, clickCount: 1)
+                )
+            },
+            onDrag: { phase, delta in
+                client.sendFireAndForget(
+                    type: .pointerDrag,
+                    payload: PointerDragPayload(
+                        phase: phase,
+                        deltaX: delta.x * sensitivity,
+                        deltaY: delta.y * sensitivity
+                    )
                 )
             }
-            .overlay(alignment: .trailing) {
-                scrollStripHint
-            }
-            .contentShape(Rectangle())
-            .accessibilityLabel("Pavé tactile")
-            .accessibilityHint("Un doigt déplace le curseur, un toucher clique, et la bande à droite ou deux doigts font défiler.")
+        )
     }
 
     private var hint: some View {
@@ -89,7 +131,7 @@ struct TrackpadView: View {
         .font(.system(size: 9, weight: .semibold))
         .foregroundStyle(Color.remoteBlue.opacity(0.38))
         .frame(width: 34, height: 104)
-        .background(Capsule().fill(Color.black.opacity(0.12)))
+        .background(Capsule().fill(Color.black.opacity(appearance == .screenOverlay ? 0.46 : 0.12)))
         .overlay(alignment: .leading) {
             Capsule()
                 .fill(Color.white.opacity(0.1))

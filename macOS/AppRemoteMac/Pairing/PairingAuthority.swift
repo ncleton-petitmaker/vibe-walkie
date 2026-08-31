@@ -36,7 +36,13 @@ final class PairingAuthority: ObservableObject {
         self.peers = peers
     }
 
-    func beginPairing(macName: String, serviceName: String, fingerprint: String) -> PairingQRPayload {
+    func beginPairing(
+        macName: String,
+        serviceName: String,
+        fingerprint: String,
+        nomadEndpoint: NomadEndpoint? = nil,
+        validity: TimeInterval = VibeWalkieInfo.pairingWindow
+    ) -> PairingQRPayload {
         cancelPendingApproval()
         let secret = SecureRandom.bytes(16)
         let payload = PairingQRPayload(
@@ -44,7 +50,8 @@ final class PairingAuthority: ObservableObject {
             serviceName: serviceName,
             certificateFingerprint: fingerprint,
             pairingSecret: secret.base64EncodedString(),
-            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingWindow)
+            expiresAt: Date().addingTimeInterval(validity),
+            nomadEndpoint: nomadEndpoint
         )
         activeSession = PairingSession(
             payload: payload,
@@ -54,7 +61,7 @@ final class PairingAuthority: ObservableObject {
 
         expiryTask?.cancel()
         expiryTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(VibeWalkieInfo.pairingWindow))
+            try? await Task.sleep(for: .seconds(validity))
             guard !Task.isCancelled else { return }
             await MainActor.run { self?.endPairing() }
         }
@@ -74,8 +81,11 @@ final class PairingAuthority: ObservableObject {
 
     func authenticate(response: PairingResponsePayload, nonce: Data) throws -> AuthenticationDecision {
         if let known = peers.peer(withID: response.deviceIdentifier) {
-            guard known.publicKey == response.publicKey else {
-                throw RemoteErrorPayload(code: .notPaired, detail: "clé différente")
+            // Si l'iPhone a effacé puis régénéré sa clé, le QR constitue une
+            // preuve de présence mais ne suffit pas à remplacer silencieusement
+            // une identité connue : le Mac redemande une validation humaine.
+            if known.publicKey != response.publicKey {
+                return try prepareKeyReplacement(response: response, nonce: nonce)
             }
 
             let verificationSecret: Data?
@@ -131,6 +141,44 @@ final class PairingAuthority: ObservableObject {
         let pending = PendingApproval(
             id: UUID(),
             peer: peer,
+            confirmationCode: session.payload.confirmationCode,
+            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingApprovalWindow)
+        )
+        pendingApproval = pending
+        return .requiresApproval(pending)
+    }
+
+    private func prepareKeyReplacement(
+        response: PairingResponsePayload,
+        nonce: Data
+    ) throws -> AuthenticationDecision {
+        guard pendingApproval == nil else {
+            throw RemoteErrorPayload(code: .rateLimited, detail: "une approbation est déjà en attente")
+        }
+        guard let session = activeSession, !session.payload.isExpired,
+              let provided = response.pairingSecret,
+              provided == session.secret else {
+            throw RemoteErrorPayload(code: .notPaired, detail: "nouvelle clé sans QR valide")
+        }
+        guard ChallengeSigner.verify(
+            signature: response.signature,
+            nonce: nonce,
+            deviceIdentifier: response.deviceIdentifier,
+            pairingSecret: session.secret,
+            publicKeyRepresentation: response.publicKey
+        ) else {
+            throw RemoteErrorPayload(code: .notPaired, detail: "signature de remplacement invalide")
+        }
+
+        let replacement = ApprovedPeer(
+            id: response.deviceIdentifier,
+            name: response.deviceName,
+            publicKey: response.publicKey,
+            pairedAt: Date()
+        )
+        let pending = PendingApproval(
+            id: UUID(),
+            peer: replacement,
             confirmationCode: session.payload.confirmationCode,
             expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingApprovalWindow)
         )

@@ -210,8 +210,9 @@ public struct ActivateWindowPayload: Codable, Sendable {
 
 // MARK: - Clavier
 
-/// Touches autorisées. Une énumération fermée, jamais un keycode brut : le
-/// réseau ne doit pas pouvoir composer un raccourci arbitraire sur le Mac.
+/// Touches standard configurables depuis l'iPhone. Les combinaisons de
+/// keycodes bruts suivent un message distinct et ne peuvent être enregistrées
+/// que dans l'interface du compagnon Mac authentifié.
 public enum RemoteKey: String, Codable, Sendable, CaseIterable {
     case enter
     case escape
@@ -219,6 +220,9 @@ public enum RemoteKey: String, Codable, Sendable, CaseIterable {
     /// Bascule immédiatement vers l'application utilisée précédemment,
     /// comme un appui bref sur Cmd+Tab affecté à un bouton de souris.
     case applicationSwitcher = "application_switcher"
+    /// Passe au chat suivant dans ChatGPT, ou à l'onglet suivant dans les
+    /// autres applications compatibles comme Claude et Chrome.
+    case nextConversation = "next_conversation"
     case backspace
     case delete
     case arrowUp = "arrow_up"
@@ -226,6 +230,9 @@ public enum RemoteKey: String, Codable, Sendable, CaseIterable {
     case arrowLeft = "arrow_left"
     case arrowRight = "arrow_right"
     case space
+    case copy
+    case paste
+    case cut
 }
 
 public struct KeyPressPayload: Codable, Sendable {
@@ -376,14 +383,17 @@ public struct ConnectionStatusPayload: Codable, Sendable {
     public let accessibilityGranted: Bool
     public let macName: String
     public let companionVersion: String
+    public let nomadEndpoint: NomadEndpoint?
 
     public init(
         accessibilityGranted: Bool,
         macName: String,
-        companionVersion: String
+        companionVersion: String,
+        nomadEndpoint: NomadEndpoint? = nil
     ) {
         self.accessibilityGranted = accessibilityGranted
         self.macName = macName
         self.companionVersion = companionVersion
+        self.nomadEndpoint = nomadEndpoint
     }
 }

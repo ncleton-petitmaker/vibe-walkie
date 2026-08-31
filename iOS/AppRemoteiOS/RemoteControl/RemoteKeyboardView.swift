@@ -1,64 +1,121 @@
 import SwiftUI
 import RemoteCore
 
-/// Clavier distant en saisie directe.
-///
-/// Chaque caractère part immédiatement vers le Mac. Le champ local reste vide :
-/// il ne sert qu'à capturer les frappes, pas à composer un message. C'est ce
-/// qui donne l'impression de taper directement sur l'ordinateur.
+enum KeyboardInputMode: String, CaseIterable, Identifiable {
+    static let storageKey = "keyboardInputMode"
+
+    case direct
+    case corrected
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .direct: AppL10n.text("Direct")
+        case .corrected: AppL10n.text("Correcteur")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .direct: "bolt.fill"
+        case .corrected: "text.badge.checkmark"
+        }
+    }
+}
+
+/// Clavier distant proposant une frappe immédiate ou un brouillon corrigé.
 struct RemoteKeyboardView: View {
+    enum Presentation {
+        case sheet
+        case inline
+    }
+
     @EnvironmentObject private var client: MacConnectionClient
-    @Environment(\.dismiss) private var dismiss
+
+    var presentation: Presentation = .sheet
+
+    @AppStorage(KeyboardInputMode.storageKey) private var inputMode: KeyboardInputMode = .direct
 
     /// Sentinelle invisible qui permet à iOS de signaler un effacement même
     /// quand aucun texte visible n'est conservé dans le champ.
     @State private var buffer = "\u{200B}"
+    @State private var draft = ""
+    @State private var isSendingDraft = false
+    @State private var deliveryMessage: String?
     @State private var errorMessage: String?
     @FocusState private var isFocused: Bool
 
     var body: some View {
+        Group {
+            switch presentation {
+            case .sheet:
+                sheetContent
+            case .inline:
+                inlineContent
+            }
+        }
+        .toolbar {
+            if presentation == .inline, inputMode == .direct {
+                ToolbarItemGroup(placement: .keyboard) {
+                    keyboardToolbar
+                }
+            }
+        }
+        .onAppear {
+            buffer = "\u{200B}"
+            Task { @MainActor in
+                isFocused = true
+            }
+        }
+        .onChange(of: inputMode) { _, _ in
+            buffer = "\u{200B}"
+            errorMessage = nil
+            deliveryMessage = nil
+            Task { @MainActor in
+                isFocused = true
+            }
+        }
+    }
+
+    private var sheetContent: some View {
         VStack(spacing: 16) {
             Capsule()
                 .fill(Color.white.opacity(0.2))
                 .frame(width: 36, height: 5)
                 .padding(.top, 8)
 
-            Text("Clavier distant")
+            Label(
+                inputMode == .direct ? "Clavier direct" : "Saisie avec correcteur",
+                systemImage: inputMode.systemImage
+            )
                 .font(.headline)
                 .foregroundStyle(.white)
 
-            Text("Ce que vous tapez s'écrit directement sur le Mac.")
+            Text(inputMode == .direct
+                 ? "Chaque frappe s'écrit immédiatement sur le Mac."
+                 : "Relisez et corrigez le texte sur l’iPhone avant de l’envoyer au Mac.")
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.68))
                 .multilineTextAlignment(.center)
 
-            if let errorMessage {
-                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                    .font(.footnote)
-                    .foregroundStyle(.orange)
-                    .multilineTextAlignment(.center)
-            }
+            statusMessage
 
-            TextField("", text: $buffer)
-                .textFieldStyle(.plain)
-                .focused($isFocused)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .foregroundStyle(.white)
-                .padding()
-                .background(RoundedRectangle(cornerRadius: 14).fill(Color.controlSurface))
-                .onChange(of: buffer) { _, newValue in
-                    send(newValue)
-                }
-                .onSubmit {
-                    client.sendFireAndForget(type: .keyPress, payload: KeyPressPayload(key: .enter))
-                }
+            if inputMode == .direct {
+                directInputField
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(RoundedRectangle(cornerRadius: 14).fill(Color.controlSurface))
 
-            HStack(spacing: 12) {
-                keyButton("Échap", key: .escape)
-                keyButton("Tab", key: .tab)
-                keyButton("Retour", key: .backspace)
-                keyButton("Entrée", key: .enter)
+                HStack(spacing: 12) {
+                    keyButton("Échap", key: .escape)
+                    keyButton("Tab", key: .tab)
+                    keyButton("Retour", key: .backspace)
+                    keyButton("Entrée", key: .enter)
+                }
+            } else {
+                composer
+                draftActions
             }
 
             Spacer()
@@ -66,9 +123,130 @@ struct RemoteKeyboardView: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.ignoresSafeArea())
-        .onAppear {
-            buffer = "\u{200B}"
-            isFocused = true
+    }
+
+    @ViewBuilder
+    private var inlineContent: some View {
+        if inputMode == .direct {
+            directInputField
+                .frame(width: 1, height: 1)
+                .opacity(0.01)
+                .accessibilityHidden(true)
+        } else {
+            VStack(spacing: 8) {
+                HStack {
+                    Label("Brouillon corrigé", systemImage: inputMode.systemImage)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.82))
+                    Spacer()
+                }
+
+                composer
+                draftActions
+                statusMessage
+            }
+            .padding(12)
+            .background(Color.controlSurface)
+        }
+    }
+
+    private var directInputField: some View {
+        TextField("", text: $buffer)
+            .textFieldStyle(.plain)
+            .focused($isFocused)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+            .onChange(of: buffer) { _, newValue in
+                send(newValue)
+            }
+            .onSubmit {
+                sendKey(.enter)
+            }
+    }
+
+    private var composer: some View {
+        TextField("Écrivez votre texte…", text: $draft, axis: .vertical)
+            .textFieldStyle(.plain)
+            .focused($isFocused)
+            .autocorrectionDisabled(false)
+            .textInputAutocapitalization(.sentences)
+            .lineLimit(3...7)
+            .foregroundStyle(.white)
+            .padding(12)
+            .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(.white.opacity(0.08), lineWidth: 1)
+            )
+            .disabled(isSendingDraft)
+            .accessibilityLabel("Brouillon à envoyer au Mac")
+            .onChange(of: draft) { _, newValue in
+                guard newValue.count > 512 else { return }
+                draft = String(newValue.prefix(512))
+            }
+    }
+
+    private var draftActions: some View {
+        HStack(spacing: 12) {
+            Button("Effacer", role: .destructive) {
+                draft = ""
+                deliveryMessage = nil
+                errorMessage = nil
+            }
+            .disabled(draft.isEmpty || isSendingDraft)
+
+            Spacer()
+            characterCount
+
+            Button {
+                sendDraft()
+            } label: {
+                if isSendingDraft {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Label("Envoyer", systemImage: "arrow.up.circle.fill")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.remoteBlue)
+            .disabled(draft.isEmpty || isSendingDraft)
+        }
+    }
+
+    private var characterCount: some View {
+        Text("\(draft.count)/512")
+            .font(.caption2.monospacedDigit())
+            .foregroundStyle(.white.opacity(0.48))
+    }
+
+    @ViewBuilder
+    private var statusMessage: some View {
+        if let errorMessage {
+            Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                .font(.footnote)
+                .foregroundStyle(.orange)
+                .multilineTextAlignment(.center)
+        } else if let deliveryMessage {
+            Label(deliveryMessage, systemImage: "checkmark.circle.fill")
+                .font(.footnote)
+                .foregroundStyle(.green)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    @ViewBuilder
+    private var keyboardToolbar: some View {
+        Button {
+            sendKey(.escape)
+        } label: {
+            Label("Échap", systemImage: "escape")
+        }
+
+        Button {
+            sendKey(.tab)
+        } label: {
+            Label("Tab", systemImage: "arrow.right.to.line")
         }
     }
 
@@ -98,17 +276,16 @@ struct RemoteKeyboardView: View {
                 )
                 errorMessage = nil
             } catch let error as RemoteErrorPayload {
-                errorMessage = error.message
+                errorMessage = AppL10n.remoteError(error.code)
             } catch {
-                errorMessage = "Le texte n'a pas été envoyé au Mac."
+                errorMessage = AppL10n.text("Le texte n'a pas été envoyé au Mac.")
             }
         }
     }
 
     private func keyButton(_ label: String, key: RemoteKey) -> some View {
         Button {
-            HapticFeedback.shared.tick()
-            client.sendFireAndForget(type: .keyPress, payload: KeyPressPayload(key: key))
+            sendKey(key)
         } label: {
             Text(label)
                 .font(.footnote.weight(.medium))
@@ -117,5 +294,35 @@ struct RemoteKeyboardView: View {
                 .background(Capsule().fill(Color.controlSurface))
         }
         .buttonStyle(.plain)
+    }
+
+    private func sendKey(_ key: RemoteKey) {
+        HapticFeedback.shared.tick()
+        client.sendFireAndForget(type: .keyPress, payload: KeyPressPayload(key: key))
+    }
+
+    private func sendDraft() {
+        guard !draft.isEmpty, !isSendingDraft else { return }
+        let text = draft
+        isSendingDraft = true
+        errorMessage = nil
+        deliveryMessage = nil
+        HapticFeedback.shared.tick()
+
+        Task {
+            do {
+                _ = try await client.send(
+                    type: .keyboardText,
+                    payload: KeyboardTextPayload(text: text, userInitiated: true)
+                )
+                draft = ""
+                deliveryMessage = AppL10n.text("Texte envoyé au Mac.")
+            } catch let error as RemoteErrorPayload {
+                errorMessage = AppL10n.remoteError(error.code)
+            } catch {
+                errorMessage = AppL10n.text("Le texte n'a pas été envoyé au Mac.")
+            }
+            isSendingDraft = false
+        }
     }
 }

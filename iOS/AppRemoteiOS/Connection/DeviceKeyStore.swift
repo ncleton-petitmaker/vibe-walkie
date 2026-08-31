@@ -4,6 +4,15 @@ import Security
 import UIKit
 import RemoteCore
 
+enum NomadFeatureFlag {
+    static var isEnabled: Bool {
+        let rawValue = Bundle.main.object(forInfoDictionaryKey: "VibeWalkieNomadModeEnabled")
+        if let value = rawValue as? Bool { return value }
+        guard let value = rawValue as? String else { return false }
+        return ["1", "true", "yes"].contains(value.lowercased())
+    }
+}
+
 /// Identité durable de cet iPhone.
 ///
 /// La clé privée reste dans le Trousseau et ne sort jamais : le Mac ne connaît
@@ -79,37 +88,121 @@ enum DeviceKeyStore {
 }
 
 /// Mac appairé, mémorisé côté iPhone.
-struct PairedMac: Codable, Equatable {
+///
+/// L'empreinte TLS sert d'identité stable : le nom Bonjour peut changer et
+/// deux Macs peuvent avoir le même nom visible, mais ils ne partagent jamais
+/// le même certificat.
+struct PairedMac: Codable, Equatable, Identifiable {
     let name: String
     let serviceName: String
     let certificateFingerprint: String
+    let nomadEndpoint: NomadEndpoint?
+
+    var id: String { certificateFingerprint }
 
     init(
         name: String,
         serviceName: String,
-        certificateFingerprint: String
+        certificateFingerprint: String,
+        nomadEndpoint: NomadEndpoint? = nil
     ) {
         self.name = name
         self.serviceName = serviceName
         self.certificateFingerprint = certificateFingerprint
+        self.nomadEndpoint = nomadEndpoint?.isValid == true ? nomadEndpoint : nil
     }
 
-    private static let key = "com.nicolascleton.viberemote.pairedMac"
+}
 
-    static func load() -> PairedMac? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
-        return try? RemoteCoding.decoder.decode(PairedMac.self, from: data)
+/// Registre local des compagnons connus et de la cible sélectionnée.
+///
+/// La migration depuis le stockage mono-Mac est automatique et atomique : une
+/// mise à jour de l'app retrouve donc le compagnon existant sans nouvel
+/// appairage. Le registre ne contient aucun secret, seulement les informations
+/// publiques déjà transportées par le QR.
+struct PairedMacStore {
+    struct State: Codable, Equatable {
+        var macs: [PairedMac]
+        var selectedMacID: String?
+
+        var selectedMac: PairedMac? {
+            guard let selectedMacID else { return macs.first }
+            return macs.first { $0.id == selectedMacID } ?? macs.first
+        }
     }
 
-    func save() {
-        guard let data = try? RemoteCoding.encoder.encode(self) else { return }
-        UserDefaults.standard.set(data, forKey: Self.key)
+    private static let registryKey = "com.nicolascleton.viberemote.pairedMacs.v2"
+    private static let legacyKey = "com.nicolascleton.viberemote.pairedMac"
+
+    static func load(defaults: UserDefaults = .standard) -> State {
+        if let data = defaults.data(forKey: registryKey),
+           let stored = try? RemoteCoding.decoder.decode(State.self, from: data) {
+            return normalized(stored)
+        }
+
+        guard let data = defaults.data(forKey: legacyKey),
+              let legacy = try? RemoteCoding.decoder.decode(PairedMac.self, from: data) else {
+            return State(macs: [], selectedMacID: nil)
+        }
+
+        let migrated = State(macs: [legacy], selectedMacID: legacy.id)
+        persist(migrated, defaults: defaults)
+        defaults.removeObject(forKey: legacyKey)
+        return migrated
     }
 
-    static func forget() {
-        UserDefaults.standard.removeObject(forKey: key)
-        // Oublier un Mac retire la relation locale, pas l'identité durable de
-        // cet iPhone. Régénérer la clé ici créait un conflit avec la clé que
-        // le Mac connaît encore et empêchait tout réappairage ultérieur.
+    @discardableResult
+    static func upsert(
+        _ mac: PairedMac,
+        select: Bool,
+        defaults: UserDefaults = .standard
+    ) -> State {
+        var state = load(defaults: defaults)
+        if let index = state.macs.firstIndex(where: { $0.id == mac.id }) {
+            state.macs[index] = mac
+        } else {
+            state.macs.append(mac)
+        }
+        if select || state.selectedMac == nil {
+            state.selectedMacID = mac.id
+        }
+        state = normalized(state)
+        persist(state, defaults: defaults)
+        return state
+    }
+
+    @discardableResult
+    static func select(_ id: PairedMac.ID, defaults: UserDefaults = .standard) -> State {
+        var state = load(defaults: defaults)
+        guard state.macs.contains(where: { $0.id == id }) else { return state }
+        state.selectedMacID = id
+        persist(state, defaults: defaults)
+        return state
+    }
+
+    @discardableResult
+    static func remove(_ id: PairedMac.ID, defaults: UserDefaults = .standard) -> State {
+        var state = load(defaults: defaults)
+        state.macs.removeAll { $0.id == id }
+        if state.selectedMacID == id {
+            state.selectedMacID = state.macs.first?.id
+        }
+        state = normalized(state)
+        persist(state, defaults: defaults)
+        return state
+    }
+
+    private static func normalized(_ state: State) -> State {
+        var seen = Set<String>()
+        let macs = state.macs.filter { seen.insert($0.id).inserted }
+        let selectedMacID = state.selectedMacID.flatMap { id in
+            macs.contains(where: { $0.id == id }) ? id : nil
+        } ?? macs.first?.id
+        return State(macs: macs, selectedMacID: selectedMacID)
+    }
+
+    private static func persist(_ state: State, defaults: UserDefaults) {
+        guard let data = try? RemoteCoding.encoder.encode(state) else { return }
+        defaults.set(data, forKey: registryKey)
     }
 }

@@ -40,11 +40,11 @@ build-*/
 /landing/
 /server/
 /docs/
-/Scripts/archive-ios-on-macmini.command
-/Scripts/deploy-server-vps.sh
-/Scripts/release-ios-macmini.command
-/Scripts/release.sh
-/Scripts/relay/
+/scripts/archive-ios-on-macmini.command
+/scripts/deploy-server-vps.sh
+/scripts/release-ios-macmini.command
+/scripts/release.sh
+/scripts/relay/
 
 # Local research and legacy artwork
 /Brand/AppRemoteIcon-master.png

@@ -1,4 +1,5 @@
 import XCTest
+import RemoteCore
 @testable import VibeWalkieMac
 
 final class CommercializationConfigurationTests: XCTestCase {
@@ -30,5 +31,40 @@ final class CommercializationConfigurationTests: XCTestCase {
         XCTAssertNotNil(Bundle.main.url(forResource: "SwiftCrypto-NOTICE", withExtension: "txt"))
         XCTAssertNotNil(Bundle.main.url(forResource: "SwiftASN1-NOTICE", withExtension: "txt"))
         XCTAssertNotNil(Bundle.main.url(forResource: "SwiftCertificates-NOTICE", withExtension: "txt"))
+    }
+
+    func testTailscaleStatusExtractsOnlyAValidNomadEndpoint() throws {
+        let data = Data(#"""
+        {
+          "BackendState": "Running",
+          "Self": {
+            "DNSName": "mac-vibe.tail123.ts.net.",
+            "TailscaleIPs": ["fd7a:115c:a1e0::1", "100.101.22.8"]
+          }
+        }
+        """#.utf8)
+
+        let endpoint = try TailscaleCoordinator.endpoint(fromStatusJSON: data)
+        XCTAssertEqual(endpoint?.magicDNSName, "mac-vibe.tail123.ts.net")
+        XCTAssertEqual(endpoint?.ipv4Address, "100.101.22.8")
+        XCTAssertEqual(endpoint?.port, 54_389)
+    }
+
+    func testTailscaleStatusRejectsStoppedOrPublicAddresses() throws {
+        let stopped = Data(#"{"BackendState":"Stopped"}"#.utf8)
+        XCTAssertNil(try TailscaleCoordinator.endpoint(fromStatusJSON: stopped))
+
+        let publicAddress = Data(#"""
+        {
+          "BackendState": "Running",
+          "Self": {
+            "DNSName": "mac-vibe.tail123.ts.net",
+            "TailscaleIPs": ["8.8.8.8"]
+          }
+        }
+        """#.utf8)
+        let endpoint = try TailscaleCoordinator.endpoint(fromStatusJSON: publicAddress)
+        XCTAssertNil(endpoint?.ipv4Address)
+        XCTAssertEqual(endpoint?.magicDNSName, "mac-vibe.tail123.ts.net")
     }
 }

@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "NSLocalNetworkUsageDescription" : {
+      "localizations" : {
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie communique directement avec votre iPhone. Aucun audio ne quitte l’iPhone." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie communicates directly with your iPhone. No audio leaves the iPhone." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

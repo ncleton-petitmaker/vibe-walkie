@@ -1,4 +1,6 @@
 import SwiftUI
+import PhotosUI
+import Vision
 @preconcurrency import AVFoundation
 import RemoteCore
 
@@ -10,6 +12,9 @@ struct PairingScannerView: View {
     @State private var errorMessage: String?
     @State private var scannedCode: String?
     @State private var scannerPaused = false
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var showCodeEntry = false
+    @State private var enteredCode = ""
 
     var body: some View {
         NavigationStack {
@@ -30,17 +35,34 @@ struct PairingScannerView: View {
                     Spacer()
                     VStack(spacing: 10) {
                         if let code = scannedCode {
-                            Text("Vérifiez que le Mac affiche")
-                                .font(.footnote)
-                                .foregroundStyle(.white.opacity(0.7))
+                            if case .awaitingApproval(let macName, _) = client.state {
+                                Label("Autorisation requise", systemImage: "hand.raised.fill")
+                                    .font(.headline)
+                                    .foregroundStyle(.orange)
+                                Text("Sur \(macName), cliquez sur « Autoriser ».")
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .multilineTextAlignment(.center)
+                            } else {
+                                Text("Vérifiez que le Mac affiche")
+                                    .font(.footnote)
+                                    .foregroundStyle(.white.opacity(0.7))
+                            }
                             Text(code)
                                 .font(.system(.largeTitle, design: .monospaced).weight(.bold))
                                 .foregroundStyle(.white)
                             ProgressView()
                                 .tint(.white)
-                            Text("Connexion sécurisée au Mac…")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.6))
+                            if case .awaitingApproval = client.state {
+                                Text("Cette confirmation protège le contrôle à distance du Mac.")
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.6))
+                                    .multilineTextAlignment(.center)
+                            } else {
+                                Text("Connexion sécurisée au Mac…")
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
                         } else {
                             Text("Scannez le code affiché par Vibe Walkie sur votre Mac.")
                                 .font(.callout)
@@ -61,6 +83,22 @@ struct PairingScannerView: View {
                                 .buttonStyle(.borderedProminent)
                             }
                         }
+
+                        HStack(spacing: 10) {
+                            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                                Label("Photo du QR", systemImage: "photo")
+                            }
+                            .buttonStyle(.bordered)
+
+                            Button {
+                                enteredCode = UIPasteboard.general.string ?? ""
+                                showCodeEntry = true
+                            } label: {
+                                Label("Coller le code", systemImage: "doc.on.clipboard")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .font(.caption.weight(.semibold))
                     }
                     .padding(20)
                     .background(RoundedRectangle(cornerRadius: 20).fill(.black.opacity(0.7)))
@@ -76,8 +114,55 @@ struct PairingScannerView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onChange(of: selectedPhoto) { _, item in
+            guard let item else { return }
+            scannerPaused = true
+            Task { await importQRCode(from: item) }
+        }
         .onChange(of: client.state) { _, newState in
-            if newState.isReady { dismiss() }
+            if newState.isReady {
+                dismiss()
+            } else if case .failed(let error) = newState {
+                errorMessage = AppL10n.remoteError(error)
+                scannedCode = nil
+                scannerPaused = false
+            }
+        }
+        .onDisappear {
+            if !client.state.isReady {
+                client.cancelPairing()
+            }
+        }
+        .sheet(isPresented: $showCodeEntry) {
+            NavigationStack {
+                Form {
+                    Section {
+                        TextField("Code d’appairage", text: $enteredCode, axis: .vertical)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .font(.system(.footnote, design: .monospaced))
+                            .lineLimit(4...10)
+                    } footer: {
+                        Text("Le code reste entre vos appareils. Il n’est jamais ouvert dans un navigateur.")
+                    }
+                }
+                .navigationTitle("Code Nomade")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Annuler") { showCodeEntry = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Connecter") {
+                            showCodeEntry = false
+                            handle(enteredCode.trimmingCharacters(in: .whitespacesAndNewlines))
+                        }
+                        .disabled(enteredCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+            .preferredColorScheme(.dark)
+            .presentationDetents([.medium])
         }
     }
 
@@ -91,15 +176,43 @@ struct PairingScannerView: View {
             errorMessage = nil
             try client.pair(with: payload)
         } catch let error as RemoteErrorPayload {
-            errorMessage = error.message
+            errorMessage = AppL10n.remoteError(error.code)
             scannedCode = nil
             scannerPaused = false
         } catch {
-            errorMessage = "Code non reconnu."
+            errorMessage = AppL10n.text("Code non reconnu.")
             scannedCode = nil
             scannerPaused = false
         }
     }
+
+    private func importQRCode(from item: PhotosPickerItem) async {
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let image = UIImage(data: data),
+                  let ciImage = CIImage(image: image) else {
+                throw QRImportError.unreadable
+            }
+            let request = VNDetectBarcodesRequest()
+            request.symbologies = [.qr]
+            let handler = VNImageRequestHandler(ciImage: ciImage)
+            try handler.perform([request])
+            guard let value = request.results?.first?.payloadStringValue else {
+                throw QRImportError.missingCode
+            }
+            handle(value)
+        } catch {
+            errorMessage = AppL10n.text("Aucun QR Vibe Walkie lisible dans cette image.")
+            scannedCode = nil
+            scannerPaused = false
+        }
+        selectedPhoto = nil
+    }
+}
+
+private enum QRImportError: Error {
+    case unreadable
+    case missingCode
 }
 
 /// Caméra + détection de QR.

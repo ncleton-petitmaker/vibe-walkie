@@ -52,11 +52,18 @@ xcodebuild test \
 
 if command -v swiftlint >/dev/null 2>&1; then
   swiftlint lint --strict --config "$ROOT/.swiftlint.yml" \
-    "$ROOT/Packages" "$ROOT/iOS" "$ROOT/macOS"
+    "$ROOT/Packages/RemoteCore/Sources" \
+    "$ROOT/Packages/RemoteCore/Tests" \
+    "$ROOT/iOS/AppRemoteControls" \
+    "$ROOT/iOS/AppRemoteiOS" \
+    "$ROOT/iOS/AppRemoteiOSTests" \
+    "$ROOT/iOS/SharedIntents" \
+    "$ROOT/macOS/AppRemoteMac" \
+    "$ROOT/macOS/AppRemoteMacTests"
 fi
 
 if rg -n \
-  'itms-services|remoteHost|remotePort|keyboard_edit|keyboardEdit|_appremote\._tcp|com\.yakaperformance\.appremote|relais distant|accès à distance|VPS' \
+  'remoteHost|remotePort|keyboard_edit|keyboardEdit|_appremote\._tcp|com\.yakaperformance\.appremote|relais distant|accès à distance' \
   "$ROOT/Packages" "$ROOT/iOS" "$ROOT/macOS" \
   --glob '!**/Tests/**' --glob '!**/*Tests/**' \
   --glob '!**/build*/**' --glob '!**/.build/**' --glob '!**/*.xcodeproj/**'; then

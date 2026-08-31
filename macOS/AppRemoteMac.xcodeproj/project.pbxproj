@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		012AF2C7B3FF0F2D29228B22 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 599CC86DB9E621D4C567E6D0 /* Localizable.xcstrings */; };
 		0D74BF57723F5A7AD9C18A50 /* CGEventFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55708099C70FA3CF3EC06202 /* CGEventFactory.swift */; };
 		1477265AD1C141FE682DB0DC /* SwiftCrypto-NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = DBAADC0A07C66C9B704E590E /* SwiftCrypto-NOTICE.txt */; };
 		15759F380E5435FB3C59ABDD /* InstallationLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF695AE455F11570EEF92632 /* InstallationLocation.swift */; };
@@ -19,6 +20,7 @@
 		3188B474EEB2F5392FFD3A8F /* RemoteCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5E7D840302E929A8E3E5C188 /* RemoteCore */; };
 		327F869A9D2F49B304E10E2B /* ControlInputPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73E4071C47747C1ECD997E /* ControlInputPolicy.swift */; };
 		3C12473285BCE871AA0BFF12 /* SwiftASN1-NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = D74139CC8E10D79F50AC2478 /* SwiftASN1-NOTICE.txt */; };
+		4C1359FB9B4FF48C71BD9DDA /* TailscaleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C75892BCE599262C09F9399 /* TailscaleCoordinator.swift */; };
 		4CE3A13E0F1D84E3A470545D /* TargetTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10650FF4A40518CC3394BF9 /* TargetTracker.swift */; };
 		5067F671708B0A197AD085FF /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D28C250B8CE42339F32D35 /* MenuBarView.swift */; };
 		522A3F5D23984B74ED604DE3 /* ControlInputPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2145FD57345B5194FE34A850 /* ControlInputPolicyTests.swift */; };
@@ -38,10 +40,13 @@
 		AF4E9E7843C946528ED3F9FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */; };
 		B1DB14CE9EC5E9B8E3C57466 /* SessionRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2105AAD35123EBE0D2445C22 /* SessionRouter.swift */; };
 		BDB3D7C81743A3E7BE8BAA6E /* TLSIdentityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0391A00062E32EA8C0494ACB /* TLSIdentityStore.swift */; };
+		CA9D41B50C9E3DB436ECEDEB /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 5A5EEA03562C8251EE85288A /* InfoPlist.xcstrings */; };
 		CB005DE418A743B46B81D537 /* PairingAuthority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D12EB21D66C3DA514CDED7 /* PairingAuthority.swift */; };
 		D273DFF50D07D2A245872C95 /* AppRemoteMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB522D9BA80F502D9722406F /* AppRemoteMacApp.swift */; };
 		DB77E5907C51BF60A46ACD05 /* AccessibilityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BF3ECC76864B118460FEB2 /* AccessibilityClient.swift */; };
 		E9DB2221E70F90AD8D3F7D76 /* TextInsertionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00BD0B3C42FD3EB39102071A /* TextInsertionCoordinator.swift */; };
+		F1FE28EFF3E5DE43471A2869 /* MacControlConfiguratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE788D0AA4654AF7254D044 /* MacControlConfiguratorView.swift */; };
+		F42F7664E6983B442642EC16 /* MacL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801FDE7EAEC52EE86C48D79F /* MacL10n.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +69,7 @@
 		19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1B202BC0BE62E0295557AF0E /* ScreenCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureService.swift; sourceTree = "<group>"; };
 		1C3D3032094E19FBF94A2776 /* CommercializationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommercializationConfigurationTests.swift; sourceTree = "<group>"; };
+		1C75892BCE599262C09F9399 /* TailscaleCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TailscaleCoordinator.swift; sourceTree = "<group>"; };
 		1E23BFA95D68F813E4C973B0 /* TargetMatchPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetMatchPolicy.swift; sourceTree = "<group>"; };
 		2105AAD35123EBE0D2445C22 /* SessionRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRouter.swift; sourceTree = "<group>"; };
 		2145FD57345B5194FE34A850 /* ControlInputPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlInputPolicyTests.swift; sourceTree = "<group>"; };
@@ -75,11 +81,15 @@
 		4FB6BC1B97E8CE706F7B253C /* AppRemoteMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppRemoteMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55708099C70FA3CF3EC06202 /* CGEventFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGEventFactory.swift; sourceTree = "<group>"; };
 		56A1035F7FBA5DADD2145E71 /* PairingAuthorityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingAuthorityTests.swift; sourceTree = "<group>"; };
+		599CC86DB9E621D4C567E6D0 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		5A5EEA03562C8251EE85288A /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		71E186F1020134A5AF51B299 /* Sparkle.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sparkle.txt; sourceTree = "<group>"; };
 		72BB5BF73145DA57F27CE6E6 /* AppRemoteMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppRemoteMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		73D12EB21D66C3DA514CDED7 /* PairingAuthority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingAuthority.swift; sourceTree = "<group>"; };
 		74D128F93E837D3300F504B2 /* MacConnectionServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionServer.swift; sourceTree = "<group>"; };
 		757DABF32BA2D3C87B80C3F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7DE788D0AA4654AF7254D044 /* MacControlConfiguratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacControlConfiguratorView.swift; sourceTree = "<group>"; };
+		801FDE7EAEC52EE86C48D79F /* MacL10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacL10n.swift; sourceTree = "<group>"; };
 		8EFB04E1CEBE7DDC61F4B805 /* Apache-2.0.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Apache-2.0.txt"; sourceTree = "<group>"; };
 		9C80212B6D529CBD7BC097A8 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
 		A3829672DEA4C354D32D1244 /* PermissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCoordinator.swift; sourceTree = "<group>"; };
@@ -125,11 +135,14 @@
 				AB522D9BA80F502D9722406F /* AppRemoteMacApp.swift */,
 				757DABF32BA2D3C87B80C3F7 /* Assets.xcassets */,
 				0A37DDEE933718A94C5D76E9 /* Info.plist */,
+				5A5EEA03562C8251EE85288A /* InfoPlist.xcstrings */,
+				599CC86DB9E621D4C567E6D0 /* Localizable.xcstrings */,
 				19C3CA1BD308262839586C94 /* PrivacyInfo.xcprivacy */,
 				01EFC1B35B93D10717467D34 /* Accessibility */,
 				6B057E4F0FB0D9874D051660 /* Connection */,
 				161C676BE599A1C47164541D /* Input */,
 				741BC1EEDE5608D8588435B2 /* Installation */,
+				79940D733F3960B785C1DE98 /* Localization */,
 				7D4AD5E09B5569DA2C4CF134 /* MenuBar */,
 				AB8EE6F64E6C7EAC21545979 /* Pairing */,
 				D3BBC7C637F3FC5E0F07153B /* Permissions */,
@@ -187,6 +200,7 @@
 			children = (
 				74D128F93E837D3300F504B2 /* MacConnectionServer.swift */,
 				2105AAD35123EBE0D2445C22 /* SessionRouter.swift */,
+				1C75892BCE599262C09F9399 /* TailscaleCoordinator.swift */,
 			);
 			path = Connection;
 			sourceTree = "<group>";
@@ -199,9 +213,18 @@
 			path = Installation;
 			sourceTree = "<group>";
 		};
+		79940D733F3960B785C1DE98 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				801FDE7EAEC52EE86C48D79F /* MacL10n.swift */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
 		7D4AD5E09B5569DA2C4CF134 /* MenuBar */ = {
 			isa = PBXGroup;
 			children = (
+				7DE788D0AA4654AF7254D044 /* MacControlConfiguratorView.swift */,
 				09D28C250B8CE42339F32D35 /* MenuBarView.swift */,
 			);
 			path = MenuBar;
@@ -348,11 +371,12 @@
 			};
 			buildConfigurationList = E7AD21E19CE84939BFB57888 /* Build configuration list for PBXProject "AppRemoteMac" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = fr;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
+				fr,
 			);
 			mainGroup = 32A3F383FE8C4F87C4A895E3;
 			minimizedProjectReferenceProxies = 1;
@@ -378,6 +402,8 @@
 			files = (
 				5B49C0D7A9B9EB5F0135732C /* Apache-2.0.txt in Resources */,
 				94A5E2C35BDCF47F88C40E36 /* Assets.xcassets in Resources */,
+				CA9D41B50C9E3DB436ECEDEB /* InfoPlist.xcstrings in Resources */,
+				012AF2C7B3FF0F2D29228B22 /* Localizable.xcstrings in Resources */,
 				AF4E9E7843C946528ED3F9FB /* PrivacyInfo.xcprivacy in Resources */,
 				6D5AD00C13C4D9A302B0FAA2 /* Sparkle.txt in Resources */,
 				3C12473285BCE871AA0BFF12 /* SwiftASN1-NOTICE.txt in Resources */,
@@ -401,6 +427,8 @@
 				327F869A9D2F49B304E10E2B /* ControlInputPolicy.swift in Sources */,
 				15759F380E5435FB3C59ABDD /* InstallationLocation.swift in Sources */,
 				28F97FA2C505D9457135B491 /* MacConnectionServer.swift in Sources */,
+				F1FE28EFF3E5DE43471A2869 /* MacControlConfiguratorView.swift in Sources */,
+				F42F7664E6983B442642EC16 /* MacL10n.swift in Sources */,
 				5067F671708B0A197AD085FF /* MenuBarView.swift in Sources */,
 				CB005DE418A743B46B81D537 /* PairingAuthority.swift in Sources */,
 				62E27F90CA020450A1E61BFA /* PasteboardTransaction.swift in Sources */,
@@ -408,6 +436,7 @@
 				603A5D1CA3E28572A419F04C /* ScreenCaptureService.swift in Sources */,
 				B1DB14CE9EC5E9B8E3C57466 /* SessionRouter.swift in Sources */,
 				BDB3D7C81743A3E7BE8BAA6E /* TLSIdentityStore.swift in Sources */,
+				4C1359FB9B4FF48C71BD9DDA /* TailscaleCoordinator.swift in Sources */,
 				75B24DC3B0737149F76F8DC4 /* TargetMatchPolicy.swift in Sources */,
 				4CE3A13E0F1D84E3A470545D /* TargetTracker.swift in Sources */,
 				E9DB2221E70F90AD8D3F7D76 /* TextInsertionCoordinator.swift in Sources */,
@@ -492,6 +521,7 @@
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NOMAD_MODE_ENABLED = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -598,6 +628,7 @@
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NOMAD_MODE_ENABLED = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

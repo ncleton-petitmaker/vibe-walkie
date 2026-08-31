@@ -9,6 +9,7 @@ import Foundation
 public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
     case permissionAccessibilityDenied = "permission_accessibility_denied"
     case localNetworkDenied = "local_network_denied"
+    case macUnavailable = "mac_unavailable"
     case speechAssetMissing = "speech_asset_missing"
     case speechUnavailable = "speech_unavailable"
     case noFocusedTarget = "no_focused_target"
@@ -37,6 +38,8 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
             return "Autorisez l'Accessibilité pour Vibe Walkie sur le Mac."
         case .localNetworkDenied:
             return "L'accès au réseau local est refusé."
+        case .macUnavailable:
+            return "Mac introuvable sur le réseau local. Vérifiez le Wi‑Fi et que le compagnon est ouvert."
         case .speechAssetMissing:
             return "Le modèle français local doit être téléchargé."
         case .speechUnavailable:

@@ -65,11 +65,11 @@ struct TargetPill: View {
         case .awaitingApproval(let name, _):
             return name
         case .searching:
-            return "Recherche du Mac…"
+            return AppL10n.text("Recherche du Mac…")
         case .failed(let code):
-            return code.localizedMessage
+            return AppL10n.remoteError(code)
         case .idle:
-            return "Aucun Mac"
+            return AppL10n.text("Aucun Mac")
         }
     }
 
@@ -77,7 +77,10 @@ struct TargetPill: View {
         guard client.state.isReady else { return nil }
         guard let app = activeApplication else { return client.state.macName }
         let count = app.windows.count
-        return count > 1 ? "\(count) fenêtres" : app.windows.first?.title
+        let applicationDetail = count > 1 ? "\(count) fenêtres" : app.windows.first?.title
+        return [client.state.macName, applicationDetail]
+            .compactMap { $0 }
+            .joined(separator: " · ")
     }
 }
 

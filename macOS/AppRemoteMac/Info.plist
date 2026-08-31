@@ -24,8 +24,10 @@
 	<string>public.app-category.productivity</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Nicolas Cléton</string>
+	<key>VibeWalkieNomadModeEnabled</key>
+	<string>$(NOMAD_MODE_ENABLED)</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Vibe Walkie communique avec votre iPhone uniquement sur le réseau local. Aucun audio ne quitte l’iPhone.</string>
+	<string>Vibe Walkie communique directement avec votre iPhone par le réseau local ou votre réseau privé Tailscale. Aucun audio ne quitte l’iPhone.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_viberemote._tcp</string>

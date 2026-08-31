@@ -3,7 +3,7 @@ import Foundation
 import Speech
 import RemoteCore
 
-/// Dictée française locale avec l'API moderne d'iOS 26.
+/// Dictée locale multilingue avec l'API moderne d'iOS 26.
 ///
 /// Les hypothèses volatiles sont uniquement affichées sur l'iPhone. Seuls
 /// les résultats finalisés, qui ne peuvent plus être révisés par Apple, sont
@@ -12,10 +12,11 @@ import RemoteCore
 @MainActor
 final class AppleSpeechAnalyzerEngine: SpeechEngine {
 
-    private let requestedLocale = Locale(identifier: VibeWalkieInfo.dictationLocale)
+    private let requestedLocale: Locale
     private let audioEngine = AVAudioEngine()
 
     private var preparedLocale: Locale?
+    private var preparedTranscriberKind: AppleSpeechTranscriberKind?
     private var analyzer: SpeechAnalyzer?
     private var audioConverter: AnalyzerAudioConverter?
     private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
@@ -28,28 +29,74 @@ final class AppleSpeechAnalyzerEngine: SpeechEngine {
     private(set) var isAvailable = false
     @Published private(set) var level: CGFloat = 0
 
+    init(localeIdentifier: String) {
+        requestedLocale = Locale(identifier: localeIdentifier)
+    }
+
+    /// Vérification légère utilisée par les réglages. La préparation complète
+    /// refait ce contrôle puis inspecte/installe l'asset Apple local.
+    static func supportsLocale(identifier: String) async -> Bool {
+        let requestedLocale = Locale(identifier: identifier)
+        for kind in AppleSpeechTranscriberKind.candidates(
+            speechTranscriberIsAvailable: SpeechTranscriber.isAvailable
+        ) {
+            if await kind.supportedLocale(equivalentTo: requestedLocale) != nil {
+                return true
+            }
+        }
+        return false
+    }
+
     func prepare() async throws {
-        guard let locale = await DictationTranscriber.supportedLocale(equivalentTo: requestedLocale) else {
-            isAvailable = false
-            throw SpeechEngineError.localeUnavailable(requestedLocale.identifier)
+        isAvailable = false
+        preparedLocale = nil
+        preparedTranscriberKind = nil
+
+        var foundSupportedLocale = false
+        var lastPreparationError: Error?
+
+        for kind in AppleSpeechTranscriberKind.candidates(
+            speechTranscriberIsAvailable: SpeechTranscriber.isAvailable
+        ) {
+            guard let locale = await kind.supportedLocale(equivalentTo: requestedLocale) else {
+                continue
+            }
+            foundSupportedLocale = true
+
+            let transcriber = kind.makeTranscriber(locale: locale)
+            do {
+                guard await AssetInventory.status(forModules: [transcriber.module]) != .unsupported else {
+                    continue
+                }
+                if let request = try await AssetInventory.assetInstallationRequest(
+                    supporting: [transcriber.module]
+                ) {
+                    try await request.downloadAndInstall()
+                }
+
+                preparedLocale = locale
+                preparedTranscriberKind = kind
+                isAvailable = true
+                return
+            } catch {
+                // Le nouveau modèle peut être annoncé disponible alors que son
+                // asset ne peut pas être préparé sur ce matériel. La dictée
+                // système reste alors un secours local et privé.
+                lastPreparationError = error
+            }
         }
 
-        let transcriber = DictationTranscriber(locale: locale, preset: .progressiveShortDictation)
-        guard await AssetInventory.status(forModules: [transcriber]) != .unsupported else {
-            isAvailable = false
-            throw SpeechEngineError.unsupportedDevice
-        }
-
-        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
-            try await request.downloadAndInstall()
-        }
-
-        preparedLocale = locale
-        isAvailable = true
+        if let lastPreparationError { throw lastPreparationError }
+        if foundSupportedLocale { throw SpeechEngineError.unsupportedDevice }
+        throw SpeechEngineError.localeUnavailable(requestedLocale.identifier)
     }
 
     func start() async throws -> AsyncStream<SpeechUpdate> {
-        guard isAvailable, let preparedLocale else { throw SpeechEngineError.notPrepared }
+        guard isAvailable,
+              let preparedLocale,
+              let preparedTranscriberKind else {
+            throw SpeechEngineError.notPrepared
+        }
         captureGeneration &+= 1
         let generation = captureGeneration
         guard await Self.requestMicrophone() else { throw SpeechEngineError.microphoneDenied }
@@ -63,12 +110,9 @@ final class AppleSpeechAnalyzerEngine: SpeechEngine {
 
         let inputNode = audioEngine.inputNode
         let naturalFormat = inputNode.outputFormat(forBus: 0)
-        let transcriber = DictationTranscriber(
-            locale: preparedLocale,
-            preset: .progressiveShortDictation
-        )
+        let transcriber = preparedTranscriberKind.makeTranscriber(locale: preparedLocale)
         guard let analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
-            compatibleWith: [transcriber],
+            compatibleWith: [transcriber.module],
             considering: naturalFormat
         ), let converter = AnalyzerAudioConverter(
             inputFormat: naturalFormat,
@@ -85,26 +129,13 @@ final class AppleSpeechAnalyzerEngine: SpeechEngine {
         let (updates, updateContinuation) = AsyncStream<SpeechUpdate>.makeStream()
         let state = AnalyzerRecognitionState(continuation: updateContinuation)
         let (inputs, continuation) = AsyncStream<AnalyzerInput>.makeStream()
-        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        let analyzer = SpeechAnalyzer(modules: [transcriber.module])
 
         recognitionState = state
         inputContinuation = continuation
         self.analyzer = analyzer
         audioConverter = converter
-        resultsTask = Task.detached(priority: .userInitiated) { [transcriber, state] in
-            do {
-                for try await result in transcriber.results {
-                    state.receive(
-                        text: String(result.text.characters),
-                        isFinal: result.isFinal
-                    )
-                }
-            } catch {
-                // La finalisation/cancellation ferme aussi le flux. L'état
-                // déjà finalisé reste exploitable et ne doit pas être effacé.
-            }
-            state.finish()
-        }
+        resultsTask = transcriber.makeResultsTask(state: state)
 
         do {
             try await analyzer.prepareToAnalyze(in: analyzerFormat)
@@ -212,6 +243,106 @@ final class AppleSpeechAnalyzerEngine: SpeechEngine {
     }
 }
 
+enum AppleSpeechTranscriberKind: Equatable {
+    case speechTranscriber
+    case dictationTranscriber
+
+    static func candidates(speechTranscriberIsAvailable: Bool) -> [Self] {
+        speechTranscriberIsAvailable
+            ? [.speechTranscriber, .dictationTranscriber]
+            : [.dictationTranscriber]
+    }
+
+    func supportedLocale(equivalentTo locale: Locale) async -> Locale? {
+        switch self {
+        case .speechTranscriber:
+            await SpeechTranscriber.supportedLocale(equivalentTo: locale)
+        case .dictationTranscriber:
+            await DictationTranscriber.supportedLocale(equivalentTo: locale)
+        }
+    }
+
+    func makeTranscriber(locale: Locale) -> AppleAnalyzerTranscriber {
+        switch self {
+        case .speechTranscriber:
+            .speech(
+                SpeechTranscriber(
+                    locale: locale,
+                    preset: .progressiveTranscription
+                )
+            )
+        case .dictationTranscriber:
+            .dictation(
+                DictationTranscriber(
+                    locale: locale,
+                    preset: .progressiveShortDictation
+                )
+            )
+        }
+    }
+}
+
+enum AppleAnalyzerTranscriber {
+    case speech(SpeechTranscriber)
+    case dictation(DictationTranscriber)
+
+    var module: any SpeechModule {
+        switch self {
+        case .speech(let transcriber): transcriber
+        case .dictation(let transcriber): transcriber
+        }
+    }
+
+    func makeResultsTask(state: AnalyzerRecognitionState) -> Task<Void, Never> {
+        switch self {
+        case .speech(let transcriber):
+            Task.detached(priority: .userInitiated) {
+                await Self.consume(transcriber: transcriber, state: state)
+            }
+        case .dictation(let transcriber):
+            Task.detached(priority: .userInitiated) {
+                await Self.consume(transcriber: transcriber, state: state)
+            }
+        }
+    }
+
+    private static func consume(
+        transcriber: SpeechTranscriber,
+        state: AnalyzerRecognitionState
+    ) async {
+        do {
+            for try await result in transcriber.results {
+                state.receive(
+                    text: String(result.text.characters),
+                    isFinal: result.isFinal
+                )
+            }
+        } catch {
+            // La finalisation/cancellation ferme aussi le flux. L'état déjà
+            // finalisé reste exploitable et ne doit pas être effacé.
+        }
+        state.finish()
+    }
+
+    private static func consume(
+        transcriber: DictationTranscriber,
+        state: AnalyzerRecognitionState
+    ) async {
+        do {
+            for try await result in transcriber.results {
+                state.receive(
+                    text: String(result.text.characters),
+                    isFinal: result.isFinal
+                )
+            }
+        } catch {
+            // La finalisation/cancellation ferme aussi le flux. L'état déjà
+            // finalisé reste exploitable et ne doit pas être effacé.
+        }
+        state.finish()
+    }
+}
+
 /// Convertisseur possédé exclusivement par le callback audio. Chaque sortie
 /// est un nouveau buffer : SpeechAnalyzer ne reçoit jamais le buffer réutilisé
 /// par `AVAudioEngine`.
@@ -291,7 +422,7 @@ private final class ConverterInputSupply: @unchecked Sendable {
     }
 }
 
-/// Agrège les phrases dans l'ordre garanti par DictationTranscriber.
+/// Agrège les phrases dans l'ordre garanti par les transcripteurs Apple.
 /// Pendant l'écoute, `finalizedText` ne fait qu'augmenter. Une fois que
 /// `SpeechAnalyzer` a fini de consommer l'entrée, sa dernière hypothèse est
 /// définitive même si le flux n'a pas envoyé un dernier drapeau `isFinal`.

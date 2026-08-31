@@ -4,7 +4,7 @@ import Foundation
 /// diffère : mieux vaut une erreur explicite qu'une commande mal interprétée
 /// par un compagnon plus ancien que l'iPhone.
 public enum ProtocolVersion {
-    public static let current = 2
+    public static let current = 3
 }
 
 /// Limites dures du protocole.
@@ -37,6 +37,10 @@ public enum RemoteMessageType: String, Codable, Sendable, CaseIterable {
     case activateWindow = "activate_window"
     case keyboardText = "keyboard_text"
     case keyPress = "key_press"
+    case macShortcutPress = "mac_shortcut_press"
+    case controlConfigurationRequest = "control_configuration_request"
+    case controlConfigurationSnapshot = "control_configuration_snapshot"
+    case controlConfigurationUpdate = "control_configuration_update"
     case pointerMove = "pointer_move"
     case pointerAbsolute = "pointer_absolute"
     case pointerClick = "pointer_click"

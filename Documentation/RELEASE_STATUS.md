@@ -4,7 +4,9 @@ Mis à jour le 29 août 2026. `PRÊT` signifie qu’une preuve locale reproducti
 
 | Porte | Statut | Preuve / action suivante |
 |---|---|---|
-| Protocole V2, appairage, dictée transactionnelle | PRÊT | 53 tests `RemoteCore`, 15 tests iOS et 32 tests macOS verts |
+| Protocole V3, appairage, dictée transactionnelle et bloc configurable | PRÊT | 59 tests `RemoteCore`, 18 tests iOS et 39 tests macOS verts |
+| Mode Nomade Tailscale — code et tests unitaires | PRÊT | Détection réelle `Running`, MagicDNS/IP, listener signé et port 54389 joignable sur l’adresse Tailscale du Mac de validation ; builds iOS/macOS et suites automatiques verts |
+| Mode Nomade Tailscale — matrice physique | EXTERNE | Direct, DERP, 5G, veille et 50 séquences à documenter dans [QA_MATRIX.md](QA_MATRIX.md) avant annonce publique. L’installation iPhone de développement attend un nouveau profil Nicolas : la session du compte Xcode est actuellement rejetée. |
 | Identité TLS Swift autonome et stable | PRÊT | Tests création, corruption, stabilité, régénération |
 | Builds iOS Simulator et macOS arm64 | PRÊT | `scripts/ci-local.sh`, builds Release non signés iOS/macOS et DMG arm64 contrôlé |
 | Lint Swift et scripts | PRÊT | SwiftLint strict et ShellCheck |

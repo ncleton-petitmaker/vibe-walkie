@@ -32,13 +32,13 @@ enum TLSIdentityStore {
         var errorDescription: String? {
             switch self {
             case .creationFailed(let detail):
-                return "L’identité de sécurité n’a pas pu être créée : \(detail)"
+                return MacL10n.text("L’identité de sécurité n’a pas pu être créée : \(detail)")
             case .notFound:
-                return "L’identité de sécurité est absente."
+                return MacL10n.text("L’identité de sécurité est absente.")
             case .partialState:
-                return "L’identité de sécurité est incomplète dans le trousseau. Régénérez-la puis appairez à nouveau l’iPhone."
+                return MacL10n.text("L’identité de sécurité est incomplète dans le trousseau. Régénérez-la puis appairez à nouveau l’iPhone.")
             case .corruptIdentity:
-                return "L’identité de sécurité est endommagée. Régénérez-la puis appairez à nouveau l’iPhone."
+                return MacL10n.text("L’identité de sécurité est endommagée. Régénérez-la puis appairez à nouveau l’iPhone.")
             }
         }
     }
