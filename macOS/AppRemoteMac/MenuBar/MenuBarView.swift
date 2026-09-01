@@ -14,6 +14,8 @@ struct MenuBarView: View {
     @State private var showNomadSetup = false
     @State private var showOnboarding = false
     @AppStorage("vibe.walkie.mac.onboarding.v2.completed") private var didCompleteOnboarding = false
+    @AppStorage(PermissionCoordinator.screenCaptureResumeKey)
+    private var resumeAfterScreenCapture = false
     @AppStorage("vibe.walkie.mac.nomad.discovery.v1.dismissed") private var didDismissNomadDiscovery = false
 
     var body: some View {
@@ -25,11 +27,13 @@ struct MenuBarView: View {
         .background(Color.remoteBackground)
         .preferredColorScheme(.dark)
         .onChange(of: permissions.accessibilityGranted) { _, _ in beginFirstPairingIfReady() }
-        .onChange(of: permissions.screenCaptureGranted) { _, _ in
+        .onChange(of: permissions.screenCaptureReady) { _, _ in
             server.screenCapturePermissionDidChange(permissions.screenCaptureReady)
         }
-        .onChange(of: permissions.screenCaptureRequiresRelaunch) { _, _ in
-            server.screenCapturePermissionDidChange(permissions.screenCaptureReady)
+        .onChange(of: permissions.screenCaptureRequiresRelaunch) { _, requiresRelaunch in
+            if requiresRelaunch, !showOnboarding {
+                permissions.relaunchToApplyScreenCapturePermission()
+            }
         }
         .onChange(of: server.isListening) { _, _ in beginFirstPairingIfReady() }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
@@ -40,7 +44,9 @@ struct MenuBarView: View {
         }
         .task {
             if InstallationLocation.isSuitable,
-               (!didCompleteOnboarding || !permissions.accessibilityGranted) {
+               (resumeAfterScreenCapture
+                || !didCompleteOnboarding
+                || !permissions.accessibilityGranted) {
                 showOnboarding = true
             }
             beginFirstPairingIfReady()
@@ -242,6 +248,14 @@ struct MenuBarView: View {
                             permissions.relaunchToApplyScreenCapturePermission()
                         }
                         .buttonStyle(.borderless)
+                    } else if permissions.screenCaptureReadiness == .verifying {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else if permissions.screenCaptureReadiness == .failed {
+                        Button("mac.check.again.72912f6") {
+                            permissions.verifyScreenCaptureReadiness(force: true)
+                        }
+                        .buttonStyle(.borderless)
                     } else if permissions.hasRequestedScreenCapture,
                               !permissions.screenCaptureGranted {
                         Button {
@@ -261,6 +275,7 @@ struct MenuBarView: View {
     private var screenCapturePermissionIcon: String {
         if permissions.screenCaptureReady { return "checkmark.rectangle.fill" }
         if permissions.screenCaptureRequiresRelaunch { return "arrow.clockwise.circle.fill" }
+        if permissions.screenCaptureReadiness == .verifying { return "hourglass" }
         return "rectangle.dashed.badge.record"
     }
 

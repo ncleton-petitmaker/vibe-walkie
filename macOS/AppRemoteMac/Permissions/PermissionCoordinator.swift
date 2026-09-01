@@ -2,23 +2,46 @@ import SwiftUI
 import ServiceManagement
 import CoreGraphics
 import AppKit
+import ScreenCaptureKit
 import RemoteCore
+
+enum ScreenCaptureReadiness: Equatable {
+    case unavailable
+    case relaunchRequired
+    case verifying
+    case ready
+    case failed
+}
 
 struct ScreenCaptureAuthorizationState: Equatable {
     private(set) var isGranted: Bool
-    private(set) var requiresRelaunch = false
+    private(set) var readiness: ScreenCaptureReadiness
+
+    var requiresRelaunch: Bool { readiness == .relaunchRequired }
+    var isReady: Bool { readiness == .ready }
 
     init(isGrantedAtLaunch: Bool) {
         isGranted = isGrantedAtLaunch
+        readiness = isGrantedAtLaunch ? .verifying : .unavailable
     }
 
     mutating func update(isGranted newValue: Bool) {
         if !isGranted, newValue {
-            requiresRelaunch = true
+            readiness = .relaunchRequired
         } else if !newValue {
-            requiresRelaunch = false
+            readiness = .unavailable
         }
         isGranted = newValue
+    }
+
+    mutating func beginVerification() {
+        guard isGranted, !requiresRelaunch else { return }
+        readiness = .verifying
+    }
+
+    mutating func completeVerification(succeeded: Bool) {
+        guard isGranted, !requiresRelaunch else { return }
+        readiness = succeeded ? .ready : .failed
     }
 }
 
@@ -33,20 +56,35 @@ final class PermissionCoordinator: ObservableObject {
     @Published private(set) var accessibilityGranted = false
     @Published private(set) var launchesAtLogin = false
     @Published private(set) var screenCaptureGranted: Bool
-    @Published private(set) var screenCaptureRequiresRelaunch = false
+    @Published private(set) var screenCaptureReadiness: ScreenCaptureReadiness
     @Published private(set) var hasRequestedScreenCapture: Bool
 
     private var pollingTask: Task<Void, Never>?
+    private var screenCaptureVerificationTask: Task<Void, Never>?
     private var screenCaptureState: ScreenCaptureAuthorizationState
+    private var isRelaunchingForScreenCapture = false
     private static let screenCaptureRequestKey = "vibe.walkie.mac.screen-capture.requested"
+    private static let screenCaptureGrantPendingKey = "vibe.walkie.mac.screen-capture.grant-pending"
+    static let screenCaptureResumeKey = "vibe.walkie.mac.onboarding.resume-after-screen-capture"
 
     init() {
         let initiallyGranted = CGPreflightScreenCaptureAccess()
         screenCaptureState = ScreenCaptureAuthorizationState(isGrantedAtLaunch: initiallyGranted)
         screenCaptureGranted = initiallyGranted
+        screenCaptureReadiness = screenCaptureState.readiness
         hasRequestedScreenCapture = initiallyGranted
             || UserDefaults.standard.bool(forKey: Self.screenCaptureRequestKey)
+        if initiallyGranted,
+           UserDefaults.standard.bool(forKey: Self.screenCaptureGrantPendingKey) {
+            UserDefaults.standard.set(true, forKey: Self.screenCaptureResumeKey)
+        }
         refresh()
+        if initiallyGranted {
+            Task { @MainActor [weak self] in
+                await Task.yield()
+                self?.verifyScreenCaptureReadiness()
+            }
+        }
         pollingTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
@@ -62,6 +100,8 @@ final class PermissionCoordinator: ObservableObject {
     func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
+        screenCaptureVerificationTask?.cancel()
+        screenCaptureVerificationTask = nil
     }
 
     func refresh() {
@@ -71,7 +111,11 @@ final class PermissionCoordinator: ObservableObject {
     }
 
     var screenCaptureReady: Bool {
-        screenCaptureGranted && !screenCaptureRequiresRelaunch
+        screenCaptureState.isReady
+    }
+
+    var screenCaptureRequiresRelaunch: Bool {
+        screenCaptureState.requiresRelaunch
     }
 
     func requestAccessibility() {
@@ -101,6 +145,7 @@ final class PermissionCoordinator: ObservableObject {
             refresh()
             return
         }
+        UserDefaults.standard.set(true, forKey: Self.screenCaptureGrantPendingKey)
         let granted = CGRequestScreenCaptureAccess()
         updateScreenCaptureState(granted || CGPreflightScreenCaptureAccess())
     }
@@ -113,6 +158,7 @@ final class PermissionCoordinator: ObservableObject {
     }
 
     func openScreenCaptureSettings() {
+        UserDefaults.standard.set(true, forKey: Self.screenCaptureGrantPendingKey)
         openScreenCaptureSettingsPage()
     }
 
@@ -120,7 +166,8 @@ final class PermissionCoordinator: ObservableObject {
     /// pendant que le processus tourne. Le petit processus indépendant attend
     /// que Vibe Walkie ait libéré son port, puis rouvre exactement la même app.
     func relaunchToApplyScreenCapturePermission() {
-        guard screenCaptureRequiresRelaunch else { return }
+        guard screenCaptureRequiresRelaunch, !isRelaunchingForScreenCapture else { return }
+        isRelaunchingForScreenCapture = true
 
         let helper = Process()
         helper.executableURL = URL(fileURLWithPath: "/bin/sh")
@@ -133,9 +180,51 @@ final class PermissionCoordinator: ObservableObject {
 
         do {
             try helper.run()
+            UserDefaults.standard.set(true, forKey: Self.screenCaptureResumeKey)
+            UserDefaults.standard.synchronize()
             NSApp.terminate(nil)
         } catch {
+            isRelaunchingForScreenCapture = false
             NSLog("[VibeWalkie] Relance après autorisation écran impossible : %@", error.localizedDescription)
+        }
+    }
+
+    /// Après la relance exigée par TCC, une requête ScreenCaptureKit constitue
+    /// la preuve que l'autorisation est réellement exploitable. Un simple
+    /// `CGPreflightScreenCaptureAccess()` positif ne suffit pas à annoncer que
+    /// le retour écran est prêt.
+    func verifyScreenCaptureReadiness(force: Bool = false) {
+        guard screenCaptureGranted, !screenCaptureRequiresRelaunch else { return }
+        if !force, screenCaptureReadiness == .ready { return }
+        if !force, screenCaptureReadiness == .verifying,
+           screenCaptureVerificationTask != nil { return }
+
+        screenCaptureVerificationTask?.cancel()
+        screenCaptureState.beginVerification()
+        publishScreenCaptureState()
+
+        screenCaptureVerificationTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let content = try await SCShareableContent.excludingDesktopWindows(
+                    false,
+                    onScreenWindowsOnly: true
+                )
+                try Task.checkCancellation()
+                self.screenCaptureState.completeVerification(
+                    succeeded: !content.displays.isEmpty
+                )
+                if self.screenCaptureState.isReady {
+                    UserDefaults.standard.set(false, forKey: Self.screenCaptureGrantPendingKey)
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                NSLog("[VibeWalkie] Vérification de la capture écran impossible : %@", error.localizedDescription)
+                self.screenCaptureState.completeVerification(succeeded: false)
+            }
+            self.screenCaptureVerificationTask = nil
+            self.publishScreenCaptureState()
         }
     }
 
@@ -152,8 +241,12 @@ final class PermissionCoordinator: ObservableObject {
 
     private func updateScreenCaptureState(_ granted: Bool) {
         screenCaptureState.update(isGranted: granted)
+        publishScreenCaptureState()
+    }
+
+    private func publishScreenCaptureState() {
         screenCaptureGranted = screenCaptureState.isGranted
-        screenCaptureRequiresRelaunch = screenCaptureState.requiresRelaunch
+        screenCaptureReadiness = screenCaptureState.readiness
     }
 
     /// Proposé seulement après une première insertion réussie : demander au

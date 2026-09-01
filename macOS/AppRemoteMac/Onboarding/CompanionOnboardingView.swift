@@ -18,7 +18,7 @@ struct CompanionOnboardingView: View {
     @State private var step = 0
     @State private var pairedDeviceName: String?
     @State private var completionTask: Task<Void, Never>?
-    @AppStorage("vibe.walkie.mac.onboarding.resume-after-screen-capture")
+    @AppStorage(PermissionCoordinator.screenCaptureResumeKey)
     private var resumeAfterScreenCapture = false
 
     var body: some View {
@@ -34,9 +34,9 @@ struct CompanionOnboardingView: View {
             permissions.refresh()
             pairedDeviceName = server.connectedPeerName
             if resumeAfterScreenCapture {
-                resumeAfterScreenCapture = false
-                step = 2
-                beginPairingIfNeeded()
+                step = 1
+                permissions.verifyScreenCaptureReadiness()
+                continueAfterVerifiedScreenCaptureIfNeeded()
             } else if permissions.accessibilityGranted, step == 0 {
                 step = 1
             }
@@ -55,9 +55,12 @@ struct CompanionOnboardingView: View {
             if newStep == 2 { beginPairingIfNeeded() }
         }
         .onChange(of: permissions.screenCaptureRequiresRelaunch) { _, requiresRelaunch in
-            if requiresRelaunch, NSApp.isActive {
+            if requiresRelaunch {
                 relaunchAfterScreenCaptureIfNeeded()
             }
+        }
+        .onChange(of: permissions.screenCaptureReady) { _, ready in
+            if ready { continueAfterVerifiedScreenCaptureIfNeeded() }
         }
         .onChange(of: server.isListening) { _, listening in
             if listening, step == 2 { beginPairingIfNeeded() }
@@ -110,7 +113,7 @@ struct CompanionOnboardingView: View {
                         .frame(width: 28, height: 28)
                     if index == 0, permissions.accessibilityGranted {
                         Image(systemName: "checkmark")
-                    } else if index == 1, permissions.screenCaptureGranted {
+                    } else if index == 1, permissions.screenCaptureReady {
                         Image(systemName: "checkmark")
                     } else {
                         Image(systemName: icon)
@@ -192,27 +195,31 @@ struct CompanionOnboardingView: View {
         VStack(alignment: .leading, spacing: 14) {
             Label("mac.screen.view.b5645a8", systemImage: "rectangle.inset.filled")
                 .font(.title.bold())
-                .foregroundStyle(permissions.screenCaptureGranted ? .green : .white)
+                .foregroundStyle(permissions.screenCaptureReady ? .green : .white)
             Text("mac.allow.screen.recording.on.the.mac.then.relaunch.vibe.walkie.634232c")
                 .foregroundStyle(.secondary)
             SettingsPermissionPreview(
                 title: "mac.screen.view.b5645a8",
-                granted: permissions.screenCaptureGranted,
-                icon: "rectangle.dashed.badge.record"
+                granted: permissions.screenCaptureReady,
+                icon: "rectangle.dashed.badge.record",
+                showsAddButton: permissions.hasRequestedScreenCapture
+                    && !permissions.screenCaptureGranted
             )
             HStack {
-                if !permissions.screenCaptureGranted {
-                    Button("mac.request.913c40f") {
-                        permissions.requestScreenCapture()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
-                }
-
                 if permissions.hasRequestedScreenCapture,
                    !permissions.screenCaptureGranted {
                     Button("mac.open.settings.239783c") {
                         permissions.openScreenCaptureSettings()
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if permissions.screenCaptureReadiness == .verifying {
+                    ProgressView()
+                        .controlSize(.small)
+                } else if permissions.screenCaptureReadiness == .failed {
+                    Button("mac.check.again.72912f6") {
+                        permissions.verifyScreenCaptureReadiness(force: true)
                     }
                     .buttonStyle(.bordered)
                 }
@@ -300,6 +307,13 @@ struct CompanionOnboardingView: View {
         permissions.relaunchToApplyScreenCapturePermission()
     }
 
+    private func continueAfterVerifiedScreenCaptureIfNeeded() {
+        guard resumeAfterScreenCapture, permissions.screenCaptureReady else { return }
+        resumeAfterScreenCapture = false
+        withAnimation(.easeInOut) { step = 2 }
+        beginPairingIfNeeded()
+    }
+
     private func showPairingSuccess(_ deviceName: String) {
         guard pairedDeviceName == nil else { return }
         completionTask?.cancel()
@@ -327,16 +341,42 @@ struct CompanionOnboardingView: View {
             Spacer()
             if step < 2 {
                 Button {
-                    withAnimation(.easeInOut) { step += 1 }
+                    continueFromCurrentStep()
                 } label: {
                     Label("mac.continue.0f4bb2d", systemImage: "chevron.right")
                     .labelStyle(.titleAndIcon)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.blue)
-                .disabled(step == 0 && !permissions.accessibilityGranted)
+                .disabled(
+                    (step == 0 && !permissions.accessibilityGranted)
+                    || (step == 1 && permissions.screenCaptureReadiness == .verifying)
+                )
             }
         }
+    }
+
+    private func continueFromCurrentStep() {
+        guard step == 1 else {
+            withAnimation(.easeInOut) { step += 1 }
+            return
+        }
+
+        if !permissions.hasRequestedScreenCapture,
+           !permissions.screenCaptureGranted {
+            permissions.requestScreenCapture()
+            return
+        }
+        if permissions.screenCaptureRequiresRelaunch {
+            relaunchAfterScreenCaptureIfNeeded()
+            return
+        }
+        if permissions.screenCaptureGranted,
+           !permissions.screenCaptureReady {
+            permissions.verifyScreenCaptureReadiness(force: true)
+            return
+        }
+        withAnimation(.easeInOut) { step = 2 }
     }
 }
 
@@ -347,6 +387,7 @@ private struct SettingsPermissionPreview: View {
     let title: LocalizedStringKey
     let granted: Bool
     let icon: String
+    var showsAddButton = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -379,6 +420,16 @@ private struct SettingsPermissionPreview: View {
                 }
                 .padding(12)
                 .background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 10))
+                if showsAddButton {
+                    HStack(spacing: 12) {
+                        Image(systemName: "plus")
+                        Image(systemName: "minus")
+                            .foregroundStyle(.tertiary)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                }
             }
             .padding(18)
         }
