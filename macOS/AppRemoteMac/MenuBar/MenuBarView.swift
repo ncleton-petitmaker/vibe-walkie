@@ -3,8 +3,6 @@ import CoreImage.CIFilterBuiltins
 import RemoteCore
 
 struct MenuBarView: View {
-    private static let qrImageCache = NSCache<NSString, NSImage>()
-
     @EnvironmentObject private var server: MacConnectionServer
     @EnvironmentObject private var permissions: PermissionCoordinator
     @EnvironmentObject private var authority: PairingAuthority
@@ -14,6 +12,9 @@ struct MenuBarView: View {
     @State private var showResetConfirmation = false
     @State private var showControlConfigurator = false
     @State private var showNomadSetup = false
+    @State private var showOnboarding = false
+    @AppStorage("vibe.walkie.mac.onboarding.v2.completed") private var didCompleteOnboarding = false
+    @AppStorage("vibe.walkie.mac.nomad.discovery.v1.dismissed") private var didDismissNomadDiscovery = false
 
     var body: some View {
         ScrollView {
@@ -24,8 +25,24 @@ struct MenuBarView: View {
         .background(Color.remoteBackground)
         .preferredColorScheme(.dark)
         .onChange(of: permissions.accessibilityGranted) { _, _ in beginFirstPairingIfReady() }
+        .onChange(of: permissions.screenCaptureGranted) { _, _ in
+            server.screenCapturePermissionDidChange(permissions.screenCaptureReady)
+        }
+        .onChange(of: permissions.screenCaptureRequiresRelaunch) { _, _ in
+            server.screenCapturePermissionDidChange(permissions.screenCaptureReady)
+        }
         .onChange(of: server.isListening) { _, _ in beginFirstPairingIfReady() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            permissions.refresh()
+            if !showOnboarding, permissions.screenCaptureRequiresRelaunch {
+                permissions.relaunchToApplyScreenCapturePermission()
+            }
+        }
         .task {
+            if InstallationLocation.isSuitable,
+               (!didCompleteOnboarding || !permissions.accessibilityGranted) {
+                showOnboarding = true
+            }
             beginFirstPairingIfReady()
             if NomadFeatureFlag.isEnabled {
                 await tailscale.refresh()
@@ -36,16 +53,16 @@ struct MenuBarView: View {
             server.setNomadEndpoint(endpoint)
         }
         .confirmationDialog(
-            "Réinitialiser Vibe Walkie ?",
+            "mac.reset.vibe.walkie.c3ae48c",
             isPresented: $showResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Réinitialiser les appairages et l’identité", role: .destructive) {
+            Button("mac.reset.pairings.and.identity.da50dbb", role: .destructive) {
                 server.resetEverything()
             }
-            Button("Annuler", role: .cancel) {}
+            Button("mac.cancel.46ad391", role: .cancel) {}
         } message: {
-            Text("Tous les iPhone devront être appairés à nouveau.")
+            Text("mac.all.iphones.will.need.to.be.paired.again.ed49b37")
         }
         .sheet(isPresented: $showControlConfigurator) {
             MacControlConfiguratorView()
@@ -57,6 +74,17 @@ struct MenuBarView: View {
                 .environmentObject(server)
                 .environmentObject(authority)
         }
+        .sheet(isPresented: $showOnboarding) {
+            CompanionOnboardingView {
+                didCompleteOnboarding = true
+                showOnboarding = false
+                beginFirstPairingIfReady()
+            }
+            .environmentObject(permissions)
+            .environmentObject(server)
+            .environmentObject(authority)
+            .environmentObject(tailscale)
+        }
     }
 
     private var content: some View {
@@ -65,6 +93,7 @@ struct MenuBarView: View {
             if !InstallationLocation.isSuitable {
                 installationSection
             } else {
+                if shouldShowNomadDiscovery { nomadDiscoveryBanner }
                 if peers.peers.allSatisfy(\.isRevoked) { welcomeSection }
                 permissionSection
 
@@ -85,7 +114,7 @@ struct MenuBarView: View {
 
     private var welcomeSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Bienvenue").font(.headline)
+            Text("mac.welcome.6121f20").font(.headline)
             Text(
                 NomadFeatureFlag.isEnabled
                     ? "Aucun compte Vibe Walkie n’est nécessaire. Les commandes restent entre cet iPhone et ce Mac, en local ou via votre réseau Tailscale facultatif."
@@ -99,13 +128,13 @@ struct MenuBarView: View {
 
     private var installationSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Déplacez Vibe Walkie dans Applications", systemImage: "arrow.down.app.fill")
+            Label("mac.move.vibe.walkie.to.applications.dc3ada8", systemImage: "arrow.down.app.fill")
                 .font(.headline)
                 .foregroundStyle(.orange)
-            Text("L’app a été ouverte depuis le disque d’installation. Glissez-la vers le raccourci Applications, puis ouvrez la copie installée.")
+            Text("mac.the.app.was.opened.from.the.installation.disk.drag.it.015b0ae")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            Button("Ouvrir Applications") { InstallationLocation.openApplicationsFolder() }
+            Button("mac.open.applications.25aa8d9") { InstallationLocation.openApplicationsFolder() }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.remoteBlue)
         }
@@ -114,21 +143,21 @@ struct MenuBarView: View {
 
     private func approvalSection(_ pending: PairingAuthority.PendingApproval) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Autoriser cet iPhone ?", systemImage: "iphone.badge.checkmark")
+            Label("mac.allow.this.iphone.f90f9ed", systemImage: "iphone.badge.checkmark")
                 .font(.headline)
             Text(pending.peer.name)
                 .font(.title3.weight(.semibold))
-            Text("Code \(pending.confirmationCode)")
+            Text(MacL10n.format("mac.code.value.74a3b10", pending.confirmationCode))
                 .font(.system(.title2, design: .monospaced).weight(.bold))
                 .foregroundStyle(Color.remoteBlue)
-            Text("Le contrôle du pointeur, du clavier et de l’écran ne sera accordé qu’après votre confirmation.")
+            Text("mac.pointer.keyboard.and.screen.control.will.be.granted.only.after.fd007ac")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             HStack {
-                Button("Autoriser") { server.approvePairing(pending.id) }
+                Button("mac.allow.5fa07ae") { server.approvePairing(pending.id) }
                     .buttonStyle(.borderedProminent)
                     .tint(Color.remoteBlue)
-                Button("Refuser", role: .destructive) { server.denyPairing(pending.id) }
+                Button("mac.deny.283348d", role: .destructive) { server.denyPairing(pending.id) }
                     .buttonStyle(.bordered)
             }
         }
@@ -137,16 +166,12 @@ struct MenuBarView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.remoteBlue.gradient)
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 36, height: 36)
-                .overlay(
-                    Image(systemName: "iphone.gen3.radiowaves.left.and.right")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
-                )
             VStack(alignment: .leading, spacing: 2) {
-                Text("Vibe Walkie").font(.headline)
+                Text("mac.vibe.walkie.111e6dd").font(.headline)
                 HStack(spacing: 6) {
                     Circle().fill(statusColor).frame(width: 7, height: 7)
                     Text(statusText)
@@ -166,16 +191,16 @@ struct MenuBarView: View {
 
     private var statusText: String {
         if let error = server.lastError { return error }
-        if !permissions.accessibilityGranted { return MacL10n.text("Accessibilité requise") }
-        if let peer = server.connectedPeerName { return MacL10n.text("Connecté à \(peer)") }
-        return server.isListening ? MacL10n.text("En attente d'un iPhone") : MacL10n.text("Service arrêté")
+        if !permissions.accessibilityGranted { return MacL10n.text("mac.accessibility.required.8ac4820") }
+        if let peer = server.connectedPeerName { return MacL10n.format("mac.connected.to.value.421b271", peer) }
+        return server.isListening ? MacL10n.text("mac.waiting.for.an.iphone.3454e98") : MacL10n.text("mac.service.stopped.6a46108")
     }
 
     private var permissionSection: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
                 Label(
-                    "Contrôle du Mac",
+                    "mac.mac.control.e859c34",
                     systemImage: permissions.accessibilityGranted ? "checkmark.shield.fill" : "exclamationmark.triangle.fill"
                 )
                 .foregroundStyle(permissions.accessibilityGranted ? .green : .orange)
@@ -186,14 +211,14 @@ struct MenuBarView: View {
             }
 
             if !permissions.accessibilityGranted {
-                Text("Vibe Walkie a besoin de l'Accessibilité pour lire le champ actif, y écrire votre dictée et changer d'application.")
+                Text("mac.vibe.walkie.needs.accessibility.access.to.read.the.active.field.f7cd725")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack {
-                    Button("Demander") { permissions.requestAccessibility() }
+                    Button("mac.request.913c40f") { permissions.guideAccessibilityAccess() }
                         .buttonStyle(.borderedProminent)
                         .tint(Color.remoteBlue)
-                    Button("Ouvrir les Réglages") { permissions.openAccessibilitySettings() }
+                    Button("mac.open.settings.239783c") { permissions.openAccessibilitySettings() }
                         .buttonStyle(.bordered)
                 }
             }
@@ -201,22 +226,42 @@ struct MenuBarView: View {
             if peers.peers.contains(where: { !$0.isRevoked }) {
                 HStack {
                     Label(
-                        "Retour écran",
-                        systemImage: permissions.screenCaptureGranted ? "checkmark.rectangle.fill" : "rectangle.dashed.badge.record"
+                        "mac.screen.view.b5645a8",
+                        systemImage: screenCapturePermissionIcon
                     )
-                    .foregroundStyle(permissions.screenCaptureGranted ? .green : .secondary)
+                    .foregroundStyle(permissions.screenCaptureReady ? .green : .secondary)
                     Spacer()
-                    Button {
-                        permissions.openScreenCaptureSettings()
-                    } label: {
-                        Image(systemName: "gearshape")
+                    if !permissions.screenCaptureGranted {
+                        Button("mac.request.913c40f") {
+                            permissions.requestScreenCapture()
+                        }
+                        .buttonStyle(.borderless)
                     }
-                    .buttonStyle(.borderless)
-                    .help("Réglages du retour écran")
+                    if permissions.screenCaptureRequiresRelaunch {
+                        Button("mac.continue.0f4bb2d") {
+                            permissions.relaunchToApplyScreenCapturePermission()
+                        }
+                        .buttonStyle(.borderless)
+                    } else if permissions.hasRequestedScreenCapture,
+                              !permissions.screenCaptureGranted {
+                        Button {
+                            permissions.openScreenCaptureSettings()
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("mac.screen.view.settings.e789af6")
+                    }
                 }
             }
         }
         .remoteCard()
+    }
+
+    private var screenCapturePermissionIcon: String {
+        if permissions.screenCaptureReady { return "checkmark.rectangle.fill" }
+        if permissions.screenCaptureRequiresRelaunch { return "arrow.clockwise.circle.fill" }
+        return "rectangle.dashed.badge.record"
     }
 
     private func pairingSection(_ session: PairingAuthority.PairingSession) -> some View {
@@ -224,13 +269,13 @@ struct MenuBarView: View {
         let isNomad = payload.nomadEndpoint != nil
         return VStack(alignment: .leading, spacing: 8) {
             Text(isNomad ? "Appairage Nomade" : "Appairage en cours").font(.subheadline.bold())
-            if let image = qrImage(for: session.encodedPayload) {
+            if let image = PairingQRCodeRenderer.image(for: session.encodedPayload) {
                 Image(nsImage: image)
                     .interpolation(.none)
                     .frame(maxWidth: .infinity)
-                    .accessibilityLabel("QR code d'appairage")
+                    .accessibilityLabel("mac.pairing.qr.code.77b59f3")
             }
-            Text("Code : \(payload.confirmationCode)")
+            Text(MacL10n.format("mac.code.value.18fbe57", payload.confirmationCode))
                 .font(.system(.title3, design: .monospaced))
                 .foregroundStyle(Color.remoteBlue)
                 .frame(maxWidth: .infinity)
@@ -243,14 +288,14 @@ struct MenuBarView: View {
                 .foregroundStyle(.secondary)
             HStack {
                 if isNomad {
-                    Button("Copier le code") {
+                    Button("mac.copy.code.58d4532") {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(session.encodedPayload, forType: .string)
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Color.remoteBlue)
                 }
-                Button("Annuler") { authority.endPairing() }
+                Button("mac.cancel.46ad391") { authority.endPairing() }
                     .buttonStyle(.bordered)
             }
         }
@@ -260,7 +305,7 @@ struct MenuBarView: View {
     private var peersSection: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
-                Text("iPhone autorisés").font(.subheadline.bold())
+                Text("mac.allowed.iphones.75962c2").font(.subheadline.bold())
                 Spacer()
                 Button {
                     beginPairing()
@@ -269,13 +314,13 @@ struct MenuBarView: View {
                 }
                 .buttonStyle(.borderless)
                 .disabled(server.certificateFingerprint == nil)
-                .help("Appairer un iPhone")
+                .help("mac.pair.an.iphone.44c3c84")
             }
 
-            if peers.peers.isEmpty {
-                Text("Aucun iPhone appairé.").font(.caption).foregroundStyle(.secondary)
+            if activePeers.isEmpty {
+                Text("mac.no.paired.iphone.644c9ef").font(.caption).foregroundStyle(.secondary)
             } else {
-                ForEach(peers.peers) { peer in
+                ForEach(activePeers) { peer in
                     ApprovedPeerRow(peer: peer)
                 }
             }
@@ -290,22 +335,17 @@ struct MenuBarView: View {
                         .foregroundStyle(.secondary)
                     Spacer()
                     Menu {
-                        Button("Tout révoquer", role: .destructive) {
+                        Button("mac.revoke.all.776dd82", role: .destructive) {
                             for peer in peers.peers where !peer.isRevoked { server.disconnectPeer(peer.id) }
                             peers.revokeAll()
                         }
-                        Button("Tout réinitialiser", role: .destructive) { showResetConfirmation = true }
+                        Button("mac.reset.everything.9877873", role: .destructive) { showResetConfirmation = true }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
                 }
-            }
-
-            if server.lastError != nil {
-                Button("Régénérer l’identité de sécurité") { server.regenerateTLSIdentity() }
-                    .buttonStyle(.bordered)
             }
 
         }
@@ -318,10 +358,10 @@ struct MenuBarView: View {
         } label: {
             VStack(alignment: .leading, spacing: 9) {
                 HStack {
-                    Label("Commandes de l’iPhone", systemImage: "rectangle.3.group.fill")
+                    Label("mac.iphone.controls.5c65e13", systemImage: "rectangle.3.group.fill")
                         .font(.subheadline.bold())
                     Spacer()
-                    Text("Modifier")
+                    Text("mac.edit.42e3760")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(Color.remoteBlue)
                     Image(systemName: "chevron.right")
@@ -344,7 +384,7 @@ struct MenuBarView: View {
                 Image(systemName: tailscale.isEnabled ? "globe.badge.chevron.backward" : "globe")
                     .foregroundStyle(tailscale.isEnabled ? .green : Color.remoteBlue)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Mode Nomade").font(.subheadline.bold())
+                    Text("mac.remote.mode.6c2b26c").font(.subheadline.bold())
                     Text(tailscale.isEnabled ? "Compatible avec Tailscale · Activé" : "Contrôlez ce Mac hors du Wi‑Fi local")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -360,15 +400,74 @@ struct MenuBarView: View {
         .remoteCard()
     }
 
+    private var shouldShowNomadDiscovery: Bool {
+        NomadFeatureFlag.isEnabled && !didDismissNomadDiscovery && !tailscale.isEnabled
+    }
+
+    private var nomadDiscoveryBanner: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(Color.remoteBlue.opacity(0.18))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "globe.badge.chevron.backward")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Color.remoteBlue)
+                }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("mac.remote.mode.6c2b26c")
+                        .font(.headline)
+                    Text("mac.nomad.discovery.body.f6e2a71")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Link(destination: TailscaleCoordinator.whatIsTailscaleURL) {
+                Label("tailscale.com/docs", systemImage: "arrow.up.right.square")
+                    .font(.caption2.weight(.semibold))
+            }
+
+            HStack {
+                Button("mac.configure.later.17b69c4") {
+                    didDismissNomadDiscovery = true
+                }
+                .buttonStyle(.bordered)
+                Spacer()
+                Button("mac.start.95e0ef0") {
+                    didDismissNomadDiscovery = true
+                    showNomadSetup = true
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.remoteBlue)
+            }
+        }
+        .padding(12)
+        .background(
+            LinearGradient(
+                colors: [Color.remoteBlue.opacity(0.15), Color.remoteCard],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.remoteBlue.opacity(0.32), lineWidth: 1)
+        )
+    }
+
     private var footer: some View {
         VStack(alignment: .leading, spacing: 8) {
             if server.hasCompletedFirstCommand {
-                Toggle("Lancer à la connexion", isOn: Binding(
+                Toggle("mac.launch.at.login.13962bf", isOn: Binding(
                     get: { permissions.launchesAtLogin },
                     set: { permissions.setLaunchAtLogin($0) }
                 ))
                 .toggleStyle(.checkbox)
-                Text("Facultatif : gardez le compagnon prêt après l’ouverture de session.")
+                Text("mac.optional.keep.the.companion.ready.after.you.sign.in.d4a38bf")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -376,11 +475,22 @@ struct MenuBarView: View {
             HStack {
                 Text(Bundle.main.appVersion).font(.caption2).foregroundStyle(.secondary)
                 Spacer()
-                Button("Mises à jour…") { updates.checkForUpdates() }
+                Button {
+                    showOnboarding = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .buttonStyle(.borderless)
+                .help("mac.welcome.6121f20")
+                Button("mac.check.for.updates.a581402") { updates.checkForUpdates() }
                     .disabled(!updates.canCheckForUpdates)
-                Button("Quitter") { NSApplication.shared.terminate(nil) }
+                Button("mac.quit.4974161") { NSApplication.shared.terminate(nil) }
             }
         }
+    }
+
+    private var activePeers: [ApprovedPeer] {
+        peers.peers.filter { !$0.isRevoked }
     }
 
     private struct ApprovedPeerRow: View {
@@ -397,7 +507,7 @@ struct MenuBarView: View {
         var body: some View {
             HStack {
                 VStack(alignment: .leading, spacing: 1) {
-                    TextField("Nom de l’iPhone", text: $name)
+                    TextField("mac.iphone.name.c868e4b", text: $name)
                         .textFieldStyle(.plain)
                         .onSubmit { peers.rename(peer.id, to: name) }
                     Text(peer.isRevoked ? "Révoqué" : "Autorisé")
@@ -406,7 +516,7 @@ struct MenuBarView: View {
                 }
                 Spacer()
                 if !peer.isRevoked {
-                    Button("Révoquer") {
+                    Button("mac.revoke.81954c8") {
                         peers.revoke(peer.id)
                         server.disconnectPeer(peer.id)
                     }
@@ -440,10 +550,19 @@ struct MenuBarView: View {
         beginPairing()
     }
 
-    private func qrImage(for encoded: String) -> NSImage? {
+}
+
+/// Rend exactement le même QR dans l'onboarding et dans la fenêtre principale.
+/// Garder un seul encodeur évite qu'un écran affiche un pictogramme décoratif
+/// pendant que l'autre contient la vraie charge d'appairage.
+@MainActor
+enum PairingQRCodeRenderer {
+    private static let cache = NSCache<NSString, NSImage>()
+
+    static func image(for encoded: String) -> NSImage? {
         guard !encoded.isEmpty else { return nil }
         let cacheKey = encoded as NSString
-        if let cached = Self.qrImageCache.object(forKey: cacheKey) { return cached }
+        if let cached = cache.object(forKey: cacheKey) { return cached }
 
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(encoded.utf8)
@@ -466,162 +585,8 @@ struct MenuBarView: View {
             cgImage: cgImage,
             size: NSSize(width: scaled.extent.width, height: scaled.extent.height)
         )
-        Self.qrImageCache.setObject(image, forKey: cacheKey)
+        cache.setObject(image, forKey: cacheKey)
         return image
-    }
-}
-
-private struct NomadSetupView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var tailscale: TailscaleCoordinator
-    @EnvironmentObject private var server: MacConnectionServer
-    @EnvironmentObject private var authority: PairingAuthority
-
-    @State private var manualMagicDNSName = ""
-    @State private var manualError: String?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Mode Nomade").font(.title2.bold())
-                    Text("Compatible avec Tailscale")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button("Fermer") { dismiss() }
-            }
-
-            Text("Tailscale relie directement cet iPhone et ce Mac. Vibe Walkie conserve son propre chiffrement TLS et son appairage.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-
-            statusCard
-
-            if tailscale.isEnabled, let endpoint = tailscale.activeEndpoint {
-                VStack(alignment: .leading, spacing: 10) {
-                    Label("Mode Nomade activé", systemImage: "checkmark.shield.fill")
-                        .foregroundStyle(.green)
-                        .font(.headline)
-                    Text(endpoint.magicDNSName)
-                        .font(.caption.monospaced())
-                        .textSelection(.enabled)
-                    Button("Appairer un iPhone à distance") {
-                        beginRemotePairing(endpoint)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.remoteBlue)
-                    Button("Désactiver le Mode Nomade", role: .destructive) {
-                        tailscale.disable()
-                        server.setNomadEndpoint(nil)
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .remoteCard()
-            }
-
-            DisclosureGroup("Configuration manuelle") {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Utilisez le nom complet affiché par Tailscale, par exemple mac.exemple.ts.net.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("mac.tailnet.ts.net", text: $manualMagicDNSName)
-                    if let manualError {
-                        Text(manualError).font(.caption).foregroundStyle(.orange)
-                    }
-                    Button("Utiliser ce nom") {
-                        if tailscale.configureManually(magicDNSName: manualMagicDNSName) {
-                            manualError = nil
-                            server.setNomadEndpoint(tailscale.activeEndpoint)
-                        } else {
-                            manualError = MacL10n.text("Saisissez un nom MagicDNS complet se terminant par .ts.net.")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding(.top, 8)
-            }
-
-            Spacer()
-        }
-        .padding(22)
-        .frame(width: 470, height: 530)
-        .background(Color.remoteBackground)
-        .preferredColorScheme(.dark)
-        .task {
-            await tailscale.refresh()
-            server.setNomadEndpoint(tailscale.activeEndpoint)
-        }
-    }
-
-    @ViewBuilder
-    private var statusCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            switch tailscale.state {
-            case .idle, .checking:
-                HStack { ProgressView(); Text("Vérification de Tailscale…") }
-            case .missing:
-                Label("Tailscale n’est pas installé", systemImage: "arrow.down.app")
-                    .font(.headline)
-                Text("Installez l’application officielle, connectez ce Mac à votre tailnet, puis relancez la vérification.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Button("Télécharger Tailscale") {
-                    NSWorkspace.shared.open(TailscaleCoordinator.macDownloadURL)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.remoteBlue)
-            case .stopped:
-                Label("Tailscale est déconnecté", systemImage: "exclamationmark.triangle.fill")
-                    .font(.headline)
-                    .foregroundStyle(.orange)
-                Text("Ouvrez Tailscale et connectez ce Mac, puis réessayez.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            case .failed(let detail):
-                Label("Tailscale est indisponible", systemImage: "xmark.octagon.fill")
-                    .font(.headline)
-                    .foregroundStyle(.orange)
-                Text(detail).font(.caption).foregroundStyle(.secondary)
-            case .ready(let endpoint):
-                Label("Tailscale est prêt", systemImage: "checkmark.circle.fill")
-                    .font(.headline)
-                    .foregroundStyle(.green)
-                Text(endpoint.magicDNSName)
-                    .font(.caption.monospaced())
-                    .textSelection(.enabled)
-                if !tailscale.isEnabled {
-                    Button("Activer le Mode Nomade") {
-                        tailscale.enableDetectedEndpoint()
-                        server.setNomadEndpoint(tailscale.activeEndpoint)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.remoteBlue)
-                }
-            }
-
-            Button("Vérifier à nouveau") {
-                Task {
-                    await tailscale.refresh()
-                    server.setNomadEndpoint(tailscale.activeEndpoint)
-                }
-            }
-            .buttonStyle(.bordered)
-        }
-        .remoteCard()
-    }
-
-    private func beginRemotePairing(_ endpoint: NomadEndpoint) {
-        guard let fingerprint = server.certificateFingerprint else { return }
-        _ = authority.beginPairing(
-            macName: Host.current().localizedName ?? "Mac",
-            serviceName: server.serviceName,
-            fingerprint: fingerprint,
-            nomadEndpoint: endpoint,
-            validity: VibeWalkieInfo.nomadPairingWindow
-        )
-        dismiss()
     }
 }
 
@@ -643,7 +608,7 @@ private struct MacControlMiniPreview: View {
                 .foregroundStyle(Color.remoteBlue)
                 .frame(maxWidth: .infinity, minHeight: 31)
                 .background(Color.remoteBlue.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
-                .help("Global")
+                .help("mac.global.a258b30")
         }
     }
 }
@@ -672,7 +637,7 @@ private struct MenuBarControlIcon: View {
     }
 }
 
-private extension View {
+extension View {
     func remoteCard() -> some View {
         frame(maxWidth: .infinity, alignment: .leading)
             .padding(11)
@@ -687,7 +652,7 @@ private extension View {
     }
 }
 
-private extension Color {
+extension Color {
     static let remoteBackground = Color(red: 0.035, green: 0.038, blue: 0.042)
     static let remoteCard = Color(red: 0.12, green: 0.125, blue: 0.13)
     static let remoteBlue = Color(red: 0.02, green: 0.56, blue: 0.98)

@@ -27,6 +27,16 @@ enum AccessibilityClient {
     static func openAccessibilitySettings() {
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else { return }
         NSWorkspace.shared.open(url)
+        activateSystemSettings()
+    }
+
+    private static func activateSystemSettings() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(250))
+            NSRunningApplication.runningApplications(
+                withBundleIdentifier: "com.apple.systempreferences"
+            ).first?.activate(options: [.activateAllWindows])
+        }
     }
 
     // MARK: - Lecture d'attributs

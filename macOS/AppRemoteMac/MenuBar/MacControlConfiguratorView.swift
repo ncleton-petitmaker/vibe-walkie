@@ -19,9 +19,9 @@ struct MacControlConfiguratorView: View {
                     .frame(width: 34, height: 34)
                     .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Commandes de l’iPhone")
+                    Text("mac.iphone.controls.5c65e13")
                         .font(.headline)
-                    Text("Choisissez une zone, puis son action et son icône.")
+                    Text("mac.choose.a.position.then.its.action.and.icon.af4b148")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -34,7 +34,7 @@ struct MacControlConfiguratorView: View {
                 }
                 .buttonStyle(.plain)
                 .background(.white.opacity(0.07), in: Circle())
-                .help("Fermer")
+                .help("mac.close.711e5f2")
                     .keyboardShortcut(.cancelAction)
             }
             .padding(.horizontal, 16)
@@ -44,7 +44,7 @@ struct MacControlConfiguratorView: View {
 
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("APERÇU SUR L’IPHONE")
+                    Text("mac.iphone.preview.20d7a7e")
                         .font(.system(size: 10, weight: .semibold, design: .rounded))
                         .tracking(0.7)
                         .foregroundStyle(.secondary)
@@ -63,9 +63,9 @@ struct MacControlConfiguratorView: View {
                             Image(systemName: "circle.grid.2x2.fill")
                                 .foregroundStyle(Color.accentColor)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text("Bulle Global")
+                                Text("mac.global.bubble.d8b1205")
                                     .font(.caption.weight(.semibold))
-                                Text("Modifier l’ordre")
+                                Text("mac.reorder.8891a23")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
@@ -104,7 +104,7 @@ struct MacControlConfiguratorView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer()
-                Button("Réinitialiser", role: .destructive) {
+                Button("mac.reset.5b35e0e", role: .destructive) {
                     showResetConfirmation = true
                 }
                 .buttonStyle(.borderless)
@@ -127,16 +127,16 @@ struct MacControlConfiguratorView: View {
             )
         }
         .confirmationDialog(
-            "Réinitialiser le bloc de boutons ?",
+            "mac.reset.button.panel.d07902c",
             isPresented: $showResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Rétablir les boutons d’origine", role: .destructive) {
+            Button("mac.restore.original.buttons.e9f294f", role: .destructive) {
                 server.resetControlConfiguration()
             }
-            Button("Annuler", role: .cancel) {}
+            Button("mac.cancel.46ad391", role: .cancel) {}
         } message: {
-            Text("Les raccourcis clavier et les icônes personnalisées seront remplacés.")
+            Text("mac.custom.keyboard.shortcuts.and.icons.will.be.replaced.76dd7e5")
         }
     }
 }
@@ -160,14 +160,14 @@ private struct MacGlobalButtonOrderView: View {
                     .font(.title3)
                     .foregroundStyle(Color.accentColor)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Ordre de la bulle Global")
+                    Text("mac.global.bubble.order.cfad83c")
                         .font(.headline)
-                    Text("Uniquement les commandes absentes du bloc principal.")
+                    Text("mac.only.controls.not.shown.in.the.main.panel.54c2b1e")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Terminé") { dismiss() }
+                Button("mac.done.f28acc8") { dismiss() }
                     .keyboardShortcut(.defaultAction)
             }
             .padding(14)
@@ -201,7 +201,7 @@ private struct MacGlobalButtonOrderView: View {
                             }
                             .buttonStyle(.borderless)
                             .disabled(index == 0)
-                            .help("Monter")
+                            .help("mac.move.up.37b6029")
                             Button {
                                 move(index, by: 1)
                             } label: {
@@ -209,7 +209,7 @@ private struct MacGlobalButtonOrderView: View {
                             }
                             .buttonStyle(.borderless)
                             .disabled(index == order.count - 1)
-                            .help("Descendre")
+                            .help("mac.move.down.21cbc06")
                         }
                         .padding(.horizontal, 10)
                         .frame(height: 48)
@@ -251,7 +251,7 @@ private struct MacControlLayoutPreview: View {
                             .foregroundStyle(.white)
                     }
                     .frame(width: 74, height: 74)
-                    Label("PTT", systemImage: "lock.fill")
+                    Label("mac.ptt.fa0b361", systemImage: "lock.fill")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(.secondary)
                 }
@@ -302,7 +302,7 @@ private struct MacControlLayoutPreview: View {
             )
         }
         .buttonStyle(.plain)
-        .help("Modifier \(button.title)")
+        .help(MacL10n.format("mac.edit.value.9465aba", button.title))
     }
 }
 
@@ -377,23 +377,23 @@ private struct MacControlButtonEditor: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         fieldLabel("NOM DU BOUTON")
-                        TextField("Ex. Copier", text: $title)
+                        TextField("mac.e.g.copy.e057f11", text: $title)
                             .textFieldStyle(.roundedBorder)
                     }
 
                     VStack(alignment: .leading, spacing: 7) {
                         fieldLabel("ACTION")
                         Picker("", selection: $actionChoice) {
-                            Label("Touche standard", systemImage: "keyboard").tag(ActionChoice.standard)
-                            Label("Raccourci du Mac", systemImage: "command").tag(ActionChoice.shortcut)
-                            Label("Ouvrir le clavier iPhone", systemImage: "iphone.gen3").tag(ActionChoice.showKeyboard)
-                            Label("Aucune action", systemImage: "nosign").tag(ActionChoice.none)
+                            Label("mac.standard.key.c5f1c34", systemImage: "keyboard").tag(ActionChoice.standard)
+                            Label("mac.mac.shortcut.76e0698", systemImage: "command").tag(ActionChoice.shortcut)
+                            Label("mac.open.iphone.keyboard.9ef1e0c", systemImage: "iphone.gen3").tag(ActionChoice.showKeyboard)
+                            Label("mac.no.action.ec3e8c2", systemImage: "nosign").tag(ActionChoice.none)
                         }
                         .labelsHidden()
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                         if actionChoice == .standard {
-                            Picker("Touche", selection: $standardKey) {
+                            Picker("mac.key.67754b1", selection: $standardKey) {
                                 ForEach(RemoteKey.allCases, id: \.self) { key in
                                     Text(key.macName).tag(key)
                                 }
@@ -402,7 +402,7 @@ private struct MacControlButtonEditor: View {
                             ShortcutRecorderField(shortcut: $shortcut)
                                 .frame(height: 52)
                         } else if actionChoice == .showKeyboard {
-                            Label("Affiche le clavier complet sur l’iPhone", systemImage: "iphone.gen3")
+                            Label("mac.shows.the.full.keyboard.on.iphone.cf6e6cd", systemImage: "iphone.gen3")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
@@ -415,13 +415,13 @@ private struct MacControlButtonEditor: View {
                             Button {
                                 showIconImporter = true
                             } label: {
-                                Label("Importer", systemImage: "photo.badge.plus")
+                                Label("mac.import.ed2c9cb", systemImage: "photo.badge.plus")
                             }
                             .buttonStyle(.borderless)
                             .font(.caption)
                         }
 
-                        TextField("Rechercher une icône", text: $iconSearch)
+                        TextField("mac.search.icons.f955ee9", text: $iconSearch)
                             .textFieldStyle(.roundedBorder)
 
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 6), spacing: 6) {
@@ -444,7 +444,7 @@ private struct MacControlButtonEditor: View {
                         }
 
                         if case .customImage = icon {
-                            Label("Image personnalisée sélectionnée", systemImage: "checkmark.circle.fill")
+                            Label("mac.custom.image.selected.5da81a7", systemImage: "checkmark.circle.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.green)
                         }
@@ -460,12 +460,12 @@ private struct MacControlButtonEditor: View {
 
             HStack {
                 if didSave {
-                    Label("Enregistré", systemImage: "checkmark.circle.fill")
+                    Label("mac.saved.166301d", systemImage: "checkmark.circle.fill")
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
                 Spacer()
-                Button("Appliquer") { commit() }
+                Button("mac.apply.b4c8b1d") { commit() }
                     .buttonStyle(.borderedProminent)
                     .disabled(actionChoice == .shortcut && shortcut == nil)
                     .keyboardShortcut(.defaultAction)
@@ -489,7 +489,7 @@ private struct MacControlButtonEditor: View {
         let cleanedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         save(ControlButtonConfiguration(
             zone: original.zone,
-            title: cleanedTitle.isEmpty ? "Sans titre" : cleanedTitle,
+            title: cleanedTitle.isEmpty ? "mac.untitled.2c847c1" : cleanedTitle,
             icon: icon,
             action: action
         ))
@@ -513,9 +513,9 @@ private struct MacControlButtonEditor: View {
     private var actionSummary: String {
         switch actionChoice {
         case .standard: return standardKey.macName
-        case .shortcut: return shortcut?.displayName ?? MacL10n.text("Raccourci à enregistrer")
-        case .showKeyboard: return MacL10n.text("Clavier de l’iPhone")
-        case .none: return MacL10n.text("Aucune action")
+        case .shortcut: return shortcut?.displayName ?? MacL10n.text("mac.shortcut.to.record.935e87b")
+        case .showKeyboard: return MacL10n.text("mac.iphone.keyboard.df50452")
+        case .none: return MacL10n.text("mac.no.action.ec3e8c2")
         }
     }
 
@@ -538,7 +538,7 @@ private struct MacControlButtonEditor: View {
             icon = .customImage(normalized)
             importError = nil
         } catch {
-            importError = MacL10n.text("Image illisible ou trop volumineuse.")
+            importError = MacL10n.text("mac.the.image.is.unreadable.or.too.large.17ebb3d")
         }
     }
 }
@@ -554,13 +554,13 @@ private struct ShortcutRecorderField: View {
             VStack(spacing: 3) {
                 Text(shortcut?.displayName ?? "Appuyez sur les touches…")
                     .font(.system(.title3, design: .rounded).weight(.semibold))
-                Text("Le champ capture la prochaine combinaison")
+                Text("mac.the.field.captures.the.next.key.combination.8036479")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             ShortcutCaptureRepresentable { shortcut = $0 }
         }
-        .accessibilityLabel("Enregistrer un raccourci clavier")
+        .accessibilityLabel("mac.record.a.keyboard.shortcut.13d8c0a")
     }
 }
 
@@ -677,7 +677,7 @@ private enum MacControlIconCatalog {
         Item(systemName: "arrow.down", label: "Flèche bas"),
         Item(systemName: "arrow.left", label: "Flèche gauche"),
         Item(systemName: "arrow.right", label: "Flèche droite"),
-        Item(systemName: "arrow.uturn.backward", label: "Annuler"),
+        Item(systemName: "arrow.uturn.backward", label: "mac.cancel.46ad391"),
         Item(systemName: "arrow.uturn.forward", label: "Rétablir"),
         Item(systemName: "doc.on.doc", label: "Copier"),
         Item(systemName: "doc.on.clipboard", label: "Coller"),
@@ -716,7 +716,7 @@ private enum MacControlIconCatalog {
         Item(systemName: "star.fill", label: "Favori"),
         Item(systemName: "heart.fill", label: "J’aime"),
         Item(systemName: "checkmark", label: "Valider"),
-        Item(systemName: "xmark", label: "Fermer"),
+        Item(systemName: "xmark", label: "mac.close.711e5f2"),
         Item(systemName: "plus", label: "Ajouter"),
         Item(systemName: "minus", label: "Retirer"),
         Item(systemName: "gearshape.fill", label: "Réglages"),
@@ -798,7 +798,7 @@ private extension ControlButtonAction {
         case .none: return MacL10n.text("À configurer")
         case .standardKey(let key): return key.macName
         case .macShortcut(let shortcut): return shortcut.displayName
-        case .showKeyboard: return MacL10n.text("Clavier iPhone")
+        case .showKeyboard: return MacL10n.text("mac.iphone.keyboard.cd6dbcb")
         }
     }
 }

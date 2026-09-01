@@ -5,21 +5,28 @@ import RemoteCore
 final class CommercializationConfigurationTests: XCTestCase {
     func testWorkingBundleIdentifierAndMinimumSystem() {
         XCTAssertEqual(Bundle.main.bundleIdentifier, "com.nicolascleton.viberemote.mac")
-        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "LSMinimumSystemVersion") as? String, "15.0")
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "LSMinimumSystemVersion") as? String, "14.0")
         XCTAssertNotEqual(Bundle.main.object(forInfoDictionaryKey: "LSUIElement") as? Bool, true)
     }
 
     func testBonjourAndSparkleConfigurationAreEmbedded() {
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "NSBonjourServices") as? [String], ["_viberemote._tcp"])
+        XCTAssertFalse(
+            (Bundle.main.object(forInfoDictionaryKey: "NSScreenCaptureUsageDescription") as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
+        )
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String,
-            "https://ncleton-petitmaker.github.io/vibe-walkie/appcast.xml"
+            "https://app-remote.92.222.247.135.sslip.io/releases/macos/appcast.xml"
         )
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String,
-            "nQ6eywkcEooao6zZ73sWlafO396coAq3i5+Qn2UmU/o="
+            "Tx25YvoRGRZxtG4STjRt3c4HPfYvdeIcXIoq+M9AH78="
         )
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUEnableAutomaticChecks") as? Bool, true)
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUAutomaticallyUpdate") as? Bool, true)
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUVerifyUpdateBeforeExtraction") as? Bool, true)
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUScheduledCheckInterval") as? Int, 14_400)
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUEnableSystemProfiling") as? Bool, false)
     }
 

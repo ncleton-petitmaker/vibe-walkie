@@ -1,9 +1,9 @@
 name: AppRemoteMac
 options:
   bundleIdPrefix: com.nicolascleton
-  developmentLanguage: fr
+  developmentLanguage: en
   deploymentTarget:
-    macOS: "15.0"
+    macOS: "14.0"
   createIntermediateGroups: true
 
 packages:
@@ -23,7 +23,8 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
-    ARCHS: arm64
+    ARCHS: "arm64 x86_64"
+    ONLY_ACTIVE_ARCH: NO
     # Les Bundle IDs historiques restent stables pour la signature et les autorisations macOS.
     VIBE_WALKIE_MAC_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac
     VIBE_WALKIE_MAC_TESTS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote.mac.tests

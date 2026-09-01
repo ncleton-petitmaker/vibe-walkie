@@ -1,8 +1,10 @@
 import Foundation
 import RemoteCore
 
-/// Vérifie les preuves cryptographiques et impose une décision humaine avant
-/// d'accorder pour la première fois le contrôle du Mac.
+/// Vérifie les preuves cryptographiques transportées par le QR avant
+/// d'accorder le contrôle du Mac. Scanner le QR affiché physiquement par le
+/// compagnon constitue l'autorisation explicite : aucune seconde confirmation
+/// n'est demandée dans l'interface Mac.
 @MainActor
 final class PairingAuthority: ObservableObject {
 
@@ -81,9 +83,8 @@ final class PairingAuthority: ObservableObject {
 
     func authenticate(response: PairingResponsePayload, nonce: Data) throws -> AuthenticationDecision {
         if let known = peers.peer(withID: response.deviceIdentifier) {
-            // Si l'iPhone a effacé puis régénéré sa clé, le QR constitue une
-            // preuve de présence mais ne suffit pas à remplacer silencieusement
-            // une identité connue : le Mac redemande une validation humaine.
+            // Si l'iPhone a régénéré sa clé, un nouveau QR valide constitue la
+            // preuve de présence nécessaire pour remplacer l'ancienne identité.
             if known.publicKey != response.publicKey {
                 return try prepareKeyReplacement(response: response, nonce: nonce)
             }
@@ -138,23 +139,15 @@ final class PairingAuthority: ObservableObject {
             publicKey: response.publicKey,
             pairedAt: Date()
         )
-        let pending = PendingApproval(
-            id: UUID(),
-            peer: peer,
-            confirmationCode: session.payload.confirmationCode,
-            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingApprovalWindow)
-        )
-        pendingApproval = pending
-        return .requiresApproval(pending)
+        peers.approve(peer)
+        endPairing()
+        return .approved(peer)
     }
 
     private func prepareKeyReplacement(
         response: PairingResponsePayload,
         nonce: Data
     ) throws -> AuthenticationDecision {
-        guard pendingApproval == nil else {
-            throw RemoteErrorPayload(code: .rateLimited, detail: "une approbation est déjà en attente")
-        }
         guard let session = activeSession, !session.payload.isExpired,
               let provided = response.pairingSecret,
               provided == session.secret else {
@@ -176,14 +169,9 @@ final class PairingAuthority: ObservableObject {
             publicKey: response.publicKey,
             pairedAt: Date()
         )
-        let pending = PendingApproval(
-            id: UUID(),
-            peer: replacement,
-            confirmationCode: session.payload.confirmationCode,
-            expiresAt: Date().addingTimeInterval(VibeWalkieInfo.pairingApprovalWindow)
-        )
-        pendingApproval = pending
-        return .requiresApproval(pending)
+        peers.approve(replacement)
+        endPairing()
+        return .approved(replacement)
     }
 
     func approve(_ requestID: UUID) -> ApprovedPeer? {

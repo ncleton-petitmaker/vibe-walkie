@@ -25,24 +25,24 @@ final class PairingAuthorityTests: XCTestCase {
         directory = nil
     }
 
-    func testUnknownIPhoneWaitsForHumanApproval() throws {
+    func testUnknownIPhoneIsApprovedByValidQR() throws {
         let signed = try responseForActivePairing()
         let decision = try authority.authenticate(response: signed.response, nonce: signed.nonce)
-        guard case .requiresApproval(let pending) = decision else {
-            return XCTFail("Une approbation humaine était attendue")
+        guard case .approved(let peer) = decision else {
+            return XCTFail("Le QR valide doit autoriser immédiatement l’iPhone")
         }
-        XCTAssertEqual(pending.peer.name, "iPhone Test")
-        XCTAssertTrue(peers.peers.isEmpty)
-        XCTAssertNotNil(authority.pendingApproval)
+        XCTAssertEqual(peer.name, "iPhone Test")
+        XCTAssertEqual(peers.peers.count, 1)
+        XCTAssertNil(authority.pendingApproval)
+        XCTAssertNil(authority.activeSession)
     }
 
     func testApprovalPersistsKeyAndKnownDeviceReconnects() throws {
         let signed = try responseForActivePairing()
         let decision = try authority.authenticate(response: signed.response, nonce: signed.nonce)
-        guard case .requiresApproval(let pending) = decision else {
-            return XCTFail("Approbation attendue")
+        guard case .approved = decision else {
+            return XCTFail("Autorisation immédiate attendue")
         }
-        XCTAssertNotNil(authority.approve(pending.id))
         XCTAssertEqual(peers.peers.count, 1)
 
         let nonce = SecureRandom.bytes(32)
@@ -53,15 +53,14 @@ final class PairingAuthorityTests: XCTestCase {
         XCTAssertEqual(peer.id, "iphone-test")
     }
 
-    func testForgottenIPhoneCanReplaceItsKeyAfterQRAndHumanApproval() throws {
+    func testForgottenIPhoneCanReplaceItsKeyWithANewQR() throws {
         let original = try responseForActivePairing()
-        guard case .requiresApproval(let firstApproval) = try authority.authenticate(
+        guard case .approved = try authority.authenticate(
             response: original.response,
             nonce: original.nonce
         ) else {
-            return XCTFail("Première approbation attendue")
+            return XCTFail("Première autorisation attendue")
         }
-        _ = authority.approve(firstApproval.id)
 
         _ = authority.beginPairing(
             macName: "Mac Test",
@@ -73,25 +72,23 @@ final class PairingAuthorityTests: XCTestCase {
         let secret = Data(base64Encoded: authority.activeSession!.payload.pairingSecret)!
         let replacement = try makeResponse(key: replacementKey, nonce: nonce, secret: secret)
 
-        guard case .requiresApproval(let replacementApproval) = try authority.authenticate(
+        guard case .approved = try authority.authenticate(
             response: replacement,
             nonce: nonce
         ) else {
-            return XCTFail("Le remplacement de clé doit être confirmé sur le Mac")
+            return XCTFail("Le nouveau QR doit autoriser le remplacement de clé")
         }
-        XCTAssertEqual(peers.peers.first?.publicKey, original.signer.publicKey.rawRepresentation)
-
-        _ = authority.approve(replacementApproval.id)
         XCTAssertEqual(peers.peers.first?.publicKey, replacementKey.publicKey.rawRepresentation)
     }
 
-    func testDenialDoesNotPersistDevice() throws {
+    func testInvalidPairingSecretDoesNotPersistDevice() throws {
         let signed = try responseForActivePairing()
-        let decision = try authority.authenticate(response: signed.response, nonce: signed.nonce)
-        guard case .requiresApproval(let pending) = decision else {
-            return XCTFail("Approbation attendue")
-        }
-        XCTAssertTrue(authority.cancelPendingApproval(pending.id))
+        let invalid = try makeResponse(
+            key: signed.signer,
+            nonce: signed.nonce,
+            secret: SecureRandom.bytes(16)
+        )
+        XCTAssertThrowsError(try authority.authenticate(response: invalid, nonce: signed.nonce))
         XCTAssertTrue(peers.peers.isEmpty)
         XCTAssertNil(authority.pendingApproval)
     }
@@ -109,10 +106,9 @@ final class PairingAuthorityTests: XCTestCase {
     func testRevokedDeviceCannotReconnect() throws {
         let signed = try responseForActivePairing()
         let decision = try authority.authenticate(response: signed.response, nonce: signed.nonce)
-        guard case .requiresApproval(let pending) = decision else {
-            return XCTFail("Approbation attendue")
+        guard case .approved = decision else {
+            return XCTFail("Autorisation attendue")
         }
-        _ = authority.approve(pending.id)
         peers.revoke("iphone-test")
 
         let nonce = SecureRandom.bytes(32)

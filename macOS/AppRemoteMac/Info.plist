@@ -28,18 +28,24 @@
 	<string>$(NOMAD_MODE_ENABLED)</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Vibe Walkie communique directement avec votre iPhone par le réseau local ou votre réseau privé Tailscale. Aucun audio ne quitte l’iPhone.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>Vibe Walkie affiche l’écran de votre Mac sur votre iPhone lorsque vous activez le retour écran.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_viberemote._tcp</string>
 	</array>
 	<key>SUFeedURL</key>
-	<string>https://ncleton-petitmaker.github.io/vibe-walkie/appcast.xml</string>
+	<string>https://app-remote.92.222.247.135.sslip.io/releases/macos/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>nQ6eywkcEooao6zZ73sWlafO396coAq3i5+Qn2UmU/o=</string>
+	<string>Tx25YvoRGRZxtG4STjRt3c4HPfYvdeIcXIoq+M9AH78=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
 	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
+	<integer>14400</integer>
 	<key>SUEnableSystemProfiling</key>
 	<false/>
 </dict>

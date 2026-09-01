@@ -46,7 +46,7 @@ final class TLSIdentityStoreTests: XCTestCase {
         XCTAssertNotEqual(before, try TLSIdentityStore.fingerprint(of: regenerated))
     }
 
-    func testPartialKeyStateIsRejected() throws {
+    func testPartialKeyStateIsRepairedAutomatically() throws {
         var error: Unmanaged<CFError>?
         let attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
@@ -56,21 +56,19 @@ final class TLSIdentityStoreTests: XCTestCase {
             kSecAttrLabel as String: configuration.label
         ]
         XCTAssertNotNil(SecKeyCreateRandomKey(attributes as CFDictionary, &error))
-        XCTAssertThrowsError(try TLSIdentityStore.loadOrCreate(configuration: configuration)) { error in
-            XCTAssertEqual(error as? TLSIdentityStore.StoreError, .partialState)
-        }
+        let repaired = try TLSIdentityStore.loadOrCreate(configuration: configuration)
+        XCTAssertEqual(Data(base64Encoded: try TLSIdentityStore.fingerprint(of: repaired))?.count, 32)
     }
 
-    func testMissingCertificateAfterCreationIsRejectedAsPartial() throws {
+    func testMissingCertificateAfterCreationIsRepairedAutomatically() throws {
         _ = try TLSIdentityStore.loadOrCreate(configuration: configuration)
         let query: [String: Any] = [
             kSecClass as String: kSecClassCertificate,
             kSecAttrLabel as String: configuration.label
         ]
         XCTAssertEqual(SecItemDelete(query as CFDictionary), errSecSuccess)
-        XCTAssertThrowsError(try TLSIdentityStore.loadOrCreate(configuration: configuration)) { error in
-            XCTAssertEqual(error as? TLSIdentityStore.StoreError, .partialState)
-        }
+        let repaired = try TLSIdentityStore.loadOrCreate(configuration: configuration)
+        XCTAssertEqual(Data(base64Encoded: try TLSIdentityStore.fingerprint(of: repaired))?.count, 32)
     }
 
     func testFingerprintIsSHA256Base64() throws {

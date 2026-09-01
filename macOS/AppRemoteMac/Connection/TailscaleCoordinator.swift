@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import RemoteCore
 
 enum NomadFeatureFlag {
@@ -52,6 +53,35 @@ private enum TailscaleDetectionResult: Sendable {
 @MainActor
 final class TailscaleCoordinator: ObservableObject {
     static let macDownloadURL = URL(string: "https://tailscale.com/download/mac")!
+    static let macStandaloneDownloadURL = URL(string: "https://pkgs.tailscale.com/stable/Tailscale-latest-macos.pkg")!
+    static let macAppStoreURL = URL(string: "https://apps.apple.com/app/tailscale/id1475387142?mt=12")!
+    static let iOSDownloadURL = URL(string: "https://tailscale.com/download/ios")!
+    static let iOSAppStoreURL = URL(string: "https://apps.apple.com/app/tailscale/id1470499037")!
+    static let macInstallGuideURL = URL(string: "https://tailscale.com/docs/install/mac")!
+    static let iOSInstallGuideURL = URL(string: "https://tailscale.com/docs/install/ios")!
+    static let whatIsTailscaleURL = URL(string: "https://tailscale.com/docs/concepts/what-is-tailscale")!
+    static let devicesURL = URL(string: "https://login.tailscale.com/admin/machines")!
+    static let securityURL = URL(string: "https://tailscale.com/security")!
+    static let privacyURL = URL(string: "https://tailscale.com/privacy-policy")!
+    static let macApplicationURL = URL(fileURLWithPath: "/Applications/Tailscale.app")
+
+    static var isMacApplicationInstalled: Bool {
+        FileManager.default.fileExists(atPath: macApplicationURL.path)
+    }
+
+    static func openMacApplication() {
+        guard isMacApplicationInstalled else {
+            NSWorkspace.shared.open(macDownloadURL)
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.openApplication(
+            at: macApplicationURL,
+            configuration: configuration,
+            completionHandler: nil
+        )
+    }
 
     @Published private(set) var state: TailscaleDetectionState = .idle
     @Published private(set) var activeEndpoint: NomadEndpoint?

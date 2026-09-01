@@ -1,12 +1,252 @@
 {
-  "sourceLanguage" : "fr",
-  "strings" : {
-    "NSLocalNetworkUsageDescription" : {
-      "localizations" : {
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie communique directement avec votre iPhone. Aucun audio ne quitte l’iPhone." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie communicates directly with your iPhone. No audio leaves the iPhone." } }
+  "sourceLanguage": "fr",
+  "strings": {
+    "NSLocalNetworkUsageDescription": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie communique directement avec votre iPhone. Aucun audio ne quitte l’iPhone."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie communicates directly with your iPhone. No audio leaves the iPhone."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kommuniziert direkt mit deinem iPhone. Kein Audio verlässt das iPhone."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتواصل Vibe Walkie مباشرةً مع iPhone. ولا يغادر أي صوت جهاز iPhone."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie es comunica directament amb el teu iPhone. L’àudio no surt de l’iPhone."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kommunikerer direkte med din iPhone. Ingen lyd forlader iPhone."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie komunikuje přímo s vaším iPhonem. Žádný zvuk iPhone neopouští."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Vibe Walkie επικοινωνεί απευθείας με το iPhone σας. Κανένας ήχος δεν φεύγει από το iPhone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie se comunica directamente con tu iPhone. Ningún audio sale del iPhone."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie viestii suoraan iPhonesi kanssa. Ääni ei poistu iPhonesta."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie מתקשר ישירות עם ה‑iPhone שלכם. שום שמע אינו יוצא מה‑iPhone."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie सीधे आपके iPhone से संचार करता है। कोई ऑडियो iPhone से बाहर नहीं जाता।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie komunicira izravno s vašim iPhoneom. Zvuk ne napušta iPhone."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Vibe Walkie közvetlenül kommunikál az iPhone-oddal. A hang nem hagyja el az iPhone-t."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie berkomunikasi langsung dengan iPhone Anda. Tidak ada audio meninggalkan iPhone."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie comunica direttamente con il tuo iPhone. Nessun audio lascia l'iPhone."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe WalkieはiPhoneと直接通信します。音声がiPhoneの外へ送信されることはありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie는 iPhone과 직접 통신합니다. 오디오는 iPhone 밖으로 전송되지 않습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie berkomunikasi terus dengan iPhone anda. Tiada audio meninggalkan iPhone."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kommuniserer direkte med iPhonen din. Ingen lyd forlater iPhonen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie communiceert rechtstreeks met je iPhone. Er verlaat geen audio de iPhone."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie komunikuje się bezpośrednio z iPhonem. Żaden dźwięk nie opuszcza iPhone'a."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Vibe Walkie comunica diretamente com o seu iPhone. Nenhum áudio sai do iPhone."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie comunică direct cu iPhone-ul tău. Niciun sunet nu părăsește iPhone-ul."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie напрямую связывается с iPhone. Аудио не покидает iPhone."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie komunikuje priamo s vaším iPhonom. Žiadny zvuk iPhone neopúšťa."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kommunicerar direkt med din iPhone. Inget ljud lämnar iPhone."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie สื่อสารโดยตรงกับ iPhone ของคุณ ไม่มีเสียงออกจาก iPhone"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie doğrudan iPhone'unuzla iletişim kurar. Hiçbir ses iPhone'dan ayrılmaz."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie безпосередньо взаємодіє з вашим iPhone. Аудіо не залишає iPhone."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie liên lạc trực tiếp với iPhone của bạn. Không có âm thanh rời khỏi iPhone."
+          }
+        },
+        "yue": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 會直接同你部 iPhone 通訊，音訊唔會離開 iPhone。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 直接与你的 iPhone 通信。任何音频都不会离开 iPhone。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 直接與你的 iPhone 通訊。任何音訊都不會離開 iPhone。"
+          }
+        }
+      }
+    },
+    "NSScreenCaptureUsageDescription": {
+      "localizations": {
+        "ar": { "stringUnit": { "state": "translated", "value": "يعرض Vibe Walkie شاشة Mac على iPhone عند تفعيل عرض الشاشة." } },
+        "ca": { "stringUnit": { "state": "translated", "value": "Vibe Walkie mostra la pantalla del Mac a l’iPhone quan actives la vista de pantalla." } },
+        "cs": { "stringUnit": { "state": "translated", "value": "Vibe Walkie zobrazí obrazovku Macu na iPhonu, když zapnete zobrazení obrazovky." } },
+        "da": { "stringUnit": { "state": "translated", "value": "Vibe Walkie viser din Mac-skærm på din iPhone, når du aktiverer skærmvisning." } },
+        "de": { "stringUnit": { "state": "translated", "value": "Vibe Walkie zeigt deinen Mac-Bildschirm auf deinem iPhone an, wenn du die Bildschirmansicht aktivierst." } },
+        "el": { "stringUnit": { "state": "translated", "value": "Το Vibe Walkie εμφανίζει την οθόνη του Mac στο iPhone όταν ενεργοποιείτε την προβολή οθόνης." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Vibe Walkie displays your Mac screen on your iPhone when you enable Screen View." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vibe Walkie muestra la pantalla del Mac en el iPhone cuando activas la vista de pantalla." } },
+        "fi": { "stringUnit": { "state": "translated", "value": "Vibe Walkie näyttää Macin näytön iPhonessa, kun otat näyttönäkymän käyttöön." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vibe Walkie affiche l’écran de votre Mac sur votre iPhone lorsque vous activez le retour écran." } },
+        "he": { "stringUnit": { "state": "translated", "value": "Vibe Walkie מציג את מסך ה‑Mac ב‑iPhone כשמפעילים את תצוגת המסך." } },
+        "hi": { "stringUnit": { "state": "translated", "value": "स्क्रीन व्यू चालू करने पर Vibe Walkie आपके Mac की स्क्रीन आपके iPhone पर दिखाता है।" } },
+        "hr": { "stringUnit": { "state": "translated", "value": "Vibe Walkie prikazuje zaslon Maca na iPhoneu kada uključite prikaz zaslona." } },
+        "hu": { "stringUnit": { "state": "translated", "value": "A Vibe Walkie megjeleníti a Mac képernyőjét az iPhone-on, amikor bekapcsolja a képernyőnézetet." } },
+        "id": { "stringUnit": { "state": "translated", "value": "Vibe Walkie menampilkan layar Mac di iPhone saat Anda mengaktifkan Tampilan Layar." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Vibe Walkie mostra lo schermo del Mac sull’iPhone quando attivi la vista schermo." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画面表示を有効にすると、Vibe WalkieがMacの画面をiPhoneに表示します。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "화면 보기를 켜면 Vibe Walkie가 Mac 화면을 iPhone에 표시합니다." } },
+        "ms": { "stringUnit": { "state": "translated", "value": "Vibe Walkie memaparkan skrin Mac pada iPhone apabila anda mengaktifkan Paparan Skrin." } },
+        "nb": { "stringUnit": { "state": "translated", "value": "Vibe Walkie viser Mac-skjermen på iPhone når du slår på skjermvisning." } },
+        "nl": { "stringUnit": { "state": "translated", "value": "Vibe Walkie toont het scherm van je Mac op je iPhone wanneer je schermweergave inschakelt." } },
+        "pl": { "stringUnit": { "state": "translated", "value": "Vibe Walkie wyświetla ekran Maca na iPhonie po włączeniu widoku ekranu." } },
+        "pt": { "stringUnit": { "state": "translated", "value": "O Vibe Walkie mostra o ecrã do Mac no iPhone quando ativa a visualização do ecrã." } },
+        "ro": { "stringUnit": { "state": "translated", "value": "Vibe Walkie afișează ecranul Mac-ului pe iPhone când activați vizualizarea ecranului." } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Vibe Walkie показывает экран Mac на iPhone, когда вы включаете просмотр экрана." } },
+        "sk": { "stringUnit": { "state": "translated", "value": "Vibe Walkie zobrazí obrazovku Macu na iPhone, keď zapnete zobrazenie obrazovky." } },
+        "sv": { "stringUnit": { "state": "translated", "value": "Vibe Walkie visar Mac-skärmen på din iPhone när du aktiverar skärmvisning." } },
+        "th": { "stringUnit": { "state": "translated", "value": "Vibe Walkie จะแสดงหน้าจอ Mac บน iPhone เมื่อคุณเปิดมุมมองหน้าจอ" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Ekran Görünümü’nü etkinleştirdiğinizde Vibe Walkie, Mac ekranınızı iPhone’unuzda gösterir." } },
+        "uk": { "stringUnit": { "state": "translated", "value": "Vibe Walkie показує екран Mac на iPhone, коли ви вмикаєте перегляд екрана." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Vibe Walkie hiển thị màn hình Mac trên iPhone khi bạn bật Chế độ xem màn hình." } },
+        "yue": { "stringUnit": { "state": "translated", "value": "啟用螢幕檢視後，Vibe Walkie 會喺 iPhone 顯示你部 Mac 嘅畫面。" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "启用屏幕视图后，Vibe Walkie 会在 iPhone 上显示 Mac 屏幕。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "啟用螢幕檢視後，Vibe Walkie 會在 iPhone 上顯示 Mac 螢幕。" } }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

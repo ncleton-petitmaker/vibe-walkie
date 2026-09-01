@@ -42,13 +42,20 @@ struct VibeWalkieMacApp: App {
     private let dependencies = VibeWalkieDependencies.shared
 
     var body: some Scene {
-        WindowGroup("Vibe Walkie") {
+        WindowGroup("mac.vibe.walkie.111e6dd") {
             controlPanel
                 .frame(minWidth: 340, idealWidth: 340, minHeight: 420, maxHeight: .infinity, alignment: .top)
         }
         .defaultSize(width: 340, height: 520)
 
-        MenuBarExtra("Vibe Walkie", systemImage: "iphone.gen3.radiowaves.left.and.right") {
+        // Let macOS own the status item's metrics and click target. Feeding the
+        // 1024 px application icon to a custom label gives it an oversized
+        // intrinsic size and bypasses the native template rendering used by
+        // regular menu bar utilities.
+        MenuBarExtra(
+            "Vibe Walkie",
+            systemImage: "iphone.radiowaves.left.and.right"
+        ) {
             controlPanel
         }
         .menuBarExtraStyle(.window)

@@ -41,6 +41,7 @@ final class MacConnectionServer: ObservableObject {
         var router: SessionRouter?
         var sequence: UInt64 = 0
         var wantsScreen = false
+        var screenRequest: ScreenStreamRequestPayload?
         var screenFrameInFlight = false
         var pendingApprovalID: UUID?
         var pendingApprovalReplyTo: UUID?
@@ -528,7 +529,7 @@ final class MacConnectionServer: ObservableObject {
         for zone in ControlZone.allCases {
             var button = requested.button(in: zone)
             button.title = String(button.title.trimmingCharacters(in: .whitespacesAndNewlines).prefix(24))
-            if button.title.isEmpty { button.title = MacL10n.text("Sans titre") }
+            if button.title.isEmpty { button.title = MacL10n.text("mac.untitled.2c847c1") }
 
             switch button.icon {
             case .system(let name):
@@ -552,7 +553,7 @@ final class MacConnectionServer: ObservableObject {
         for requestedButton in requested.globalButtons.prefix(32) {
             var button = requestedButton
             button.title = String(button.title.trimmingCharacters(in: .whitespacesAndNewlines).prefix(24))
-            if button.title.isEmpty { button.title = MacL10n.text("Sans titre") }
+            if button.title.isEmpty { button.title = MacL10n.text("mac.untitled.2c847c1") }
 
             switch button.icon {
             case .system(let name):
@@ -586,9 +587,10 @@ final class MacConnectionServer: ObservableObject {
     private func handleScreenRequest(
         _ request: ScreenStreamRequestPayload,
         for session: Session,
-        replyTo: UUID
+        replyTo: UUID?
     ) {
         session.wantsScreen = request.enabled
+        session.screenRequest = request.enabled ? request : nil
 
         guard request.enabled else {
             send(
@@ -646,7 +648,6 @@ final class MacConnectionServer: ObservableObject {
             } catch {
                 screenCaptureStarting = false
                 screenCaptureRunning = false
-                session.wantsScreen = false
                 send(
                     type: .screenStreamStatus,
                     payload: ScreenStreamStatusPayload(
@@ -658,6 +659,33 @@ final class MacConnectionServer: ObservableObject {
                     replyTo: replyTo
                 )
             }
+        }
+    }
+
+    /// Publie immédiatement le nouvel état TCC vers l'iPhone. Une demande
+    /// d'écran refusée conserve son intention ; dès que l'utilisateur coche
+    /// Vibe Walkie dans Réglages, l'iPhone redemande alors le flux sans qu'il
+    /// soit nécessaire de relancer le compagnon.
+    func screenCapturePermissionDidChange(_ granted: Bool) {
+        if granted,
+           !screenCaptureRunning,
+           !screenCaptureStarting,
+           let viewer = sessions.values.first(where: { $0.wantsScreen && $0.isAuthenticated }),
+           let request = viewer.screenRequest {
+            handleScreenRequest(request, for: viewer, replyTo: nil)
+            return
+        }
+
+        for viewer in sessions.values where viewer.wantsScreen && viewer.isAuthenticated {
+            send(
+                type: .screenStreamStatus,
+                payload: ScreenStreamStatusPayload(
+                    isStreaming: granted && screenCaptureRunning,
+                    permissionGranted: granted
+                ),
+                to: viewer,
+                replyTo: nil
+            )
         }
     }
 

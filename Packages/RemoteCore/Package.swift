@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "RemoteCore",
-    platforms: [.iOS(.v26), .macOS(.v15)],
+    platforms: [.iOS(.v26), .macOS(.v14)],
     products: [
         .library(name: "RemoteCore", targets: ["RemoteCore"])
     ],

@@ -27,11 +27,14 @@ final class ApprovedPeersStore: ObservableObject {
     }
 
     func approve(_ peer: ApprovedPeer) {
-        if let index = peers.firstIndex(where: { $0.id == peer.id }) {
-            peers[index] = peer
-        } else {
-            peers.append(peer)
-        }
+        // L'identifiant logique de l'iPhone a historiquement été stocké dans
+        // UserDefaults alors que sa clé survivait dans le Trousseau. Après une
+        // réinstallation, un même téléphone pouvait donc revenir avec un nouvel
+        // UUID mais exactement la même identité cryptographique. La clé publique
+        // est l'identité fiable : une nouvelle approbation remplace toute entrée
+        // qui utilise déjà cette clé, au lieu d'afficher deux iPhone fantômes.
+        peers.removeAll { $0.id == peer.id || $0.publicKey == peer.publicKey }
+        peers.append(peer)
         save()
     }
 
@@ -70,8 +73,38 @@ final class ApprovedPeersStore: ObservableObject {
     private func load() {
         if let data = try? Data(contentsOf: fileURL),
            let decoded = try? RemoteCoding.decoder.decode([ApprovedPeer].self, from: data) {
-            peers = decoded
+            let normalized = Self.normalized(decoded)
+            peers = normalized
+            if normalized != decoded { save() }
         }
+    }
+
+    /// Ne conserve qu'une ligne par clé publique. Une autorisation active est
+    /// prioritaire sur une ancienne révocation, puis l'appareil vu/appairé le
+    /// plus récemment gagne. Cette migration répare aussi les fichiers déjà
+    /// affectés sans demander un nouvel appairage.
+    private static func normalized(_ peers: [ApprovedPeer]) -> [ApprovedPeer] {
+        var selectedByKey: [Data: ApprovedPeer] = [:]
+
+        for peer in peers {
+            guard let current = selectedByKey[peer.publicKey] else {
+                selectedByKey[peer.publicKey] = peer
+                continue
+            }
+
+            let shouldReplace: Bool
+            if current.isRevoked != peer.isRevoked {
+                shouldReplace = current.isRevoked && !peer.isRevoked
+            } else {
+                let currentActivity = current.lastSeenAt ?? current.pairedAt
+                let peerActivity = peer.lastSeenAt ?? peer.pairedAt
+                shouldReplace = peerActivity > currentActivity
+            }
+
+            if shouldReplace { selectedByKey[peer.publicKey] = peer }
+        }
+
+        return selectedByKey.values.sorted { $0.pairedAt < $1.pairedAt }
     }
 
     private func save() {

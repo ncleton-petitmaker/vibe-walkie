@@ -16,10 +16,13 @@ enum TLSIdentityStore {
         let keyTag: Data
 
         static let live = Configuration(
-            // Libellé de stockage historique : le modifier rendrait l'ancien
-            // certificat introuvable et invaliderait tous les appairages.
-            label: "Vibe Remote Local TLS",
-            keyTag: Data("com.nicolascleton.viberemote.mac.tls-key".utf8)
+            // Les premières builds ont pu accumuler plusieurs certificats
+            // « Vibe Remote Local TLS » associés à des clés différentes. Une
+            // recherche par libellé retournait alors un certificat arbitraire
+            // et empêchait totalement le serveur de démarrer. Cette identité
+            // v2 utilise le nom produit actuel et un espace de clés propre.
+            label: "Vibe Walkie Local TLS v2",
+            keyTag: Data("com.nicolascleton.vibewalkie.mac.tls-key.v2".utf8)
         )
     }
 
@@ -52,9 +55,24 @@ enum TLSIdentityStore {
         case (nil, nil):
             return try create(configuration: configuration)
         case (.some(let certificate), .some):
-            return try identity(for: certificate)
+            do {
+                return try identity(for: certificate)
+            } catch StoreError.corruptIdentity {
+                // Une interruption entre l'écriture de la clé et celle du
+                // certificat ne doit pas condamner l'appairage jusqu'à une
+                // intervention manuelle. Les deux éléments sont locaux et les
+                // appairages existants ne peuvent de toute façon plus valider
+                // une identité incohérente : on repart donc proprement.
+                try deleteAll(configuration: configuration)
+                return try create(configuration: configuration)
+            }
         default:
-            throw StoreError.partialState
+            // Une écriture interrompue peut laisser uniquement le certificat
+            // ou uniquement la clé. Ce détail technique ne doit jamais être
+            // exposé à l'utilisateur : repartir d'une paire cohérente est la
+            // seule réparation possible et invalide déjà l'ancien appairage.
+            try deleteAll(configuration: configuration)
+            return try create(configuration: configuration)
         }
     }
 
@@ -140,7 +158,7 @@ enum TLSIdentityStore {
                 // certificat, ce qui évite de récupérer le certificat d'un autre
                 // profil de test ou d'une ancienne installation.
                 CommonName(configuration.label)
-                OrganizationName("Vibe Walkie")
+                OrganizationName("mac.vibe.walkie.111e6dd")
             }
             let now = Date()
             let certificate = try Certificate(

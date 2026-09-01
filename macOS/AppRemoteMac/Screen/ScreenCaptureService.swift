@@ -13,9 +13,9 @@ enum ScreenCaptureServiceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return MacL10n.text("Autorisez l’enregistrement de l’écran sur le Mac, puis relancez Vibe Walkie.")
+            return MacL10n.text("mac.allow.screen.recording.on.the.mac.then.relaunch.vibe.walkie.634232c")
         case .noDisplay:
-            return MacL10n.text("L’écran du Mac est verrouillé ou indisponible. Déverrouillez la session Mac pour reprendre le contrôle.")
+            return MacL10n.text("mac.the.mac.screen.is.locked.or.unavailable.unlock.the.mac.ee3612b")
         }
     }
 }
@@ -44,7 +44,6 @@ final class ScreenCaptureService: NSObject, SCStreamOutput, SCStreamDelegate, @u
         await stop()
 
         guard CGPreflightScreenCaptureAccess() else {
-            _ = CGRequestScreenCaptureAccess()
             throw ScreenCaptureServiceError.permissionDenied
         }
 
