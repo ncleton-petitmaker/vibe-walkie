@@ -24,6 +24,7 @@ final class HapticFeedback {
     }
 
     func recordingStarted() { heavy.impactOccurred(intensity: 1.0) }
+    func recordingReleased() { medium.impactOccurred(intensity: 0.8) }
     func armedForCancel() { medium.impactOccurred() }
     func tick() { light.impactOccurred() }
     func delivered() { notification.notificationOccurred(.success) }

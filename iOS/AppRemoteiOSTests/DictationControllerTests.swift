@@ -88,6 +88,27 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(transport.insertPayloads.count, 1)
     }
 
+    func testImmediatePressWaitsForEnginePreparationAndSendsOnce() async throws {
+        engine.isAvailable = false
+        engine.suspendPreparation = true
+
+        controller.pressBegan()
+        try await waitUntil { self.engine.didPrepare }
+        controller.pressEnded()
+
+        XCTAssertFalse(engine.didStart)
+        XCTAssertTrue(transport.insertPayloads.isEmpty)
+
+        engine.completePreparation()
+
+        try await waitUntil { self.transport.insertPayloads.count == 1 }
+        XCTAssertEqual(transport.insertPayloads.first?.text, "Bonjour depuis le test")
+        XCTAssertFalse({
+            if case .failed = controller.phase { return true }
+            return false
+        }())
+    }
+
     func testSlideCancellationNeverInsertsText() async throws {
         controller.pressBegan()
         try await waitUntil { self.engine.didStart }
@@ -389,13 +410,28 @@ private final class FakeSpeechEngine: SpeechEngine {
     var finalText: String
     private(set) var didStart = false
     private(set) var didCancel = false
+    private(set) var didPrepare = false
+    var suspendPreparation = false
     var isAvailable = true
+    private var preparationContinuation: CheckedContinuation<Void, Never>?
 
     init(finalText: String) {
         self.finalText = finalText
     }
 
-    func prepare() async throws {}
+    func prepare() async throws {
+        didPrepare = true
+        if suspendPreparation {
+            await withCheckedContinuation { preparationContinuation = $0 }
+        }
+        isAvailable = true
+    }
+
+    func completePreparation() {
+        suspendPreparation = false
+        preparationContinuation?.resume()
+        preparationContinuation = nil
+    }
 
     func start() async throws -> AsyncStream<SpeechUpdate> {
         didStart = true

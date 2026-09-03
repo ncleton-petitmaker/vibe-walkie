@@ -31,11 +31,20 @@ final class DictationController: ObservableObject {
     private let client: any DictationTransport
     private var engine: (any SpeechEngine)?
     private var dictationLocaleIdentifier: String
+    private var engineLocaleIdentifier: String?
+    private var enginePreparation: EnginePreparation?
     private var dictationID = UUID()
     private var targetToken: TargetToken?
     private var captureTask: Task<Void, Never>?
     private var partialsTask: Task<Void, Never>?
     private var resetTask: Task<Void, Never>?
+    private var releaseRequested = false
+
+    private struct EnginePreparation {
+        let id: UUID
+        let localeIdentifier: String
+        let task: Task<Void, Error>
+    }
 
     private static let cancelThreshold: CGFloat = -70
 
@@ -47,6 +56,7 @@ final class DictationController: ObservableObject {
         self.client = client
         self.engine = engine
         dictationLocaleIdentifier = localeIdentifier
+        engineLocaleIdentifier = engine == nil ? nil : localeIdentifier
     }
 
     var isRecording: Bool {
@@ -73,12 +83,12 @@ final class DictationController: ObservableObject {
             return
         }
         if isRecording || phase == .finalizing || phase == .sending { return }
-        await engine?.cancel()
-        let engine = AppleSpeechAnalyzerEngine(localeIdentifier: localeIdentifier)
         dictationLocaleIdentifier = localeIdentifier
         do {
-            try await engine.prepare()
-            self.engine = engine
+            _ = try await ensureEnginePrepared(localeIdentifier: localeIdentifier)
+        } catch is CancellationError {
+            // Une nouvelle langue ou la fermeture de la vue a remplacé cette
+            // préparation. Le prochain démarrage attendra la tâche courante.
         } catch {
             phase = .failed(error.localizedDescription)
         }
@@ -92,6 +102,7 @@ final class DictationController: ObservableObject {
         partialText = ""
         dictationID = UUID()
         targetToken = nil
+        releaseRequested = false
         phase = .recording
 
         let currentID = dictationID
@@ -116,7 +127,7 @@ final class DictationController: ObservableObject {
     }
 
     func pressMoved(_ translation: CGPoint) {
-        guard isRecording else { return }
+        guard isRecording, !releaseRequested else { return }
         let armed = translation.x < Self.cancelThreshold
         if armed && phase != .armedForCancel {
             phase = .armedForCancel
@@ -128,14 +139,24 @@ final class DictationController: ObservableObject {
     }
 
     func pressEnded() {
-        guard isRecording else { return }
+        guard isRecording, !releaseRequested else { return }
         if phase == .armedForCancel {
             cancelDictation(reason: AppL10n.text("ios.close.711e5f2"))
             return
         }
-        captureTask?.cancel()
-        captureTask = nil
-        finishAndSend()
+        HapticFeedback.shared.recordingReleased()
+        releaseRequested = true
+        let currentID = dictationID
+        let startupTask = captureTask
+        Task { [weak self] in
+            await startupTask?.value
+            guard let self,
+                  self.dictationID == currentID,
+                  self.releaseRequested,
+                  self.isRecording else { return }
+            self.captureTask = nil
+            self.finishAndSend()
+        }
     }
 
     func pressCancelled() {
@@ -156,7 +177,7 @@ final class DictationController: ObservableObject {
     }
 
     private func startCapture() async throws {
-        guard let engine else { throw SpeechEngineError.notPrepared }
+        let engine = try await ensureEnginePrepared(localeIdentifier: dictationLocaleIdentifier)
         let stream = try await engine.start()
         guard !Task.isCancelled, isRecording else {
             await engine.cancel()
@@ -172,6 +193,7 @@ final class DictationController: ObservableObject {
     }
 
     private func finishAndSend() {
+        releaseRequested = false
         phase = .finalizing
         let currentID = dictationID
         let token = targetToken
@@ -232,6 +254,7 @@ final class DictationController: ObservableObject {
     }
 
     private func cancelDictation(reason: String) {
+        releaseRequested = false
         captureTask?.cancel()
         captureTask = nil
         partialsTask?.cancel()
@@ -255,6 +278,7 @@ final class DictationController: ObservableObject {
     }
 
     private func fail(_ message: String) async {
+        releaseRequested = false
         HapticFeedback.shared.failed()
         phase = .failed(message)
         scheduleReset()
@@ -270,6 +294,68 @@ final class DictationController: ObservableObject {
                 self?.partialText = ""
                 self?.targetToken = nil
             }
+        }
+    }
+
+    /// Retourne un moteur réellement préparé. La préchauffe lancée par la vue
+    /// et un appui utilisateur partagent la même tâche : un appui immédiat
+    /// après l'ouverture attend donc le modèle Apple au lieu d'échouer avec
+    /// `notPrepared`.
+    private func ensureEnginePrepared(localeIdentifier: String) async throws -> any SpeechEngine {
+        if let engine,
+           engineLocaleIdentifier == localeIdentifier,
+           engine.isAvailable {
+            return engine
+        }
+
+        if let preparation = enginePreparation,
+           preparation.localeIdentifier == localeIdentifier {
+            return try await resolve(preparation)
+        }
+
+        enginePreparation?.task.cancel()
+
+        let candidate: any SpeechEngine
+        if let engine, engineLocaleIdentifier == localeIdentifier {
+            candidate = engine
+        } else {
+            guard #available(iOS 26.0, *) else {
+                throw SpeechEngineError.unsupportedDevice
+            }
+            await engine?.cancel()
+            candidate = AppleSpeechAnalyzerEngine(localeIdentifier: localeIdentifier)
+        }
+
+        engine = candidate
+        engineLocaleIdentifier = localeIdentifier
+        let preparation = EnginePreparation(
+            id: UUID(),
+            localeIdentifier: localeIdentifier,
+            task: Task { @MainActor in
+                try await candidate.prepare()
+            }
+        )
+        enginePreparation = preparation
+        return try await resolve(preparation)
+    }
+
+    private func resolve(_ preparation: EnginePreparation) async throws -> any SpeechEngine {
+        do {
+            try await preparation.task.value
+            if enginePreparation?.id == preparation.id {
+                enginePreparation = nil
+            }
+            if let engine,
+               engineLocaleIdentifier == preparation.localeIdentifier,
+               engine.isAvailable {
+                return engine
+            }
+            throw CancellationError()
+        } catch {
+            if enginePreparation?.id == preparation.id {
+                enginePreparation = nil
+            }
+            throw error
         }
     }
 
