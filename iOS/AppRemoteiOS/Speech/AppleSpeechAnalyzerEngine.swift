@@ -484,6 +484,14 @@ final class AnalyzerRecognitionState: @unchecked Sendable {
     private static func join(_ prefix: String, _ suffix: String) -> String {
         guard !prefix.isEmpty else { return suffix }
         guard !suffix.isEmpty else { return prefix }
+
+        // Les transcripteurs Apple peuvent publier deux fois le même segment
+        // final ou remplacer un résultat final par sa version cumulative. Ces
+        // cas ne sont pas deux paroles : conserver la version la plus complète
+        // évite d'envoyer la phrase en double au Mac.
+        if prefix == suffix || prefix.hasSuffix(suffix) { return prefix }
+        if suffix.hasPrefix(prefix) { return suffix }
+
         guard prefix.last?.isWhitespace != true, suffix.first?.isWhitespace != true else {
             return prefix + suffix
         }

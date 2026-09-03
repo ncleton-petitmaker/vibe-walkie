@@ -205,10 +205,37 @@ final class TargetMatchPolicyTests: XCTestCase {
         XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
             bundleIdentifier: "COM.OPENAI.CHATGPT"
         ))
+        XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: "com.openai.codex.helper.renderer"
+        ))
+        XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: nil,
+            applicationName: "Codex"
+        ))
+        XCTAssertTrue(InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: nil,
+            applicationName: "ChatGPT"
+        ))
         XCTAssertFalse(InsertionMethodPolicy.requiresKeyboardEvents(
-            bundleIdentifier: "com.apple.TextEdit"
+            bundleIdentifier: "com.apple.TextEdit",
+            applicationName: "TextEdit"
         ))
         XCTAssertFalse(InsertionMethodPolicy.requiresKeyboardEvents(bundleIdentifier: nil))
+    }
+
+    func testPlaceholderIsNeverTreatedAsEditorContent() {
+        XCTAssertTrue(InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+            value: "Décrivez une tâche ou posez une question.",
+            placeholder: "Décrivez une tâche ou posez une question."
+        ))
+        XCTAssertFalse(InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+            value: "Bonjour",
+            placeholder: "Décrivez une tâche ou posez une question."
+        ))
+        XCTAssertFalse(InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+            value: "",
+            placeholder: ""
+        ))
     }
 
     private func assertError(

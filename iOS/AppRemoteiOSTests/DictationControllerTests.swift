@@ -15,6 +15,24 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(TrackpadGestureMath.zoomDelta(forIncrementalScale: .nan), 0)
     }
 
+    func testTrackpadDeltasAreCoalescedWithoutLosingDistance() {
+        var pending = TrackpadPendingDeltas()
+        pending.move = CGPoint(x: 3, y: 4)
+        pending.move.x += 7
+        pending.move.y -= 1
+        pending.scroll = CGPoint(x: -2, y: 8)
+        pending.zoom = 12
+        pending.drag = CGPoint(x: 5, y: -6)
+
+        let drained = pending.drain()
+
+        XCTAssertEqual(drained.move, CGPoint(x: 10, y: 3))
+        XCTAssertEqual(drained.scroll, CGPoint(x: -2, y: 8))
+        XCTAssertEqual(drained.zoom, 12)
+        XCTAssertEqual(drained.drag, CGPoint(x: 5, y: -6))
+        XCTAssertTrue(pending.isEmpty)
+    }
+
     func testExpandedTrackpadSpeedMigrationRaisesLegacyMaximumsOnlyOnce() {
         let suiteName = "TrackpadSettingsTests-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -195,6 +213,30 @@ final class DictationControllerTests: XCTestCase {
         state.finish()
 
         XCTAssertEqual(state.finalUpdate.finalizedText, "Bonjour tout le monde")
+    }
+
+    func testAnalyzerDoesNotDuplicateAnIdenticalFinalSegment() {
+        let (stream, continuation) = AsyncStream<SpeechUpdate>.makeStream()
+        _ = stream
+        let state = AnalyzerRecognitionState(continuation: continuation)
+
+        state.receive(text: "OK, j'ai un nouveau problème", isFinal: true)
+        state.receive(text: "OK, j'ai un nouveau problème", isFinal: true)
+        state.finish()
+
+        XCTAssertEqual(state.finalUpdate.finalizedText, "OK, j'ai un nouveau problème")
+    }
+
+    func testAnalyzerUsesTheMostCompleteCumulativeFinalSegment() {
+        let (stream, continuation) = AsyncStream<SpeechUpdate>.makeStream()
+        _ = stream
+        let state = AnalyzerRecognitionState(continuation: continuation)
+
+        state.receive(text: "OK, j'ai", isFinal: true)
+        state.receive(text: "OK, j'ai un nouveau problème", isFinal: true)
+        state.finish()
+
+        XCTAssertEqual(state.finalUpdate.finalizedText, "OK, j'ai un nouveau problème")
     }
 
     func testModernTranscriberIsPreferredWhenAvailable() {

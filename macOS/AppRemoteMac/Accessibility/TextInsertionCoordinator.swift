@@ -34,9 +34,6 @@ final class TextInsertionCoordinator {
         if let element = target.element, AccessibilityClient.isSecure(element) {
             throw RemoteErrorPayload(code: .secureField)
         }
-        if let element = target.element {
-            collapseSelectionToEnd(in: element)
-        }
         let preparedText = shouldPrependSpace(beforeTyping: text, in: target.element)
             ? " " + text
             : text
@@ -44,7 +41,16 @@ final class TextInsertionCoordinator {
             throw RemoteErrorPayload(code: .payloadTooLarge)
         }
 
-        if InsertionMethodPolicy.requiresKeyboardEvents(bundleIdentifier: target.bundleIdentifier) {
+        let exposesPlaceholderAsValue = target.element.map { element in
+            InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+                value: AccessibilityClient.string(element, kAXValueAttribute),
+                placeholder: AccessibilityClient.string(element, kAXPlaceholderValueAttribute)
+            )
+        } ?? false
+        if InsertionMethodPolicy.requiresKeyboardEvents(
+            bundleIdentifier: target.bundleIdentifier,
+            applicationName: target.applicationName
+        ) || exposesPlaceholderAsValue {
             // L'éditeur OpenAI publie un arbre AX utile à la détection du
             // curseur, mais ses écritures sont différées et non transactionnelles.
             // Les essayer avant CGEvent peut donc insérer la même dictée deux
@@ -54,14 +60,26 @@ final class TextInsertionCoordinator {
             return result
         }
 
-        var accessibilityAcceptedWithoutEffect = false
+        if let element = target.element {
+            collapseSelectionToEnd(in: element)
+        }
         if target.element != nil {
             switch insertViaSelectedText(preparedText, target: target) {
             case .completed(let result):
                 remember(.axSelectedText, for: target)
                 return result
             case .noEffect:
-                accessibilityAcceptedWithoutEffect = true
+                // AX a accepté la mutation. Certains éditeurs l'appliquent
+                // après le retour de l'appel : tenter une seconde méthode ici
+                // peut donc écrire deux fois. On rend un succès non vérifié et
+                // on ne touche plus au champ.
+                remember(.axSelectedText, for: target)
+                return InsertionResult(
+                    method: .axSelectedText,
+                    verified: false,
+                    pasteboardRestored: nil,
+                    applicationName: target.applicationName
+                )
             case .unsupported:
                 break
             }
@@ -71,13 +89,19 @@ final class TextInsertionCoordinator {
                 remember(.axRange, for: target)
                 return result
             case .noEffect:
-                accessibilityAcceptedWithoutEffect = true
+                remember(.axRange, for: target)
+                return InsertionResult(
+                    method: .axRange,
+                    verified: false,
+                    pasteboardRestored: nil,
+                    applicationName: target.applicationName
+                )
             case .unsupported:
                 break
             }
         }
 
-        if target.element == nil || accessibilityAcceptedWithoutEffect {
+        if target.element == nil {
             // Certaines apps web natives (dont ChatGPT/Codex) masquent toute
             // leur hiérarchie AX, ou annoncent une écriture AX réussie sans
             // modifier leur contenu. Les événements Unicode n'utilisent pas
@@ -163,6 +187,12 @@ final class TextInsertionCoordinator {
         guard AccessibilityClient.isSettable(element, kAXValueAttribute),
               let current = AccessibilityClient.string(element, kAXValueAttribute),
               let selection = AccessibilityClient.range(element, kAXSelectedTextRangeAttribute) else {
+            return .unsupported
+        }
+        guard !InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+            value: current,
+            placeholder: AccessibilityClient.string(element, kAXPlaceholderValueAttribute)
+        ) else {
             return .unsupported
         }
 
@@ -293,6 +323,12 @@ final class TextInsertionCoordinator {
         guard let current = AccessibilityClient.string(element, kAXValueAttribute) else {
             return true
         }
+        if InsertionVerificationPolicy.isPlaceholderExposedAsValue(
+            value: current,
+            placeholder: AccessibilityClient.string(element, kAXPlaceholderValueAttribute)
+        ) {
+            return false
+        }
 
         let value = current as NSString
         let location = min(selection.location, value.length)
@@ -310,6 +346,14 @@ final class TextInsertionCoordinator {
 
 /// Règles pures séparées de l'API C afin de tester les faux succès AX.
 enum InsertionVerificationPolicy {
+    static func isPlaceholderExposedAsValue(value: String?, placeholder: String?) -> Bool {
+        guard let value, let placeholder,
+              !value.isEmpty, !placeholder.isEmpty else {
+            return false
+        }
+        return value == placeholder
+    }
+
     static func isConfirmedNoEffect(
         valueBefore: String?,
         valueAfter: String?,
@@ -352,12 +396,21 @@ enum InsertionVerificationPolicy {
 /// Cette liste reste volontairement exacte : on ne dégrade pas toutes les apps
 /// Electron parce qu'un éditeur particulier implémente mal les écritures AX.
 enum InsertionMethodPolicy {
-    static func requiresKeyboardEvents(bundleIdentifier: String?) -> Bool {
-        guard let bundleIdentifier else { return false }
-        return [
+    static func requiresKeyboardEvents(
+        bundleIdentifier: String?,
+        applicationName: String? = nil
+    ) -> Bool {
+        let openAIBundles = [
             "com.openai.codex",
             "com.openai.chat",
             "com.openai.chatgpt"
-        ].contains(bundleIdentifier.lowercased())
+        ]
+        if let bundle = bundleIdentifier?.lowercased(),
+           openAIBundles.contains(where: { bundle == $0 || bundle.hasPrefix($0 + ".") }) {
+            return true
+        }
+
+        guard let name = applicationName?.lowercased() else { return false }
+        return name.contains("codex") || name.contains("chatgpt")
     }
 }

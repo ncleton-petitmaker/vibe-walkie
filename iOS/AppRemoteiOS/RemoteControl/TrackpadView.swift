@@ -39,6 +39,27 @@ enum TrackpadGestureMath {
     }
 }
 
+/// Regroupe les événements UIKit reçus entre deux envois. Un glissement peut
+/// produire bien plus de callbacks que le réseau et le Mac ne peuvent en
+/// afficher ; additionner les deltas conserve exactement le déplacement sans
+/// créer une file qui ferait suivre le curseur avec retard.
+struct TrackpadPendingDeltas: Equatable {
+    var move = CGPoint.zero
+    var scroll = CGPoint.zero
+    var zoom = 0.0
+    var drag = CGPoint.zero
+
+    var isEmpty: Bool {
+        move == .zero && scroll == .zero && zoom == 0 && drag == .zero
+    }
+
+    mutating func drain() -> Self {
+        let drained = self
+        self = .init()
+        return drained
+    }
+}
+
 enum TrackpadAppearance: Equatable {
     case surface
     case screenOverlay
@@ -197,6 +218,9 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
     var onClick: (() -> Void)?
     var onDrag: ((DragPhase, CGPoint) -> Void)?
     private var previousDragPoint: CGPoint?
+    private var pendingDeltas = TrackpadPendingDeltas()
+    private var lastContinuousFlushTime: CFTimeInterval = 0
+    private static let minimumFlushInterval: CFTimeInterval = 1.0 / 30.0
 
     private lazy var moveGesture = makePan(touches: 1, action: #selector(handleMove(_:)))
     private lazy var scrollGesture = makePan(touches: 2, action: #selector(handleScroll(_:)))
@@ -247,54 +271,113 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
 
     @objc private func handleMove(_ gesture: UIPanGestureRecognizer) {
         guard dragGesture.state != .began && dragGesture.state != .changed else { return }
-        guard gesture.state == .changed else { return }
-        let delta = gesture.translation(in: self)
-        gesture.setTranslation(.zero, in: self)
-        onMove?(delta)
+        switch gesture.state {
+        case .changed:
+            let delta = gesture.translation(in: self)
+            gesture.setTranslation(.zero, in: self)
+            pendingDeltas.move.x += delta.x
+            pendingDeltas.move.y += delta.y
+            scheduleFlush()
+        case .ended, .cancelled, .failed:
+            flushPendingEvents()
+        default:
+            break
+        }
     }
 
     @objc private func handleScroll(_ gesture: UIPanGestureRecognizer) {
         guard pinchGesture.state != .began && pinchGesture.state != .changed else { return }
-        guard gesture.state == .changed else { return }
-        let delta = gesture.translation(in: self)
-        gesture.setTranslation(.zero, in: self)
-        onScroll?(delta)
+        switch gesture.state {
+        case .changed:
+            let delta = gesture.translation(in: self)
+            gesture.setTranslation(.zero, in: self)
+            pendingDeltas.scroll.x += delta.x
+            pendingDeltas.scroll.y += delta.y
+            scheduleFlush()
+        case .ended, .cancelled, .failed:
+            flushPendingEvents()
+        default:
+            break
+        }
     }
 
     @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+        if gesture.state == .ended || gesture.state == .cancelled || gesture.state == .failed {
+            flushPendingEvents()
+            return
+        }
         guard gesture.state == .began || gesture.state == .changed else { return }
         let delta = TrackpadGestureMath.zoomDelta(forIncrementalScale: gesture.scale)
         gesture.scale = 1
         guard abs(delta) >= 0.1 else { return }
-        onZoom?(delta)
+        pendingDeltas.zoom += delta
+        scheduleFlush()
     }
 
     @objc private func handleScrollStrip(_ gesture: UIPanGestureRecognizer) {
-        guard gesture.state == .changed else { return }
-        let delta = gesture.translation(in: self)
-        gesture.setTranslation(.zero, in: self)
-        onScroll?(CGPoint(x: 0, y: delta.y))
+        switch gesture.state {
+        case .changed:
+            let delta = gesture.translation(in: self)
+            gesture.setTranslation(.zero, in: self)
+            pendingDeltas.scroll.y += delta.y
+            scheduleFlush()
+        case .ended, .cancelled, .failed:
+            flushPendingEvents()
+        default:
+            break
+        }
     }
 
-    @objc private func handleClick() { onClick?() }
+    @objc private func handleClick() {
+        flushPendingEvents()
+        onClick?()
+    }
 
     @objc private func handleDrag(_ gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
+            flushPendingEvents()
             HapticFeedback.shared.armedForCancel()
             previousDragPoint = gesture.location(in: self)
             onDrag?(.began, .zero)
         case .changed:
             let location = gesture.location(in: self)
             let previous = previousDragPoint ?? location
-            onDrag?(.moved, CGPoint(x: location.x - previous.x, y: location.y - previous.y))
+            pendingDeltas.drag.x += location.x - previous.x
+            pendingDeltas.drag.y += location.y - previous.y
             previousDragPoint = location
+            scheduleFlush()
         case .ended, .cancelled, .failed:
+            flushPendingEvents()
             previousDragPoint = nil
             onDrag?(.ended, .zero)
         default:
             break
         }
+    }
+
+    private func scheduleFlush() {
+        // Aucun minuteur et aucune boucle à 60 Hz : on ne travaille que lors
+        // d'un vrai événement tactile. Au-delà de 30 envois/s, les deltas
+        // restent simplement agrégés jusqu'au prochain événement ou jusqu'à
+        // la fin du geste.
+        let now = CACurrentMediaTime()
+        guard now - lastContinuousFlushTime >= Self.minimumFlushInterval else { return }
+        flushPendingEvents(at: now)
+    }
+
+    @objc private func flushPendingEvents() {
+        flushPendingEvents(at: CACurrentMediaTime())
+    }
+
+    private func flushPendingEvents(at time: CFTimeInterval) {
+        guard !pendingDeltas.isEmpty else { return }
+        let drained = pendingDeltas.drain()
+        lastContinuousFlushTime = time
+        if drained.move != .zero { onMove?(drained.move) }
+        if drained.scroll != .zero { onScroll?(drained.scroll) }
+        if drained.zoom != 0 { onZoom?(drained.zoom) }
+        if drained.drag != .zero { onDrag?(.moved, drained.drag) }
     }
 
     func gestureRecognizer(
