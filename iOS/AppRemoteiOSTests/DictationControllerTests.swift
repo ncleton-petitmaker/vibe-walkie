@@ -1,9 +1,20 @@
 import XCTest
 import RemoteCore
+import Speech
 @testable import VibeWalkieiOS
 
 @MainActor
 final class DictationControllerTests: XCTestCase {
+    func testPinchZoomUsesSymmetricProportionalDeltas() {
+        let zoomIn = TrackpadGestureMath.zoomDelta(forIncrementalScale: 1.2)
+        let zoomOut = TrackpadGestureMath.zoomDelta(forIncrementalScale: 1 / 1.2)
+
+        XCTAssertGreaterThan(zoomIn, 0)
+        XCTAssertLessThan(zoomOut, 0)
+        XCTAssertEqual(zoomIn, -zoomOut, accuracy: 0.000_001)
+        XCTAssertEqual(TrackpadGestureMath.zoomDelta(forIncrementalScale: .nan), 0)
+    }
+
     func testExpandedTrackpadSpeedMigrationRaisesLegacyMaximumsOnlyOnce() {
         let suiteName = "TrackpadSettingsTests-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -142,10 +153,23 @@ final class DictationControllerTests: XCTestCase {
         controller.pressCancelled()
     }
 
-    func testUnsupportedSystemLanguageFallsBackToFrench() {
+    func testSystemLanguageAlwaysProvidesALocaleCandidate() {
         let locale = DictationLanguage.deviceLocaleIdentifier
         XCTAssertFalse(locale.isEmpty)
-        XCTAssertTrue(locale.hasPrefix("fr") || locale.hasPrefix("en"))
+    }
+
+    func testLegacyLanguagePreferencesMigrateToBCP47Identifiers() {
+        let suiteName = "LanguageMigrationTests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set("french", forKey: AppLanguage.storageKey)
+        defaults.set("english", forKey: DictationLanguage.storageKey)
+
+        AppLanguage.migrate(defaults: defaults)
+        DictationLanguage.migrate(defaults: defaults)
+
+        XCTAssertEqual(defaults.string(forKey: AppLanguage.storageKey), "fr")
+        XCTAssertEqual(defaults.string(forKey: DictationLanguage.storageKey), "en-US")
     }
 
     func testAnalyzerPromotesLastHypothesisAfterEndOfInput() {
@@ -185,6 +209,19 @@ final class DictationControllerTests: XCTestCase {
             AppleSpeechTranscriberKind.candidates(speechTranscriberIsAvailable: false),
             [.dictationTranscriber]
         )
+    }
+
+    func testAppleReportsAtLeastOneDownloadableOnDeviceLocale() async {
+        guard #available(iOS 26.0, *) else { return }
+
+        let speechLocales = SpeechTranscriber.isAvailable
+            ? await SpeechTranscriber.supportedLocales
+            : []
+        let dictationLocales = await DictationTranscriber.supportedLocales
+        let identifiers = Set((speechLocales + dictationLocales).map(\.identifier))
+
+        XCTAssertFalse(identifiers.isEmpty)
+        print("VIBE_WALKIE_APPLE_SPEECH_LOCALES=\(identifiers.sorted().joined(separator: ","))")
     }
 
     func testLegacyTranscriptCleanupDeletesExistingData() throws {

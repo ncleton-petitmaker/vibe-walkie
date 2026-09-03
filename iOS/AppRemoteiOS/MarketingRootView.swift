@@ -6,7 +6,7 @@ import SwiftUI
 /// Release : ils servent uniquement aux assets de la landing page.
 struct MarketingRootView: View {
     let mode: String
-    @ObservedObject var client: MacConnectionClient
+    @ObservedObject var client: HostConnectionClient
 
     var body: some View {
         Group {
@@ -29,6 +29,11 @@ struct MarketingRootView: View {
                     ControlConfiguratorView()
                         .environmentObject(client)
                 }
+            case "--marketing-welcome":
+                DiscoveryView()
+            case "--marketing-macs":
+                HostSwitcherView()
+                    .environmentObject(client)
             default:
                 RemoteHomeView(client: client)
             }
@@ -39,9 +44,9 @@ struct MarketingRootView: View {
 
 private struct MarketingScreenRoot: View {
     @StateObject private var dictation: DictationController
-    @ObservedObject var client: MacConnectionClient
+    @ObservedObject var client: HostConnectionClient
 
-    init(client: MacConnectionClient) {
+    init(client: HostConnectionClient) {
         self.client = client
         _dictation = StateObject(wrappedValue: DictationController(client: client))
     }
@@ -53,7 +58,7 @@ private struct MarketingScreenRoot: View {
 }
 
 private struct MarketingSettingsPreview: View {
-    @ObservedObject var client: MacConnectionClient
+    @ObservedObject var client: HostConnectionClient
 
     var body: some View {
         ZStack {
@@ -62,10 +67,10 @@ private struct MarketingSettingsPreview: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    Text("Vibe Walkie")
+                    Text("ios.vibe.walkie.111e6dd")
                         .font(.headline)
                     Spacer()
-                    Text("OK")
+                    Text("ios.ok.565339b")
                         .font(.headline)
                         .frame(width: 48, height: 44)
                         .background(Color.controlSurface, in: Capsule())
@@ -76,36 +81,36 @@ private struct MarketingSettingsPreview: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
-                        sectionTitle("Connexion")
+                        sectionTitle("ios.connection.61d6950")
                         card {
-                            row("État", value: "Connecté à MacBook Pro")
+                            row("ios.status.de4dd03", value: "ios.connected.e92b0f9")
                             divider
-                            row("Connexion actuelle", value: "Réseau local", symbol: "wifi", tint: .green)
+                            row("ios.current.connection.8cf8ef6", value: "ios.local.8c31e6e", symbol: "wifi", tint: .green)
                         }
 
-                        sectionTitle("Pavé tactile")
+                        sectionTitle("ios.trackpad.c8dc586")
                         card {
-                            sliderRow("Vitesse du curseur", value: "1,6×", progress: 0.48, left: "tortoise", right: "hare")
+                            sliderRow("ios.pointer.speed.28fb9b9", value: "1.6×", progress: 0.48, left: "tortoise", right: "hare")
                             divider
-                            sliderRow("Vitesse du défilement", value: "0,8×", progress: 0.36, left: "tortoise", right: "hare")
+                            sliderRow("ios.scroll.speed.addea81", value: "0.8×", progress: 0.36, left: "tortoise", right: "hare")
                         }
 
-                        sectionTitle("Commandes")
+                        sectionTitle("ios.controls.0e3118a")
                         card {
-                            row("Configurer le bloc de boutons", value: "7 zones + Global", symbol: "rectangle.3.group", tint: .white)
+                            row("ios.configure.button.panel.a006d38", value: "7 · Global", symbol: "rectangle.3.group", tint: .white)
                         }
 
-                        sectionTitle("Retour écran")
+                        sectionTitle("ios.screen.view.b5645a8")
                         card {
-                            sliderRow("Qualité de l’écran", value: "45 %", progress: 0.45, left: "rectangle", right: "rectangle.inset.filled")
+                            sliderRow("ios.screen.quality.d18a3e1", value: "45 %", progress: 0.45, left: "rectangle", right: "rectangle.inset.filled")
                             divider
-                            row("Fluidité", value: "Équilibré · 10 i/s")
+                            row("ios.frame.rate.d190183", value: "ios.balanced.10.fps.27a7782")
                         }
 
                         HStack(spacing: 10) {
                             Image(systemName: "lock.shield.fill")
                                 .foregroundStyle(.green)
-                            Text("Voix et commandes protégées sur votre réseau local.")
+                            Text("ios.screen.view.stays.encrypted.between.iphone.and.mac.and.adapts.5eedf76")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
@@ -121,7 +126,7 @@ private struct MarketingSettingsPreview: View {
     }
 
     private func sectionTitle(_ text: String) -> some View {
-        Text(text)
+        Text(LocalizedStringKey(text))
             .font(.title3.bold())
             .foregroundStyle(.secondary)
             .padding(.leading, 16)
@@ -139,10 +144,10 @@ private struct MarketingSettingsPreview: View {
 
     private func row(_ title: String, value: String, symbol: String? = nil, tint: Color = .secondary) -> some View {
         HStack(spacing: 8) {
-            Text(title)
+            Text(LocalizedStringKey(title))
             Spacer()
             if let symbol { Image(systemName: symbol) }
-            Text(value)
+            Text(LocalizedStringKey(value))
         }
         .font(.body)
         .foregroundStyle(tint)
@@ -153,7 +158,7 @@ private struct MarketingSettingsPreview: View {
     private func sliderRow(_ title: String, value: String, progress: CGFloat, left: String, right: String) -> some View {
         VStack(spacing: 12) {
             HStack {
-                Text(title)
+                Text(LocalizedStringKey(title))
                 Spacer()
                 Text(value).foregroundStyle(.secondary).monospacedDigit()
             }

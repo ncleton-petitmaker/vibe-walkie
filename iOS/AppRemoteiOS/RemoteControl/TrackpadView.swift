@@ -29,6 +29,16 @@ enum TrackpadSettings {
     }
 }
 
+enum TrackpadGestureMath {
+    /// Une variation logarithmique garde le zoom symétrique : écarter de 20 %
+    /// puis rapprocher de 20 % produit des deltas opposés, sans accélération
+    /// artificielle liée à la fréquence des événements UIKit.
+    static func zoomDelta(forIncrementalScale scale: CGFloat) -> Double {
+        guard scale.isFinite, scale > 0 else { return 0 }
+        return log(Double(scale)) * 120
+    }
+}
+
 enum TrackpadAppearance: Equatable {
     case surface
     case screenOverlay
@@ -41,7 +51,7 @@ enum TrackpadAppearance: Equatable {
 /// perte occasionnelle d'un mouvement est sans conséquence, contrairement à la
 /// perte d'une insertion de texte.
 struct TrackpadView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @AppStorage("trackpadSensitivity") private var sensitivity: Double = TrackpadSettings.defaultPointerSpeed
     @AppStorage("scrollSensitivity") private var scrollSensitivity: Double = TrackpadSettings.defaultScrollSpeed
     var appearance: TrackpadAppearance = .surface
@@ -66,8 +76,8 @@ struct TrackpadView: View {
             scrollStripHint
         }
         .contentShape(Rectangle())
-        .accessibilityLabel("Pavé tactile")
-        .accessibilityHint("Un doigt déplace le curseur, un toucher clique, et la bande à droite ou deux doigts font défiler.")
+        .accessibilityLabel("ios.trackpad.c8dc586")
+        .accessibilityHint("ios.one.finger.moves.the.pointer.a.tap.clicks.and.the.3ff0c11")
     }
 
     private var touchSurface: some View {
@@ -88,6 +98,12 @@ struct TrackpadView: View {
                         deltaX: delta.x * scrollSensitivity,
                         deltaY: delta.y * scrollSensitivity
                     )
+                )
+            },
+            onZoom: { delta in
+                client.sendFireAndForget(
+                    type: .scroll,
+                    payload: ScrollPayload(deltaX: 0, deltaY: delta, zoom: true)
                 )
             },
             onClick: {
@@ -114,7 +130,7 @@ struct TrackpadView: View {
         VStack(spacing: 6) {
             Image(systemName: "hand.point.up.left")
                 .font(.system(size: 26, weight: .light))
-            Text("Pavé tactile")
+            Text("ios.trackpad.c8dc586")
                 .font(.footnote)
         }
         .foregroundStyle(Color.remoteBlue.opacity(0.28))
@@ -149,6 +165,7 @@ struct TrackpadView: View {
 private struct TouchpadSurface: UIViewRepresentable {
     var onMove: (CGPoint) -> Void
     var onScroll: (CGPoint) -> Void
+    var onZoom: (Double) -> Void
     var onClick: () -> Void
     var onDrag: (DragPhase, CGPoint) -> Void
 
@@ -165,6 +182,7 @@ private struct TouchpadSurface: UIViewRepresentable {
     private func update(_ view: TouchpadUIView) {
         view.onMove = onMove
         view.onScroll = onScroll
+        view.onZoom = onZoom
         view.onClick = onClick
         view.onDrag = onDrag
     }
@@ -175,12 +193,18 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
 
     var onMove: ((CGPoint) -> Void)?
     var onScroll: ((CGPoint) -> Void)?
+    var onZoom: ((Double) -> Void)?
     var onClick: (() -> Void)?
     var onDrag: ((DragPhase, CGPoint) -> Void)?
     private var previousDragPoint: CGPoint?
 
     private lazy var moveGesture = makePan(touches: 1, action: #selector(handleMove(_:)))
     private lazy var scrollGesture = makePan(touches: 2, action: #selector(handleScroll(_:)))
+    private lazy var pinchGesture: UIPinchGestureRecognizer = {
+        let gesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
+        gesture.delegate = self
+        return gesture
+    }()
     private lazy var scrollStripGesture = makePan(touches: 1, action: #selector(handleScrollStrip(_:)))
     private lazy var dragGesture: UILongPressGestureRecognizer = {
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleDrag(_:)))
@@ -205,6 +229,7 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
 
         addGestureRecognizer(moveGesture)
         addGestureRecognizer(scrollGesture)
+        addGestureRecognizer(pinchGesture)
         addGestureRecognizer(scrollStripGesture)
         addGestureRecognizer(dragGesture)
         addGestureRecognizer(tapGesture)
@@ -229,10 +254,19 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
     }
 
     @objc private func handleScroll(_ gesture: UIPanGestureRecognizer) {
+        guard pinchGesture.state != .began && pinchGesture.state != .changed else { return }
         guard gesture.state == .changed else { return }
         let delta = gesture.translation(in: self)
         gesture.setTranslation(.zero, in: self)
         onScroll?(delta)
+    }
+
+    @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+        guard gesture.state == .began || gesture.state == .changed else { return }
+        let delta = TrackpadGestureMath.zoomDelta(forIncrementalScale: gesture.scale)
+        gesture.scale = 1
+        guard abs(delta) >= 0.1 else { return }
+        onZoom?(delta)
     }
 
     @objc private func handleScrollStrip(_ gesture: UIPanGestureRecognizer) {
@@ -269,6 +303,8 @@ private final class TouchpadUIView: UIView, UIGestureRecognizerDelegate {
     ) -> Bool {
         (gestureRecognizer === moveGesture && otherGestureRecognizer === dragGesture)
             || (gestureRecognizer === dragGesture && otherGestureRecognizer === moveGesture)
+            || (gestureRecognizer === scrollGesture && otherGestureRecognizer === pinchGesture)
+            || (gestureRecognizer === pinchGesture && otherGestureRecognizer === scrollGesture)
     }
 
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

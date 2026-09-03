@@ -80,14 +80,16 @@ private final class OTAUpdateCoordinator: ObservableObject {
     }
 
     func install() {
-        guard let manifestURL,
-              let encoded = manifestURL.absoluteString.addingPercentEncoding(
-                withAllowedCharacters: .urlQueryAllowed
-              ),
-              let installURL = URL(
-                string: "itms-services://?action=download-manifest&url=\(encoded)"
+        // iOS peut refuser silencieusement `itms-services` lorsqu'il est
+        // ouvert directement depuis une app. Safari, lui, est le contexte
+        // système prévu pour confirmer une installation OTA. La page stable
+        // régénère en plus un manifeste signé frais à chaque affichage.
+        guard manifestURL != nil,
+              let installPageURL = URL(
+                string: "https://app-remote.92.222.247.135.sslip.io/install/ios"
               ) else { return }
-        UIApplication.shared.open(installURL)
+        isUpdateAvailable = false
+        UIApplication.shared.open(installPageURL)
     }
 }
 #endif
@@ -95,9 +97,9 @@ private final class OTAUpdateCoordinator: ObservableObject {
 @main
 struct VibeWalkieApp: App {
     @UIApplicationDelegateAdaptor(VibeWalkieAppDelegate.self) private var appDelegate
-    @StateObject private var client = MacConnectionClient()
+    @StateObject private var client = HostConnectionClient()
     @Environment(\.scenePhase) private var scenePhase
-    @AppStorage(AppLanguage.storageKey) private var appLanguage: AppLanguage = .system
+    @AppStorage(AppLanguage.storageKey) private var appLanguageIdentifier = AppLanguage.systemIdentifier
 #if !DEBUG && OTA_UPDATES
     @StateObject private var updater = OTAUpdateCoordinator()
 #endif
@@ -105,13 +107,15 @@ struct VibeWalkieApp: App {
     init() {
         LegacyTranscriptCleanup.run()
         TrackpadSettings.migrateExpandedSpeedRange()
+        AppLanguage.migrate()
+        DictationLanguage.migrate()
     }
 
     var body: some Scene {
         WindowGroup {
             rootContent
                 .environmentObject(client)
-                .environment(\.locale, appLanguage.locale)
+                .environment(\.locale, AppLanguage.locale(for: appLanguageIdentifier))
                 .task {
                     ControlCenter.shared.reloadAllControls()
 #if !DEBUG && OTA_UPDATES
@@ -119,11 +123,11 @@ struct VibeWalkieApp: App {
 #endif
                 }
 #if !DEBUG && OTA_UPDATES
-                .alert("Mise à jour disponible", isPresented: $updater.isUpdateAvailable) {
-                    Button("Installer") { updater.install() }
-                    Button("Plus tard", role: .cancel) {}
+                .alert("ios.update.available", isPresented: $updater.isUpdateAvailable) {
+                    Button("ios.install") { updater.install() }
+                    Button("ios.later", role: .cancel) {}
                 } message: {
-                    Text("Une nouvelle version de Vibe Walkie est prête.")
+                    Text("ios.the.vibe.walkie.versions.do.not.match.update.the.iphone.c095c26")
                 }
 #endif
         }
@@ -150,11 +154,7 @@ struct VibeWalkieApp: App {
     private var rootContent: some View {
 #if DEBUG
         if let mode = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix("--marketing-") }) {
-            if mode == "--marketing-welcome" {
-                RootView()
-            } else {
-                MarketingRootView(mode: mode, client: client)
-            }
+            MarketingRootView(mode: mode, client: client)
         } else {
             RootView()
         }
@@ -165,7 +165,7 @@ struct VibeWalkieApp: App {
 }
 
 private struct RootView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @State private var showDiscovery = false
 
     var body: some View {
@@ -180,7 +180,7 @@ private struct RootView: View {
 
 /// Premier lancement : rien d'autre que ce qu'il faut pour se connecter.
 private struct WelcomeView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @Binding var showDiscovery: Bool
     @State private var showScanner = false
 
@@ -190,7 +190,7 @@ private struct WelcomeView: View {
 
             VStack(spacing: 20) {
                 HStack {
-                    Text("Vibe Walkie")
+                    Text("ios.vibe.walkie.111e6dd")
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.white)
                     Spacer()
@@ -211,16 +211,31 @@ private struct WelcomeView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Ajoutez votre Mac")
+                        Text("ios.add.your.mac.ce8ce66")
                             .font(.title2.weight(.bold))
                             .foregroundStyle(.white)
-                        Text("Pilotez le pointeur, le clavier et la dictée depuis cet iPhone. Aucun compte, aucun cloud.")
+                        Text("ios.control.the.pointer.keyboard.and.dictation.from.this.iphone.no.2d4c813")
                             .font(.callout)
                             .foregroundStyle(.white.opacity(0.72))
-                        onboardingStep(1, "Téléchargez le compagnon sur vibewalkie.app")
-                        onboardingStep(2, "Ouvrez Vibe Walkie sur le Mac")
-                        onboardingStep(3, "Scannez son QR et autorisez cet iPhone")
-                        onboardingStep(4, "Testez une première commande")
+
+                        Text(verbatim: "vibewalkie.app")
+                            .font(.title2.monospaced().weight(.bold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(Color.remoteBlue.opacity(0.18))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .stroke(Color.remoteBlue.opacity(0.55), lineWidth: 1)
+                                    )
+                            )
+
+                        Label("ios.download.mac.companion.c5e3804", systemImage: "arrow.down.circle.fill")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(Color.remoteBlue)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -241,7 +256,7 @@ private struct WelcomeView: View {
                     Button {
                         showScanner = true
                     } label: {
-                        Label("Ajouter un Mac", systemImage: "plus")
+                        Label("ios.add.8d39b2a", systemImage: "plus")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -250,15 +265,10 @@ private struct WelcomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    Link(destination: URL(string: "https://vibewalkie.app/download")!) {
-                        Label("Télécharger le compagnon Mac", systemImage: "arrow.down.circle")
-                            .font(.subheadline.weight(.semibold))
-                    }
-
-                    Button("Découvrir sans Mac") { showDiscovery = true }
+                    Button("ios.explore.without.a.mac.8ed8a17") { showDiscovery = true }
                         .font(.subheadline.weight(.semibold))
 
-                    Text("Ouvrez Vibe Walkie sur votre Mac, puis « Appairer un iPhone ».")
+                    Text("ios.open.vibe.walkie.on.your.mac.then.choose.pair.an.f275c3d")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.62))
                         .multilineTextAlignment(.center)
@@ -273,15 +283,4 @@ private struct WelcomeView: View {
         }
     }
 
-    private func onboardingStep(_ number: Int, _ text: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 9) {
-            Text("\(number)")
-                .font(.caption.monospacedDigit().weight(.bold))
-                .foregroundStyle(Color.remoteBlue)
-            Text(text)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-        }
-        .accessibilityElement(children: .combine)
-    }
 }

@@ -34,17 +34,19 @@ final class SessionRouter {
         case screenRequest(ScreenStreamRequestPayload)
         case controlConfigurationRequest
         case controlConfigurationUpdate(ControlConfiguration)
-        case macShortcutPress(MacKeyboardShortcut)
+        case hostShortcutPress(String)
         case failure(RemoteErrorPayload)
         case ignore
     }
 
     func handle(_ envelope: RemoteEnvelope) -> Outcome {
         guard envelope.version == ProtocolVersion.current else {
-            return .failure(RemoteErrorPayload(code: .protocolMismatch))
+            return .failure(RemoteErrorPayload(code: .versionMismatch))
         }
 
         switch validator.validate(envelope) {
+        case .versionMismatch:
+            return .failure(RemoteErrorPayload(code: .versionMismatch))
         case .replay:
             return .failure(RemoteErrorPayload(code: .replayDetected))
         case .duplicate(let id):
@@ -67,7 +69,9 @@ final class SessionRouter {
         } catch let error as RemoteErrorPayload {
             return .failure(error)
         } catch {
-            return .failure(RemoteErrorPayload(code: .internalFailure, detail: error.localizedDescription))
+            // System error strings can embed focused-app or window context.
+            // The client only needs a stable, non-sensitive failure category.
+            return .failure(RemoteErrorPayload(code: .internalFailure, detail: "internal_failure"))
         }
     }
 
@@ -93,8 +97,10 @@ final class SessionRouter {
         case .insertText:
             let payload = try envelope.decodePayload(InsertTextPayload.self)
             let target = try targets.resolve(token: payload.targetToken)
+            // Mirror the Windows companion: once a valid token has been
+            // resolved, no retry may reuse it after an insertion failure.
+            defer { targets.consume() }
             let result = try insertion.insert(payload.text, into: target)
-            targets.consume()
             return record(envelope, AcknowledgementPayload(ok: true, insertion: result))
 
         case .cancel:
@@ -114,12 +120,12 @@ final class SessionRouter {
             CGEventFactory.press(payload.key)
             return record(envelope, AcknowledgementPayload(ok: true))
 
-        case .macShortcutPress:
-            let payload = try envelope.decodePayload(MacShortcutPressPayload.self)
-            guard payload.shortcut.isValid else {
-                throw RemoteErrorPayload(code: .internalFailure, detail: "Raccourci clavier invalide")
+        case .hostShortcutPress:
+            let payload = try envelope.decodePayload(HostShortcutPressPayload.self)
+            guard !payload.shortcutID.isEmpty else {
+                throw RemoteErrorPayload(code: .unsupportedCapability, detail: "Raccourci clavier invalide")
             }
-            return .macShortcutPress(payload.shortcut)
+            return .hostShortcutPress(payload.shortcutID)
 
         case .controlConfigurationRequest:
             return .controlConfigurationRequest
@@ -160,10 +166,13 @@ final class SessionRouter {
 
         case .scroll:
             let payload = try envelope.decodePayload(ScrollPayload.self)
-            CGEventFactory.scroll(
-                deltaX: try ControlInputPolicy.gestureDelta(payload.deltaX),
-                deltaY: try ControlInputPolicy.gestureDelta(payload.deltaY)
-            )
+            let deltaX = try ControlInputPolicy.gestureDelta(payload.deltaX)
+            let deltaY = try ControlInputPolicy.gestureDelta(payload.deltaY)
+            if payload.zoom == true {
+                CGEventFactory.zoom(deltaY: deltaY)
+            } else {
+                CGEventFactory.scroll(deltaX: deltaX, deltaY: deltaY)
+            }
             return .ignore
 
         case .listWindows:

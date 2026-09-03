@@ -7,6 +7,13 @@ import Foundation
 /// il ne regarde pas l'écran, et un texte perdu sans message est pire qu'un
 /// texte refusé avec une explication.
 public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
+    case versionMismatch = "version_mismatch"
+    case unsupportedCapability = "unsupported_capability"
+    case inputUnavailable = "input_unavailable"
+    case screenUnavailable = "screen_unavailable"
+    case secureTarget = "secure_target"
+    case targetLost = "target_lost"
+    case activationDenied = "activation_denied"
     case permissionAccessibilityDenied = "permission_accessibility_denied"
     case localNetworkDenied = "local_network_denied"
     case macUnavailable = "mac_unavailable"
@@ -34,12 +41,26 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
     /// Message français prêt à afficher, orienté action.
     public var localizedMessage: String {
         switch self {
+        case .versionMismatch:
+            return "Les versions de Vibe Walkie diffèrent. Mettez à jour les deux appareils."
+        case .unsupportedCapability:
+            return "Cette commande n’est pas prise en charge par cet ordinateur."
+        case .inputUnavailable:
+            return "Le contrôle du clavier et de la souris n’est pas disponible sur cet ordinateur."
+        case .screenUnavailable:
+            return "La capture d’écran n’est pas disponible sur cet ordinateur."
+        case .secureTarget:
+            return "Vibe Walkie n’insère jamais de dictée dans un champ sécurisé."
+        case .targetLost:
+            return "Le champ ciblé n’est plus disponible. Le texte n’a pas été inséré."
+        case .activationDenied:
+            return "Windows ou macOS a refusé d’activer cette fenêtre."
         case .permissionAccessibilityDenied:
-            return "Autorisez l'Accessibilité pour Vibe Walkie sur le Mac."
+            return "Autorisez le contrôle de l’ordinateur pour Vibe Walkie."
         case .localNetworkDenied:
             return "L'accès au réseau local est refusé."
         case .macUnavailable:
-            return "Mac introuvable sur le réseau local. Vérifiez le Wi‑Fi et que le compagnon est ouvert."
+            return "Ordinateur introuvable sur le réseau local. Vérifiez le Wi‑Fi et que le compagnon est ouvert."
         case .speechAssetMissing:
             return "Le modèle français local doit être téléchargé."
         case .speechUnavailable:
@@ -71,7 +92,7 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
         case .pairingApprovalExpired:
             return "La demande d'autorisation a expiré. Scannez de nouveau le QR."
         case .protocolMismatch:
-            return "Les versions de Vibe Walkie diffèrent. Mettez à jour l'iPhone et le Mac."
+            return "Les versions de Vibe Walkie diffèrent. Mettez à jour les deux appareils."
         case .replayDetected:
             return "Message rejeté (rejeu détecté)."
         case .payloadTooLarge:
@@ -79,7 +100,7 @@ public enum RemoteErrorCode: String, Codable, Sendable, CaseIterable {
         case .rateLimited:
             return "Trop de commandes envoyées, ralentissez."
         case .internalFailure:
-            return "Erreur interne du compagnon Mac."
+            return "Erreur interne du compagnon."
         }
     }
 }

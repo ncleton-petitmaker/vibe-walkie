@@ -23,10 +23,11 @@ struct CommercializationTests {
         #expect(VibeWalkieInfo.pairingApprovalWindow == 60)
     }
 
-    @Test("Hello annonce toujours le protocole V3")
-    func helloDefaultsToV3() {
+    @Test("Hello annonce toujours le protocole V4 et la plateforme cliente")
+    func helloDefaultsToV4() {
         let hello = HelloPayload(deviceName: "iPhone", deviceIdentifier: "test", appVersion: "1")
-        #expect(hello.protocolVersion == 3)
+        #expect(hello.protocolVersion == 4)
+        #expect(hello.clientPlatform == .iOS)
     }
 
     @Test("L'état de connexion transporte uniquement une route Tailscale bornée")
@@ -76,14 +77,14 @@ struct CommercializationTests {
 
     @Test("Seul l'état prêt est opérationnel")
     func readyState() {
-        #expect(ConnectionState.ready(macName: "Mac").isReady)
+        #expect(ConnectionState.ready(hostName: "Mac").isReady)
         #expect(!ConnectionState.searching.isReady)
-        #expect(!ConnectionState.awaitingApproval(macName: "Mac", confirmationCode: "123456").isReady)
+        #expect(!ConnectionState.awaitingApproval(hostName: "Mac", confirmationCode: "123456").isReady)
     }
 
     @Test("L'attente d'autorisation conserve le nom du Mac")
     func pendingApprovalMacName() {
-        let state = ConnectionState.awaitingApproval(macName: "Mac Studio", confirmationCode: "123456")
+        let state = ConnectionState.awaitingApproval(hostName: "Mac Studio", confirmationCode: "123456")
         #expect(state.macName == "Mac Studio")
     }
 
@@ -100,8 +101,7 @@ struct CommercializationTests {
     @Test("L'incompatibilité demande la mise à jour des deux apps")
     func protocolMismatchMessage() {
         let message = RemoteErrorCode.protocolMismatch.localizedMessage
-        #expect(message.contains("iPhone"))
-        #expect(message.contains("Mac"))
+        #expect(message.contains("deux appareils"))
     }
 
     @Test("Une trame vide reste une trame valide et distincte")

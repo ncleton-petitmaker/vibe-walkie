@@ -91,6 +91,21 @@ struct EnvelopeTests {
         #expect(decodedPayload.text == "Bonjour, ça va ?")
     }
 
+    @Test("Le zoom reste une extension rétrocompatible du défilement")
+    func zoomScrollPayloadCompatibility() throws {
+        let legacy = try RemoteCoding.decoder.decode(
+            ScrollPayload.self,
+            from: Data(#"{"deltaX":0,"deltaY":12}"#.utf8)
+        )
+        #expect(legacy.zoom == nil)
+
+        let zoom = ScrollPayload(deltaX: 0, deltaY: 18, zoom: true)
+        let data = try RemoteCoding.encoder.encode(zoom)
+        let decoded = try RemoteCoding.decoder.decode(ScrollPayload.self, from: data)
+        #expect(decoded.deltaY == 18)
+        #expect(decoded.zoom == true)
+    }
+
     @Test("Une image d’écran survit à l’aller-retour")
     func screenFrameRoundTrip() throws {
         let payload = ScreenFramePayload(
@@ -135,8 +150,9 @@ struct EnvelopeTests {
         #expect(RemoteMessageType.insertText.rawValue == "insert_text")
         #expect(RemoteMessageType.activateWindow.rawValue == "activate_window")
         #expect(RemoteMessageType.pairingPending.rawValue == "pairing_pending")
+        #expect(RemoteMessageType.hostShortcutPress.rawValue == "host_shortcut_press")
         #expect(RemoteMessageType.allCases.count == 27)
-        #expect(ProtocolVersion.current == 3)
+        #expect(ProtocolVersion.current == 4)
     }
 
     @Test("La commande du switcher d'app conserve sa valeur réseau")
@@ -159,7 +175,7 @@ struct EnvelopeTests {
         #expect(payload.key == .nextConversation)
     }
 
-    @Test("La configuration du bloc et un raccourci Mac survivent à l’encodage")
+    @Test("La configuration ne transporte qu'une référence de raccourci hôte")
     func controlConfigurationRoundTrip() throws {
         let shortcut = MacKeyboardShortcut(
             keyCode: 40,
@@ -181,12 +197,31 @@ struct EnvelopeTests {
         let decoded = try RemoteCoding.decoder.decode(ControlConfigurationPayload.self, from: data)
 
         #expect(decoded.configuration.button(in: .upperLeft).title == "Mon raccourci")
-        #expect(decoded.configuration.button(in: .upperLeft).action == .macShortcut(shortcut))
+        #expect(decoded.configuration.button(in: .upperLeft).action == .hostShortcut(shortcut.migratedDefinition.reference))
+        #expect(!String(decoding: data, as: UTF8.self).contains("keyCode"))
         #expect(decoded.configuration.availableGlobalButtons.first?.id == "standard.right")
         #expect(decoded.configuration.availableGlobalButtons.allSatisfy { candidate in
             !decoded.configuration.buttons.contains { $0.action == candidate.action }
         })
         #expect(ControlZone.allCases.count == 7)
+    }
+
+    @Test("Le statut V4 annonce la plateforme et les capacités")
+    func connectionStatusV4RoundTrip() throws {
+        let status = ConnectionStatusPayload(
+            inputControlReady: true,
+            screenCaptureReady: false,
+            hostName: "PC Bureau",
+            hostPlatform: .windows,
+            capabilities: [.keyboard, .pointer],
+            companionVersion: "1.0"
+        )
+        let decoded = try RemoteCoding.decoder.decode(
+            ConnectionStatusPayload.self,
+            from: RemoteCoding.encoder.encode(status)
+        )
+        #expect(decoded == status)
+        #expect(decoded.hostPlatform == .windows)
     }
 
     @Test("Une ancienne configuration reçoit automatiquement l’ordre Global par défaut")
@@ -227,6 +262,20 @@ struct SequenceValidatorTests {
         #expect(verdict == .replay)
     }
 
+    @Test("Une enveloppe V3 est refusée avant tout suivi de séquence")
+    func v3EnvelopeIsVersionMismatch() {
+        var validator = SequenceValidator()
+        let legacy = RemoteEnvelope(
+            version: 3,
+            type: .keyPress,
+            sessionID: "v3",
+            sequence: 1
+        )
+
+        #expect(validator.validate(legacy) == .versionMismatch)
+        #expect(validator.validate(envelope(sequence: 1)) == .accepted)
+    }
+
     @Test("Un identifiant déjà vu est un doublon, pas une seconde exécution")
     func duplicateDetected() {
         var validator = SequenceValidator()
@@ -235,6 +284,51 @@ struct SequenceValidatorTests {
         let second = validator.validate(envelope(sequence: 2, id: id))
         #expect(first == .accepted)
         #expect(second == .duplicate(id))
+    }
+}
+
+@Suite("Idempotence entre sessions")
+struct PeerResponseCacheTests {
+
+    @Test("Une réponse est isolée par pair et survit à une reconnexion")
+    func responseIsScopedToPeer() {
+        var cache = PeerResponseCache()
+        let messageID = UUID()
+        let response = CachedPeerResponse(type: .acknowledgement, payload: Data("ok".utf8))
+
+        cache.store(response, for: "iphone-a", messageID: messageID)
+
+        #expect(cache.response(for: "iphone-a", messageID: messageID) == response)
+        #expect(cache.response(for: "iphone-b", messageID: messageID) == nil)
+    }
+
+    @Test("Le cache évince la plus ancienne réponse d’un pair")
+    func oldestResponseIsEvicted() {
+        var cache = PeerResponseCache(maximumPeers: 2, entriesPerPeer: 2)
+        let first = UUID()
+        let second = UUID()
+        let third = UUID()
+        let response = CachedPeerResponse(type: .acknowledgement, payload: Data())
+
+        cache.store(response, for: "iphone", messageID: first)
+        cache.store(response, for: "iphone", messageID: second)
+        cache.store(response, for: "iphone", messageID: third)
+
+        #expect(cache.response(for: "iphone", messageID: first) == nil)
+        #expect(cache.response(for: "iphone", messageID: second) == response)
+        #expect(cache.response(for: "iphone", messageID: third) == response)
+    }
+
+    @Test("La révocation efface les réponses d’un pair")
+    func revokedPeerIsForgotten() {
+        var cache = PeerResponseCache()
+        let messageID = UUID()
+        let response = CachedPeerResponse(type: .acknowledgement, payload: Data())
+        cache.store(response, for: "iphone", messageID: messageID)
+
+        cache.removeAll(for: "iphone")
+
+        #expect(cache.response(for: "iphone", messageID: messageID) == nil)
     }
 }
 
@@ -349,6 +443,24 @@ struct PairingTests {
     func invalidQRThrows() {
         #expect(throws: RemoteErrorPayload.self) {
             _ = try PairingQRPayload.decode("pas du base64 !!!")
+        }
+    }
+
+    @Test("Le QR rejette une empreinte ou un secret de mauvaise taille")
+    func malformedPairingMaterialIsRejected() throws {
+        let payload = PairingQRPayload(
+            hostName: "PC Bureau",
+            hostPlatform: .windows,
+            serviceName: "VibeRemote-PC",
+            certificateFingerprint: "cGFzLXVuLXNoYTI1Ng==",
+            pairingSecret: SecureRandom.bytes(16).base64EncodedString(),
+            expiresAt: Date().addingTimeInterval(120)
+        )
+        do {
+            _ = try PairingQRPayload.decode(try payload.encoded())
+            Issue.record("Le QR doit être refusé")
+        } catch let error as RemoteErrorPayload {
+            #expect(error.code == .protocolMismatch)
         }
     }
 }

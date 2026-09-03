@@ -1,7 +1,7 @@
 name: AppRemoteiOS
 options:
   bundleIdPrefix: com.nicolascleton
-  developmentLanguage: fr
+  developmentLanguage: en
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
@@ -14,7 +14,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "2026083103"
+    CURRENT_PROJECT_VERSION: "202609031317"
     CODE_SIGN_STYLE: Automatic
     # Les Bundle IDs historiques restent liés à la fiche App Store réservée.
     VIBE_WALKIE_IOS_BUNDLE_IDENTIFIER: com.nicolascleton.viberemote
@@ -49,6 +49,8 @@ targets:
     sources:
       - path: AppRemoteiOS
       - path: SharedIntents
+      - path: ../Localization/locale-manifest.json
+        buildPhase: resources
     dependencies:
       - package: RemoteCore
       - target: AppRemoteControls

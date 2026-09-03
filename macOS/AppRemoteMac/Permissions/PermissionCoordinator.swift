@@ -185,7 +185,9 @@ final class PermissionCoordinator: ObservableObject {
             NSApp.terminate(nil)
         } catch {
             isRelaunchingForScreenCapture = false
-            NSLog("[VibeWalkie] Relance après autorisation écran impossible : %@", error.localizedDescription)
+            // System errors can contain contextual paths or window details.
+            // Diagnostics intentionally retain only a stable category.
+            NSLog("[VibeWalkie] screen_capture_relaunch_failed")
         }
     }
 
@@ -220,7 +222,7 @@ final class PermissionCoordinator: ObservableObject {
             } catch is CancellationError {
                 return
             } catch {
-                NSLog("[VibeWalkie] Vérification de la capture écran impossible : %@", error.localizedDescription)
+                NSLog("[VibeWalkie] screen_capture_readiness_failed")
                 self.screenCaptureState.completeVerification(succeeded: false)
             }
             self.screenCaptureVerificationTask = nil
@@ -259,7 +261,7 @@ final class PermissionCoordinator: ObservableObject {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            NSLog("[VibeWalkie] Lancement à la connexion : %@", error.localizedDescription)
+            NSLog("[VibeWalkie] launch_at_login_update_failed")
         }
         refresh()
     }

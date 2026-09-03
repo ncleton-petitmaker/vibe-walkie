@@ -10,6 +10,8 @@ public struct VibeWalkieInfo: Sendable {
     // besoin de correspondre au Bundle ID.
     public static let iosBundleIdentifier = "com.nicolascleton.viberemote"
     public static let macBundleIdentifier = "com.nicolascleton.viberemote.mac"
+    public static let androidApplicationIdentifier = "com.nicolascleton.vibewalkie"
+    public static let windowsPackageIdentity = "VibeWalkie.Companion"
     public static let keychainService = "com.nicolascleton.viberemote"
     public static let dictationLocale = "fr-FR"
     /// Port fixe du compagnon, publié sur le LAN par Bonjour et joignable sur
@@ -25,6 +27,29 @@ public struct VibeWalkieInfo: Sendable {
     public static let nomadPairingWindow: TimeInterval = 600
     /// Une approbation explicite ne doit jamais rester ouverte indéfiniment.
     public static let pairingApprovalWindow: TimeInterval = 60
+}
+
+public enum HostPlatform: String, Codable, Sendable, CaseIterable {
+    case macOS = "macos"
+    case windows
+}
+
+public enum ClientPlatform: String, Codable, Sendable, CaseIterable {
+    case iOS = "ios"
+    case android
+}
+
+public enum HostCapability: String, Codable, Sendable, CaseIterable {
+    case dictationTargeting = "dictation_targeting"
+    case keyboard
+    case pointer
+    case appWindows = "app_windows"
+    case screenStreaming = "screen_streaming"
+    case customShortcuts = "custom_shortcuts"
+    case configurationSync = "configuration_sync"
+    case tailscale
+
+    public static let fullControl: [HostCapability] = Array(allCases)
 }
 
 /// Point d'accès privé d'un Mac dans un tailnet Tailscale.

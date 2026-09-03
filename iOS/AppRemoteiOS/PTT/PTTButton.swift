@@ -53,9 +53,9 @@ struct PTTButton: View {
             )
         )
         .accessibilityElement()
-        .accessibilityLabel("Dicter")
-        .accessibilityValue(isRecording ? "Enregistrement en cours" : "Prêt")
-        .accessibilityHint("Maintenez pour dicter, relâchez pour insérer sur le Mac.")
+        .accessibilityLabel("ios.dictate.c1b029f")
+        .accessibilityValue(isRecording ? AppL10n.text("ios.transcribing.6511a3a") : "")
+        .accessibilityHint("ios.hold.to.dictate.release.to.insert.on.the.mac.14cabfc")
         .accessibilityAddTraits(.startsMediaSession)
         .accessibilityAction {
             if isRecording {

@@ -6,7 +6,7 @@ import RemoteCore
 
 /// Scanner du QR affiché par le Mac.
 struct PairingScannerView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @Environment(\.dismiss) private var dismiss
 
     @State private var errorMessage: String?
@@ -15,14 +15,17 @@ struct PairingScannerView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var showCodeEntry = false
     @State private var enteredCode = ""
+    @State private var zoomFactor: CGFloat = 1
 
     var body: some View {
         NavigationStack {
             ZStack {
                 QRScannerRepresentable(
                     isPaused: scannerPaused,
+                    zoomFactor: zoomFactor,
                     onScan: handle,
-                    onUnavailable: { errorMessage = $0 }
+                    onUnavailable: { errorMessage = $0 },
+                    onZoomChanged: { zoomFactor = $0 }
                 )
                 .ignoresSafeArea()
 
@@ -32,19 +35,39 @@ struct PairingScannerView: View {
                     .shadow(color: .black.opacity(0.4), radius: 4)
 
                 VStack {
+                    if scannedCode == nil {
+                        HStack(spacing: 10) {
+                            Image(systemName: "minus.magnifyingglass")
+                                .foregroundStyle(.white.opacity(0.8))
+
+                            Slider(value: $zoomFactor, in: 1...8)
+                                .tint(.white)
+
+                            Text(verbatim: String(format: "%.1f×", zoomFactor))
+                                .font(.system(.caption, design: .monospaced).weight(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 38, alignment: .trailing)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .frame(maxWidth: 250)
+                        .background(.black.opacity(0.7), in: Capsule())
+                        .padding(.top, 12)
+                    }
+
                     Spacer()
                     VStack(spacing: 10) {
                         if let code = scannedCode {
-                            if case .awaitingApproval(let macName, _) = client.state {
-                                Label("Autorisation requise", systemImage: "hand.raised.fill")
+                            if case .awaitingApproval(let hostName, _) = client.state {
+                                Label("ios.approval.required.b4ebf21", systemImage: "hand.raised.fill")
                                     .font(.headline)
                                     .foregroundStyle(.orange)
-                                Text("Sur \(macName), cliquez sur « Autoriser ».")
+                                Text(AppL10n.text("ios.approval.required.b4ebf21"))
                                     .font(.callout.weight(.semibold))
                                     .foregroundStyle(.white)
                                     .multilineTextAlignment(.center)
                             } else {
-                                Text("Vérifiez que le Mac affiche")
+                                Text("ios.check.that.the.mac.displays.cd8279f")
                                     .font(.footnote)
                                     .foregroundStyle(.white.opacity(0.7))
                             }
@@ -54,17 +77,14 @@ struct PairingScannerView: View {
                             ProgressView()
                                 .tint(.white)
                             if case .awaitingApproval = client.state {
-                                Text("Cette confirmation protège le contrôle à distance du Mac.")
-                                    .font(.caption)
-                                    .foregroundStyle(.white.opacity(0.6))
-                                    .multilineTextAlignment(.center)
+                                EmptyView()
                             } else {
-                                Text("Connexion sécurisée au Mac…")
+                                Text("ios.securing.connection.to.the.mac.03596b1")
                                     .font(.caption)
                                     .foregroundStyle(.white.opacity(0.6))
                             }
                         } else {
-                            Text("Scannez le code affiché par Vibe Walkie sur votre Mac.")
+                            Text("ios.scan.the.code.shown.by.vibe.walkie.on.your.mac.bf54c4e")
                                 .font(.callout)
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
@@ -76,7 +96,7 @@ struct PairingScannerView: View {
                                 .foregroundStyle(.orange)
                                 .multilineTextAlignment(.center)
                             if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
-                                Button("Ouvrir les réglages") {
+                                Button("ios.open.settings.5709195") {
                                     guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                                     UIApplication.shared.open(url)
                                 }
@@ -86,7 +106,7 @@ struct PairingScannerView: View {
 
                         HStack(spacing: 10) {
                             PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                                Label("Photo du QR", systemImage: "photo")
+                                Label("ios.qr.photo.3e3d441", systemImage: "photo")
                             }
                             .buttonStyle(.bordered)
 
@@ -94,7 +114,7 @@ struct PairingScannerView: View {
                                 enteredCode = UIPasteboard.general.string ?? ""
                                 showCodeEntry = true
                             } label: {
-                                Label("Coller le code", systemImage: "doc.on.clipboard")
+                                Label("ios.paste.code.26db0cb", systemImage: "doc.on.clipboard")
                             }
                             .buttonStyle(.bordered)
                         }
@@ -105,11 +125,11 @@ struct PairingScannerView: View {
                     .padding(24)
                 }
             }
-            .navigationTitle("Appairer un Mac")
+            .navigationTitle("ios.pair.a.mac.e22b20b")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annuler") { dismiss() }
+                    Button("ios.cancel.46ad391") { dismiss() }
                 }
             }
         }
@@ -137,23 +157,23 @@ struct PairingScannerView: View {
             NavigationStack {
                 Form {
                     Section {
-                        TextField("Code d’appairage", text: $enteredCode, axis: .vertical)
+                        TextField("ios.pairing.code.5c965f1", text: $enteredCode, axis: .vertical)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .font(.system(.footnote, design: .monospaced))
                             .lineLimit(4...10)
                     } footer: {
-                        Text("Le code reste entre vos appareils. Il n’est jamais ouvert dans un navigateur.")
+                        Text("ios.the.code.stays.between.your.devices.it.is.never.opened.766e735")
                     }
                 }
-                .navigationTitle("Code Nomade")
+                .navigationTitle("ios.remote.code.7e49a94")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Annuler") { showCodeEntry = false }
+                        Button("ios.cancel.46ad391") { showCodeEntry = false }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Connecter") {
+                        Button("ios.connect.2a10fee") {
                             showCodeEntry = false
                             handle(enteredCode.trimmingCharacters(in: .whitespacesAndNewlines))
                         }
@@ -180,7 +200,7 @@ struct PairingScannerView: View {
             scannedCode = nil
             scannerPaused = false
         } catch {
-            errorMessage = AppL10n.text("Code non reconnu.")
+            errorMessage = AppL10n.text("ios.code.not.recognized.a3072c8")
             scannedCode = nil
             scannerPaused = false
         }
@@ -202,7 +222,7 @@ struct PairingScannerView: View {
             }
             handle(value)
         } catch {
-            errorMessage = AppL10n.text("Aucun QR Vibe Walkie lisible dans cette image.")
+            errorMessage = AppL10n.text("ios.no.readable.vibe.walkie.qr.code.was.found.in.this.1aa954c")
             scannedCode = nil
             scannerPaused = false
         }
@@ -218,18 +238,26 @@ private enum QRImportError: Error {
 /// Caméra + détection de QR.
 struct QRScannerRepresentable: UIViewControllerRepresentable {
     let isPaused: Bool
+    let zoomFactor: CGFloat
     let onScan: (String) -> Void
     let onUnavailable: (String) -> Void
+    let onZoomChanged: (CGFloat) -> Void
 
     func makeUIViewController(context: Context) -> QRScannerController {
         let controller = QRScannerController()
         controller.onScan = onScan
         controller.onUnavailable = onUnavailable
+        controller.onZoomChanged = onZoomChanged
+        controller.setZoomFactor(zoomFactor)
         return controller
     }
 
     func updateUIViewController(_ uiViewController: QRScannerController, context: Context) {
+        uiViewController.onScan = onScan
+        uiViewController.onUnavailable = onUnavailable
+        uiViewController.onZoomChanged = onZoomChanged
         uiViewController.setPaused(isPaused)
+        uiViewController.setZoomFactor(zoomFactor)
     }
 }
 
@@ -239,17 +267,22 @@ struct QRScannerRepresentable: UIViewControllerRepresentable {
 final class QRScannerController: UIViewController {
     var onScan: ((String) -> Void)?
     var onUnavailable: ((String) -> Void)?
+    var onZoomChanged: ((CGFloat) -> Void)?
 
     private let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "com.nicolascleton.viberemote.camera", qos: .userInitiated)
     private var previewLayer: AVCaptureVideoPreviewLayer?
+    private weak var captureDevice: AVCaptureDevice?
     private var isConfigured = false
     private var lastValue: String?
     private var lastScanAt: TimeInterval = 0
+    private var zoomFactor: CGFloat = 1
+    private var zoomFactorAtPinchStart: CGFloat = 1
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        view.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:))))
         requestCameraAndConfigure()
     }
 
@@ -277,6 +310,38 @@ final class QRScannerController: UIViewController {
         }
     }
 
+    func setZoomFactor(_ requestedFactor: CGFloat) {
+        zoomFactor = requestedFactor
+        guard let device = captureDevice else { return }
+
+        let minimum = max(CGFloat(1), device.minAvailableVideoZoomFactor)
+        let maximum = min(CGFloat(8), device.maxAvailableVideoZoomFactor)
+        let clampedFactor = min(max(requestedFactor, minimum), maximum)
+
+        guard abs(device.videoZoomFactor - clampedFactor) > 0.01,
+              (try? device.lockForConfiguration()) != nil else { return }
+        device.videoZoomFactor = clampedFactor
+        device.unlockForConfiguration()
+
+        zoomFactor = clampedFactor
+        if abs(requestedFactor - clampedFactor) > 0.01 {
+            onZoomChanged?(clampedFactor)
+        }
+    }
+
+    @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            zoomFactorAtPinchStart = zoomFactor
+        case .changed:
+            let requestedFactor = zoomFactorAtPinchStart * gesture.scale
+            setZoomFactor(requestedFactor)
+            onZoomChanged?(zoomFactor)
+        default:
+            break
+        }
+    }
+
     private func requestCameraAndConfigure() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -288,12 +353,12 @@ final class QRScannerController: UIViewController {
                     if granted {
                         self.configureSession()
                     } else {
-                        self.onUnavailable?("Autorisez l'accès à la caméra pour scanner le QR.")
+                        self.onUnavailable?(AppL10n.text("ios.unavailable.3f0806b"))
                     }
                 }
             }
         default:
-            onUnavailable?("Autorisez l'accès à la caméra pour scanner le QR.")
+            onUnavailable?(AppL10n.text("ios.unavailable.3f0806b"))
         }
     }
 
@@ -302,9 +367,10 @@ final class QRScannerController: UIViewController {
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: device),
               session.canAddInput(input) else {
-            onUnavailable?("La caméra arrière est indisponible.")
+            onUnavailable?(AppL10n.text("ios.unavailable.3f0806b"))
             return
         }
+        captureDevice = device
 
         if (try? device.lockForConfiguration()) != nil {
             if device.isFocusModeSupported(.continuousAutoFocus) {
@@ -336,6 +402,7 @@ final class QRScannerController: UIViewController {
         view.layer.addSublayer(layer)
         previewLayer = layer
         isConfigured = true
+        setZoomFactor(zoomFactor)
 
         setPaused(false)
     }

@@ -324,6 +324,7 @@ private struct MacControlButtonEditor: View {
     @State private var actionChoice: ActionChoice
     @State private var standardKey: RemoteKey
     @State private var shortcut: MacKeyboardShortcut?
+    @State private var retainedShortcut: HostShortcutReference?
     @State private var showIconImporter = false
     @State private var importError: String?
     @State private var iconSearch = ""
@@ -340,18 +341,27 @@ private struct MacControlButtonEditor: View {
             _actionChoice = State(initialValue: .standard)
             _standardKey = State(initialValue: key)
             _shortcut = State(initialValue: nil)
+            _retainedShortcut = State(initialValue: nil)
+        case .hostShortcut(let reference):
+            _actionChoice = State(initialValue: .shortcut)
+            _standardKey = State(initialValue: .enter)
+            _shortcut = State(initialValue: nil)
+            _retainedShortcut = State(initialValue: reference)
         case .macShortcut(let shortcut):
             _actionChoice = State(initialValue: .shortcut)
             _standardKey = State(initialValue: .enter)
             _shortcut = State(initialValue: shortcut)
+            _retainedShortcut = State(initialValue: shortcut.migratedDefinition.reference)
         case .showKeyboard:
             _actionChoice = State(initialValue: .showKeyboard)
             _standardKey = State(initialValue: .enter)
             _shortcut = State(initialValue: nil)
+            _retainedShortcut = State(initialValue: nil)
         case .none:
             _actionChoice = State(initialValue: .none)
             _standardKey = State(initialValue: .enter)
             _shortcut = State(initialValue: nil)
+            _retainedShortcut = State(initialValue: nil)
         }
     }
 
@@ -482,7 +492,14 @@ private struct MacControlButtonEditor: View {
         let action: ControlButtonAction
         switch actionChoice {
         case .standard: action = .standardKey(standardKey)
-        case .shortcut: action = shortcut.map(ControlButtonAction.macShortcut) ?? .none
+        case .shortcut:
+            if let shortcut {
+                action = .macShortcut(shortcut)
+            } else if let retainedShortcut {
+                action = .hostShortcut(retainedShortcut)
+            } else {
+                action = .none
+            }
         case .showKeyboard: action = .showKeyboard
         case .none: action = .none
         }
@@ -513,7 +530,9 @@ private struct MacControlButtonEditor: View {
     private var actionSummary: String {
         switch actionChoice {
         case .standard: return standardKey.macName
-        case .shortcut: return shortcut?.displayName ?? MacL10n.text("mac.shortcut.to.record.935e87b")
+        case .shortcut:
+            return shortcut?.displayName ?? retainedShortcut?.displayName
+                ?? MacL10n.text("mac.shortcut.to.record.935e87b")
         case .showKeyboard: return MacL10n.text("mac.iphone.keyboard.df50452")
         case .none: return MacL10n.text("mac.no.action.ec3e8c2")
         }
@@ -797,6 +816,7 @@ private extension ControlButtonAction {
         switch self {
         case .none: return MacL10n.text("À configurer")
         case .standardKey(let key): return key.macName
+        case .hostShortcut(let shortcut): return shortcut.displayName
         case .macShortcut(let shortcut): return shortcut.displayName
         case .showKeyboard: return MacL10n.text("mac.iphone.keyboard.cd6dbcb")
         }

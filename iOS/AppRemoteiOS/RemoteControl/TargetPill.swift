@@ -3,7 +3,7 @@ import RemoteCore
 
 /// Pilule supérieure : Mac, application active, accès au sélecteur.
 struct TargetPill: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     let onTap: () -> Void
 
     var body: some View {
@@ -32,7 +32,7 @@ struct TargetPill: View {
         }
         .buttonStyle(.plain)
         .disabled(!client.state.isReady)
-        .accessibilityLabel("Application cible : \(title)")
+        .accessibilityLabel(AppL10n.format("ios.target.app.value.f90e281", title))
     }
 
     private var activeApplication: RemoteApplication? {
@@ -57,7 +57,7 @@ struct TargetPill: View {
     private var title: String {
         switch client.state {
         case .ready:
-            return activeApplication?.name ?? client.state.macName ?? "Mac"
+            return activeApplication?.name ?? client.state.hostName ?? "Mac"
         case .connecting(let name):
             return name
         case .pairing(let name, _):
@@ -65,20 +65,19 @@ struct TargetPill: View {
         case .awaitingApproval(let name, _):
             return name
         case .searching:
-            return AppL10n.text("Recherche du Mac…")
+            return AppL10n.text("ios.searching.for.mac.2f5c79e")
         case .failed(let code):
             return AppL10n.remoteError(code)
         case .idle:
-            return AppL10n.text("Aucun Mac")
+            return AppL10n.text("ios.no.mac.1bc46bc")
         }
     }
 
     private var subtitle: String? {
         guard client.state.isReady else { return nil }
-        guard let app = activeApplication else { return client.state.macName }
-        let count = app.windows.count
-        let applicationDetail = count > 1 ? "\(count) fenêtres" : app.windows.first?.title
-        return [client.state.macName, applicationDetail]
+        guard let app = activeApplication else { return client.state.hostName }
+        let applicationDetail = app.windows.first?.title
+        return [client.state.hostName, applicationDetail]
             .compactMap { $0 }
             .joined(separator: " · ")
     }

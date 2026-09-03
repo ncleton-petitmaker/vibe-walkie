@@ -1,30 +1,838 @@
 {
-  "sourceLanguage" : "fr",
-  "strings" : {
-    "NSCameraUsageDescription" : {
-      "localizations" : {
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La caméra sert uniquement à scanner le code affiché par votre Mac lors de l’appairage." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The camera is used only to scan the code shown by your Mac during pairing." } }
+  "sourceLanguage": "fr",
+  "strings": {
+    "NSCameraUsageDescription": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La caméra sert uniquement à scanner le code affiché par votre Mac lors de l’appairage."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera is used only to scan the code shown by your Mac during pairing."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kamera wird nur verwendet, um während der Kopplung den auf deinem Mac angezeigten Code zu scannen."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تُستخدم الكاميرا فقط لمسح الرمز الذي يعرضه Mac أثناء الإقران."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La càmera només s’utilitza per escanejar el codi que mostra el Mac durant l’enllaç."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kameraet bruges kun til at scanne den kode, som din Mac viser under parringen."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fotoaparát se používá pouze ke skenování kódu zobrazeného Macem během párování."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Η κάμερα χρησιμοποιείται μόνο για τη σάρωση του κωδικού που εμφανίζει το Mac κατά τη σύζευξη."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cámara solo se usa para escanear el código que muestra tu Mac durante el emparejamiento."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kameraa käytetään vain Macin laiteparin muodostamisen aikana näyttämän koodin skannaamiseen."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "המצלמה משמשת רק לסריקת הקוד שמציג ה‑Mac במהלך הקישור."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "कैमरे का इस्तेमाल केवल पेयरिंग के दौरान Mac पर दिखने वाला कोड स्कैन करने के लिए होता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera se upotrebljava samo za skeniranje koda koji Mac prikazuje tijekom uparivanja."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A kamera kizárólag a Mac által párosításkor megjelenített kód beolvasására szolgál."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera hanya digunakan untuk memindai kode yang ditampilkan Mac selama pemasangan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fotocamera viene usata solo per scansionare il codice mostrato dal Mac durante l’abbinamento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラは、ペアリング時にMacに表示されるコードをスキャンするためだけに使用されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라는 페어링 중 Mac에 표시된 코드를 스캔하는 데만 사용됩니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera hanya digunakan untuk mengimbas kod yang dipaparkan oleh Mac semasa pemasangan."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kameraet brukes bare til å skanne koden som Macen viser under sammenkoblingen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De camera wordt alleen gebruikt om tijdens het koppelen de code op je Mac te scannen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparat służy wyłącznie do skanowania kodu wyświetlanego przez Maca podczas parowania."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A câmera é usada somente para escanear o código exibido pelo Mac durante o emparelhamento."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera este folosită numai pentru a scana codul afișat de Mac în timpul asocierii."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Камера используется только для сканирования кода, показанного Mac при связывании."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fotoaparát sa používa iba na naskenovanie kódu, ktorý Mac zobrazí počas párovania."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kameran används bara för att skanna koden som Mac visar under parkopplingen."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กล้องใช้เพื่อสแกนรหัสที่ Mac แสดงระหว่างการจับคู่เท่านั้น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera yalnızca eşleştirme sırasında Mac'inizin gösterdiği kodu taramak için kullanılır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Камера використовується лише для сканування коду, який Mac показує під час спарювання."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera chỉ được dùng để quét mã do Mac hiển thị khi ghép đôi."
+          }
+        },
+        "yue": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機只會用嚟掃描配對期間 Mac 顯示嘅代碼。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头仅用于在配对时扫描 Mac 显示的代码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機僅用於在配對時掃描 Mac 顯示的代碼。"
+          }
+        }
       }
     },
-    "NSLocalNetworkUsageDescription" : {
-      "localizations" : {
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie se connecte directement à votre Mac uniquement sur votre réseau local." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie connects directly to your Mac over your local network." } }
+    "NSLocalNetworkUsageDescription": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie se connecte directement à votre Mac uniquement sur votre réseau local."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie connects directly to your Mac over your local network."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie verbindet sich über dein lokales Netzwerk direkt mit deinem Mac."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتصل Vibe Walkie مباشرةً بـ Mac عبر شبكتك المحلية."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie es connecta directament al Mac mitjançant la xarxa local."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie opretter direkte forbindelse til din Mac via det lokale netværk."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie se připojuje přímo k Macu přes místní síť."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Vibe Walkie συνδέεται απευθείας με το Mac μέσω του τοπικού δικτύου."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie se conecta directamente a tu Mac a través de la red local."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie yhdistää suoraan Maciisi paikallisverkon kautta."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie מתחבר ישירות ל‑Mac דרך הרשת המקומית שלכם."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie आपके लोकल नेटवर्क पर सीधे Mac से कनेक्ट होता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie povezuje se izravno s Macom putem vaše lokalne mreže."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Vibe Walkie közvetlenül csatlakozik a Macedhez a helyi hálózaton."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie terhubung langsung ke Mac melalui jaringan lokal Anda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie si connette direttamente al Mac tramite la rete locale."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkieはローカルネットワーク経由でMacに直接接続します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie는 로컬 네트워크를 통해 Mac에 직접 연결합니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie bersambung terus ke Mac melalui rangkaian setempat anda."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kobler direkte til Macen via det lokale nettverket."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie maakt via je lokale netwerk rechtstreeks verbinding met je Mac."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie łączy się bezpośrednio z Makiem przez sieć lokalną."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Vibe Walkie se conecta diretamente ao Mac pela rede local."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie se conectează direct la Mac prin rețeaua locală."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie подключается к Mac напрямую по локальной сети."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie sa pripája priamo k Macu cez miestnu sieť."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie ansluter direkt till din Mac via det lokala nätverket."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie เชื่อมต่อโดยตรงกับ Mac ผ่านเครือข่ายภายในของคุณ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie, yerel ağınız üzerinden doğrudan Mac'inize bağlanır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie підключається безпосередньо до Mac через локальну мережу."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie kết nối trực tiếp với Mac qua mạng cục bộ của bạn."
+          }
+        },
+        "yue": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 會透過本機網絡直接連接你部 Mac。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 通过本地网络直接连接你的 Mac。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 透過區域網路直接連線至你的 Mac。"
+          }
+        }
       }
     },
-    "NSMicrophoneUsageDescription" : {
-      "localizations" : {
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie transcribes your voice directly on this iPhone to type it on your Mac. No audio is sent anywhere else." } }
+    "NSMicrophoneUsageDescription": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transcrit votre voix directement sur cet iPhone pour l’écrire sur votre Mac. Aucun audio n’est envoyé ailleurs."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transcribes your voice directly on this iPhone to type it on your Mac. No audio is sent anywhere else."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transkribiert deine Stimme direkt auf diesem iPhone, um den Text auf deinem Mac einzugeben. Audio wird nirgendwohin gesendet."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ينسخ Vibe Walkie صوتك مباشرةً على هذا الـ iPhone لإدخال النص على Mac. ولا يُرسل الصوت إلى أي مكان آخر."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transcriu la teva veu directament en aquest iPhone per escriure-la al Mac. No s’envia àudio enlloc més."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transskriberer din stemme direkte på denne iPhone for at skrive teksten på din Mac. Ingen lyd sendes andre steder hen."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie přepisuje váš hlas přímo na tomto iPhonu a píše text do Macu. Zvuk se nikam jinam neposílá."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Vibe Walkie μεταγράφει τη φωνή σας απευθείας σε αυτό το iPhone για να τη γράψει στο Mac. Δεν αποστέλλεται ήχος πουθενά αλλού."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transcribe tu voz directamente en este iPhone para escribir el texto en tu Mac. El audio no se envía a ningún otro lugar."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie litteroi äänesi suoraan tässä iPhonessa ja kirjoittaa tekstin Maciisi. Ääntä ei lähetetä muualle."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie מתמלל את קולכם ישירות ב‑iPhone הזה כדי להקליד אותו ב‑Mac. שום שמע אינו נשלח למקום אחר."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie इसी iPhone पर आपकी आवाज़ को टेक्स्ट में बदलकर Mac पर टाइप करता है। ऑडियो कहीं और नहीं भेजा जाता।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transkribira vaš glas izravno na ovom iPhoneu kako bi ga upisao na Macu. Zvuk se ne šalje nigdje drugdje."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Vibe Walkie közvetlenül ezen az iPhone-on írja át a hangodat, hogy begépelje a Macen. A hangot sehová máshová nem küldi."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie mentranskripsikan suara Anda langsung di iPhone ini untuk mengetikkannya di Mac. Audio tidak dikirim ke tempat lain."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie trascrive la tua voce direttamente su questo iPhone per digitarla sul tuo Mac. Nessun audio viene inviato altrove."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe WalkieはこのiPhone上で音声を直接テキストに変換し、Macに入力します。音声がほかの場所へ送信されることはありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie는 이 iPhone에서 음성을 직접 텍스트로 변환해 Mac에 입력합니다. 오디오는 다른 곳으로 전송되지 않습니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie mentranskripsikan suara anda terus pada iPhone ini untuk menaipnya pada Mac. Tiada audio dihantar ke tempat lain."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transkriberer stemmen din direkte på denne iPhonen for å skrive teksten på Macen. Ingen lyd sendes noe annet sted."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transcribeert je stem rechtstreeks op deze iPhone om de tekst op je Mac te typen. Audio wordt nergens anders naartoe gestuurd."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transkrybuje głos bezpośrednio na tym iPhonie, aby wpisać tekst na Macu. Dźwięk nie jest wysyłany nigdzie indziej."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Vibe Walkie transcreve sua voz diretamente neste iPhone para digitá-la no Mac. Nenhum áudio é enviado para outro lugar."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie îți transcrie vocea direct pe acest iPhone pentru a o tasta pe Mac. Sunetul nu este trimis nicăieri altundeva."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie распознаёт голос прямо на этом iPhone и вводит текст на Mac. Аудио никуда не отправляется."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie prepisuje váš hlas priamo na tomto iPhone a píše text do Macu. Zvuk sa nikam inam neposiela."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie transkriberar din röst direkt på denna iPhone för att skriva den på Mac. Inget ljud skickas någon annanstans."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie ถอดเสียงของคุณโดยตรงบน iPhone เครื่องนี้เพื่อพิมพ์บน Mac ไม่มีการส่งเสียงไปที่อื่น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie sesinizi doğrudan bu iPhone'da yazıya döker ve Mac'inizde yazar. Ses başka hiçbir yere gönderilmez."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie транскрибує ваш голос безпосередньо на цьому iPhone, щоб ввести текст на Mac. Аудіо більше нікуди не надсилається."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie chép lời giọng nói trực tiếp trên iPhone này để nhập vào Mac. Âm thanh không được gửi đến nơi nào khác."
+          }
+        },
+        "yue": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 會直接喺呢部 iPhone 轉錄你嘅語音，再喺 Mac 輸入文字。音訊唔會傳去其他地方。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 直接在这台 iPhone 上转写你的声音，并将文本输入 Mac。音频不会发送到任何其他位置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 直接在這台 iPhone 上轉寫你的聲音，並將文字輸入 Mac。音訊不會傳送到任何其他位置。"
+          }
+        }
       }
     },
-    "NSSpeechRecognitionUsageDescription" : {
-      "localizations" : {
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie utilise la reconnaissance vocale locale de cet iPhone pour écrire votre dictée sur votre Mac." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vibe Walkie uses on-device speech recognition on this iPhone to type your dictation on your Mac." } }
+    "NSSpeechRecognitionUsageDescription": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie utilise la reconnaissance vocale locale de cet iPhone pour écrire votre dictée sur votre Mac."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie uses on-device speech recognition on this iPhone to type your dictation on your Mac."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie nutzt die Spracherkennung auf diesem iPhone, um dein Diktat auf deinem Mac einzugeben."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم Vibe Walkie التعرّف على الكلام على هذا الـ iPhone لإدخال نص الإملاء على Mac."
+          }
+        },
+        "ca": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie utilitza el reconeixement de veu d’aquest iPhone per escriure el dictat al Mac."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie bruger talegenkendelse på denne iPhone til at skrive din diktering på Mac."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie používá rozpoznávání řeči v tomto iPhonu k psaní diktovaného textu do Macu."
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Vibe Walkie χρησιμοποιεί την αναγνώριση ομιλίας αυτού του iPhone για να γράψει την υπαγόρευσή σας στο Mac."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie usa el reconocimiento de voz local de este iPhone para escribir el texto dictado en tu Mac."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie käyttää tämän iPhonen sisäistä puheentunnistusta sanelusi kirjoittamiseen Macissa."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie משתמש בזיהוי דיבור במכשיר ב‑iPhone הזה כדי להקליד את ההכתבה ב‑Mac."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie इस iPhone पर डिवाइस-आधारित स्पीच रिकग्निशन का इस्तेमाल करके आपका डिक्टेशन Mac पर टाइप करता है।"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie koristi prepoznavanje govora na ovom iPhoneu kako bi upisao diktat na Macu."
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Vibe Walkie ezen az iPhone-on, helyben végzett beszédfelismeréssel gépeli be a diktált szöveget a Macen."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie menggunakan pengenalan ucapan di perangkat pada iPhone ini untuk mengetikkan hasil dikte di Mac."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie usa il riconoscimento vocale sul dispositivo di questo iPhone per inserire il testo dettato sul Mac."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe WalkieはこのiPhoneのデバイス上の音声認識を使って、音声入力のテキストをMacに入力します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie는 이 iPhone의 기기 내 음성 인식을 사용해 받아쓰기 텍스트를 Mac에 입력합니다."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie menggunakan pengecaman pertuturan pada peranti pada iPhone ini untuk menaip imlak anda pada Mac."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie bruker talegjenkjenning på denne iPhonen til å skrive dikteringen på Macen."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie gebruikt spraakherkenning op deze iPhone om je dicteertekst op je Mac te typen."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie używa rozpoznawania mowy na urządzeniu na tym iPhonie, aby wpisać dyktowany tekst na Macu."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Vibe Walkie usa o reconhecimento de voz neste iPhone para digitar seu ditado no Mac."
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie folosește recunoașterea vocală pe acest iPhone pentru a tasta dictarea pe Mac."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie использует локальное распознавание речи на этом iPhone, чтобы вводить продиктованный текст на Mac."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie používa rozpoznávanie reči v tomto iPhone na písanie diktovaného textu do Macu."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie använder taligenkänning på denna iPhone för att skriva din diktering på Mac."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie ใช้การรู้จำเสียงพูดบน iPhone เครื่องนี้เพื่อพิมพ์ข้อความที่คุณป้อนตามคำบอกบน Mac"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie, dikte ettiğiniz metni Mac'inizde yazmak için bu iPhone'daki aygıt içi konuşma tanımayı kullanır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie використовує локальне розпізнавання мовлення на цьому iPhone, щоб вводити продиктований текст на Mac."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie dùng nhận dạng giọng nói trên thiết bị ở iPhone này để nhập nội dung bạn đọc vào Mac."
+          }
+        },
+        "yue": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 會用呢部 iPhone 嘅裝置端語音辨識，將聽寫文字輸入 Mac。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 使用这台 iPhone 上的设备端语音识别，将听写文本输入 Mac。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibe Walkie 使用這台 iPhone 上的裝置端語音辨識，將聽寫文字輸入 Mac。"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

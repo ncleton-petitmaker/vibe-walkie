@@ -28,7 +28,7 @@ final class CommercializationConfigurationTests: XCTestCase {
           "certificateFingerprint": "fingerprint"
         }
         """#.utf8)
-        let paired = try RemoteCoding.decoder.decode(PairedMac.self, from: legacy)
+        let paired = try RemoteCoding.decoder.decode(PairedHost.self, from: legacy)
         XCTAssertEqual(paired.name, "Mac de test")
         XCTAssertNil(paired.nomadEndpoint)
     }
@@ -38,7 +38,7 @@ final class CommercializationConfigurationTests: XCTestCase {
             magicDNSName: "mac-vibe.tail123.ts.net",
             ipv4Address: "100.101.22.8"
         )
-        let paired = PairedMac(
+        let paired = PairedHost(
             name: "Mac de test",
             serviceName: "VibeWalkie-Test",
             certificateFingerprint: "fingerprint",
@@ -50,7 +50,7 @@ final class CommercializationConfigurationTests: XCTestCase {
             magicDNSName: "example.com",
             ipv4Address: "8.8.8.8"
         )
-        let rejected = PairedMac(
+        let rejected = PairedHost(
             name: "Mac de test",
             serviceName: "VibeWalkie-Test",
             certificateFingerprint: "fingerprint",
@@ -61,47 +61,85 @@ final class CommercializationConfigurationTests: XCTestCase {
 
     func testPairedMacStoreMigratesLegacySelection() throws {
         let defaults = try makeDefaults()
-        let legacy = PairedMac(
+        let legacy = PairedHost(
             name: "Ancien Mac",
             serviceName: "VibeWalkie-Legacy",
             certificateFingerprint: "legacy-fingerprint"
         )
         defaults.set(
             try RemoteCoding.encoder.encode(legacy),
-            forKey: "com.nicolascleton.viberemote.pairedMac"
+            forKey: "com.nicolascleton.viberemote.pairedHost"
         )
 
-        let state = PairedMacStore.load(defaults: defaults)
+        let state = PairedHostStore.load(defaults: defaults)
 
         XCTAssertEqual(state.macs, [legacy])
-        XCTAssertEqual(state.selectedMac, legacy)
-        XCTAssertNil(defaults.data(forKey: "com.nicolascleton.viberemote.pairedMac"))
+        XCTAssertEqual(state.selectedHost, legacy)
+        XCTAssertNil(defaults.data(forKey: "com.nicolascleton.viberemote.pairedHost"))
+    }
+
+    func testV2RegistryMigrationPreservesIdentityAndNomadRoute() throws {
+        let defaults = try makeDefaults()
+        let fingerprint = "preserved-certificate-fingerprint"
+        let v2Registry = Data("""
+        {
+          "macs": [{
+            "name": "Mac bureau",
+            "serviceName": "VibeWalkie-Office",
+            "certificateFingerprint": "\(fingerprint)",
+            "nomadEndpoint": {
+              "magicDNSName": "office.tail123.ts.net",
+              "ipv4Address": "100.101.22.8",
+              "port": 54389
+            }
+          }],
+          "selectedMacID": "\(fingerprint)"
+        }
+        """.utf8)
+        defaults.set(v2Registry, forKey: "com.nicolascleton.viberemote.pairedHosts.v2")
+
+        let state = PairedHostStore.load(defaults: defaults)
+
+        XCTAssertEqual(state.hosts.count, 1)
+        XCTAssertEqual(state.selectedHostID, fingerprint)
+        XCTAssertEqual(state.hosts[0].name, "Mac bureau")
+        XCTAssertEqual(state.hosts[0].platform, .macOS)
+        XCTAssertEqual(state.hosts[0].certificateFingerprint, fingerprint)
+        XCTAssertEqual(
+            state.hosts[0].nomadEndpoint,
+            NomadEndpoint(magicDNSName: "office.tail123.ts.net", ipv4Address: "100.101.22.8")
+        )
+        XCTAssertNil(defaults.data(forKey: "com.nicolascleton.viberemote.pairedHosts.v2"))
+
+        let persisted = try XCTUnwrap(defaults.data(forKey: "com.nicolascleton.viberemote.pairedHosts.v3"))
+        let persistedState = try RemoteCoding.decoder.decode(PairedHostStore.State.self, from: persisted)
+        XCTAssertEqual(persistedState, state)
     }
 
     func testPairedMacStoreAddsSelectsAndRemovesMacs() throws {
         let defaults = try makeDefaults()
-        let office = PairedMac(
+        let office = PairedHost(
             name: "Mac bureau",
             serviceName: "VibeWalkie-Office",
             certificateFingerprint: "office-fingerprint"
         )
-        let home = PairedMac(
+        let home = PairedHost(
             name: "Mac maison",
             serviceName: "VibeWalkie-Home",
             certificateFingerprint: "home-fingerprint"
         )
 
-        _ = PairedMacStore.upsert(office, select: true, defaults: defaults)
-        var state = PairedMacStore.upsert(home, select: false, defaults: defaults)
+        _ = PairedHostStore.upsert(office, select: true, defaults: defaults)
+        var state = PairedHostStore.upsert(home, select: false, defaults: defaults)
         XCTAssertEqual(state.macs, [office, home])
-        XCTAssertEqual(state.selectedMac, office)
+        XCTAssertEqual(state.selectedHost, office)
 
-        state = PairedMacStore.select(home.id, defaults: defaults)
-        XCTAssertEqual(state.selectedMac, home)
+        state = PairedHostStore.select(home.id, defaults: defaults)
+        XCTAssertEqual(state.selectedHost, home)
 
-        state = PairedMacStore.remove(home.id, defaults: defaults)
+        state = PairedHostStore.remove(home.id, defaults: defaults)
         XCTAssertEqual(state.macs, [office])
-        XCTAssertEqual(state.selectedMac, office)
+        XCTAssertEqual(state.selectedHost, office)
     }
 
     private func makeDefaults() throws -> UserDefaults {

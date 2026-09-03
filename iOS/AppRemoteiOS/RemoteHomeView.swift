@@ -8,20 +8,20 @@ import RemoteCore
 /// Le bouton de dictée est centré et dimensionné pour être maintenu au pouce
 /// sans regarder l'écran.
 struct RemoteHomeView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var dictation: DictationController
 
     @State private var showSwitcher = false
-    @State private var showMacSwitcher = false
+    @State private var showHostSwitcher = false
     @State private var showKeyboard = false
     @State private var showSettings = false
     @State private var showScreen = false
     @State private var showControlConfigurator = false
     @State private var showGlobalPalette = false
-    @AppStorage(DictationLanguage.storageKey) private var dictationLanguage: DictationLanguage = .automatic
+    @AppStorage(DictationLanguage.storageKey) private var dictationLanguageIdentifier = DictationLanguage.automaticIdentifier
 
-    init(client: MacConnectionClient) {
+    init(client: HostConnectionClient) {
         _dictation = StateObject(wrappedValue: DictationController(client: client))
 #if DEBUG
         _showGlobalPalette = State(
@@ -64,8 +64,8 @@ struct RemoteHomeView: View {
                                 .padding(.trailing, 12)
                                 .padding(.bottom, 58)
                                 .transition(.scale.combined(with: .opacity))
-                                .accessibilityLabel("Fermer le clavier")
-                                .accessibilityHint("Rétablit les commandes de dictée.")
+                                .accessibilityLabel("ios.close.keyboard.a7fb38b")
+                                .accessibilityHint("ios.restores.dictation.controls.13392f1")
                             }
                         }
 
@@ -83,7 +83,7 @@ struct RemoteHomeView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .task(id: dictationLanguage) {
+        .task(id: dictationLanguageIdentifier) {
             client.connectIfPossible()
 #if DEBUG
             let arguments = ProcessInfo.processInfo.arguments
@@ -105,7 +105,15 @@ struct RemoteHomeView: View {
                 await runScreenSmokeTestIfRequested()
                 return
             }
-            await dictation.prepareEngine(localeIdentifier: dictationLanguage.localeIdentifier)
+            let resolvedLocale: String
+            if #available(iOS 26.0, *) {
+                resolvedLocale = await AppleSpeechLocaleCatalog.resolvedIdentifier(
+                    storedIdentifier: dictationLanguageIdentifier
+                )
+            } else {
+                resolvedLocale = DictationLanguage.deviceLocaleIdentifier
+            }
+            await dictation.prepareEngine(localeIdentifier: resolvedLocale)
             await runPTTSmokeTestIfRequested()
         }
         .task(id: client.state.isReady) {
@@ -114,8 +122,8 @@ struct RemoteHomeView: View {
         .sheet(isPresented: $showSwitcher) {
             AppSwitcherView().environmentObject(client)
         }
-        .sheet(isPresented: $showMacSwitcher) {
-            MacSwitcherView().environmentObject(client)
+        .sheet(isPresented: $showHostSwitcher) {
+            HostSwitcherView().environmentObject(client)
         }
         .sheet(isPresented: $showSettings) {
             SettingsSheet()
@@ -127,7 +135,7 @@ struct RemoteHomeView: View {
                     .environmentObject(client)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Fermer") { showControlConfigurator = false }
+                            Button("ios.close.711e5f2") { showControlConfigurator = false }
                         }
                     }
             }
@@ -175,7 +183,10 @@ struct RemoteHomeView: View {
             let snapshot = try response.decodePayload(WindowsSnapshotPayload.self)
             applicationCount = snapshot.applications.count
         } catch {
-            applicationError = error.localizedDescription
+            // A smoke-test artifact is intentionally safe to export. Do not
+            // persist a host-provided error because it may contain app/window
+            // context; the stable category is enough for the test runner.
+            applicationError = "request_failed"
         }
 
         try? await Task.sleep(for: .milliseconds(500))
@@ -236,10 +247,10 @@ struct RemoteHomeView: View {
                 systemImage: "desktopcomputer.and.macbook",
                 size: 44,
                 iconSize: 15,
-                accessibilityText: "Changer de Mac"
+                accessibilityText: "ios.switch.mac.1dd0a5a"
             ) {
                 HapticFeedback.shared.tick()
-                showMacSwitcher = true
+                showHostSwitcher = true
             }
 
             TargetPill { showSwitcher = true }
@@ -248,7 +259,7 @@ struct RemoteHomeView: View {
                 systemImage: "arrow.up.left.and.arrow.down.right",
                 size: 44,
                 iconSize: 15,
-                accessibilityText: "Afficher l’écran du Mac"
+                accessibilityText: "ios.screen.view.b5645a8"
             ) {
                 HapticFeedback.shared.tick()
                 showScreen = true
@@ -259,7 +270,7 @@ struct RemoteHomeView: View {
                 systemImage: "list.bullet",
                 size: 44,
                 iconSize: 15,
-                accessibilityText: "Connexion et réglages"
+                accessibilityText: "ios.connection.61d6950"
             ) {
                 showSettings = true
             }
@@ -279,9 +290,9 @@ struct RemoteHomeView: View {
                 Text(dictation.partialText.isEmpty ? "Parlez…" : dictation.partialText)
                     .foregroundStyle(dictation.phase == .armedForCancel ? .red : .white)
             case .finalizing:
-                Text("Transcription…").foregroundStyle(.white.opacity(0.6))
+                Text("ios.transcribing.6511a3a").foregroundStyle(.white.opacity(0.6))
             case .sending:
-                Text("Envoi…").foregroundStyle(.white.opacity(0.6))
+                Text("ios.sending.1ccef8a").foregroundStyle(.white.opacity(0.6))
             case .delivered(let message):
                 Label(message, systemImage: "checkmark.circle.fill").foregroundStyle(.green)
             case .sentUnverified(let message):
@@ -373,7 +384,7 @@ struct RemoteHomeView: View {
             VStack(spacing: 3) {
                 Image(systemName: showGlobalPalette ? "xmark" : "circle.grid.2x2.fill")
                     .font(.system(size: 15, weight: .semibold))
-                Text("Global")
+                Text("ios.global.a258b30")
                     .font(.system(size: 9, weight: .semibold))
             }
             .foregroundStyle(showGlobalPalette ? Color.remoteBlue : .white.opacity(0.92))
@@ -399,13 +410,14 @@ struct RemoteHomeView: View {
 
     private func configuredButton(_ zone: ControlZone, style: ConfiguredButtonStyle) -> some View {
         let configuration = client.controlConfiguration.button(in: zone)
+        let displayedTitle = ControlTitleLocalization.title(configuration.title, action: configuration.action)
         return Button {
             perform(configuration.action)
         } label: {
             VStack(spacing: 3) {
                 ControlIconImage(icon: configuration.icon)
                     .frame(width: style == .side ? 17 : 15, height: style == .side ? 17 : 15)
-                Text(configuration.title)
+                Text(displayedTitle)
                     .font(.system(size: style == .side ? 8 : 9, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
@@ -420,13 +432,13 @@ struct RemoteHomeView: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(configuration.title)
+        .accessibilityLabel(displayedTitle)
         .accessibilityHint(actionIsEmpty(configuration.action) ? "Ouvre la configuration de cette zone." : "Maintenez pour modifier ce bouton.")
         .contextMenu {
             Button {
                 showControlConfigurator = true
             } label: {
-                Label("Modifier ce bouton", systemImage: "slider.horizontal.3")
+                Label("ios.edit.this.button.1993f87", systemImage: "slider.horizontal.3")
             }
         }
     }
@@ -442,11 +454,17 @@ struct RemoteHomeView: View {
             showControlConfigurator = true
         case .standardKey(let key):
             sendKey(key)
+        case .hostShortcut(let shortcut):
+            HapticFeedback.shared.tick()
+            client.sendFireAndForget(
+                type: .hostShortcutPress,
+                payload: HostShortcutPressPayload(shortcutID: shortcut.id)
+            )
         case .macShortcut(let shortcut):
             HapticFeedback.shared.tick()
             client.sendFireAndForget(
-                type: .macShortcutPress,
-                payload: MacShortcutPressPayload(shortcut: shortcut)
+                type: .hostShortcutPress,
+                payload: HostShortcutPressPayload(shortcutID: shortcut.migratedDefinition.id)
             )
         case .showKeyboard:
             HapticFeedback.shared.tick()
@@ -474,9 +492,9 @@ struct GlobalShortcutBubble: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 8) {
-                Label("Global", systemImage: "circle.grid.2x2.fill")
+                Label("ios.global.a258b30", systemImage: "circle.grid.2x2.fill")
                     .font(.subheadline.bold())
-                Text("Autres commandes")
+                Text("ios.more.controls.7ec4e50")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -485,24 +503,25 @@ struct GlobalShortcutBubble: View {
                         .frame(width: 28, height: 28)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Changer l’ordre des commandes globales")
+                .accessibilityLabel("ios.reorder.global.controls.3846618")
                 Button(action: close) {
                     Image(systemName: "xmark")
                         .frame(width: 28, height: 28)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Fermer")
+                .accessibilityLabel("ios.close.711e5f2")
             }
 
             LazyVGrid(columns: columns, spacing: 7) {
                 ForEach(buttons) { button in
+                    let displayedTitle = ControlTitleLocalization.title(button.title, action: button.action)
                     Button {
                         perform(button.action)
                     } label: {
                         VStack(spacing: 4) {
                             ControlIconImage(icon: button.icon)
                                 .frame(width: 18, height: 18)
-                            Text(button.title)
+                            Text(displayedTitle)
                                 .font(.system(size: 9, weight: .semibold))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.6)
@@ -512,7 +531,7 @@ struct GlobalShortcutBubble: View {
                         .background(.white.opacity(0.075), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(button.title)
+                    .accessibilityLabel(displayedTitle)
                 }
             }
         }

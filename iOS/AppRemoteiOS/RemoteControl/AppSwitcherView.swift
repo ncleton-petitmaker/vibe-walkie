@@ -3,7 +3,7 @@ import RemoteCore
 
 /// Sélecteur d'applications et de fenêtres du Mac.
 struct AppSwitcherView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @Environment(\.dismiss) private var dismiss
 
     @State private var errorMessage: String?
@@ -26,12 +26,12 @@ struct AppSwitcherView: View {
 
                     let applications = client.snapshot?.applications ?? []
                     if applications.isEmpty && isRefreshing {
-                        ProgressView("Lecture des apps ouvertes…")
+                        ProgressView("ios.loading.open.apps.4ba7336")
                             .tint(Color.remoteBlue)
                             .foregroundStyle(.secondary)
                             .padding(.top, 60)
                     } else if applications.isEmpty {
-                        Text("Aucune application ouverte détectée.")
+                        Text("ios.no.open.app.detected.e5ef8b2")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                             .padding(.top, 60)
@@ -46,11 +46,11 @@ struct AppSwitcherView: View {
                 }
                 .refreshable { await refresh() }
             }
-            .navigationTitle("Applications ouvertes")
+            .navigationTitle("ios.open.apps.af5d137")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Fermer") { dismiss() }
+                    Button("ios.close.711e5f2") { dismiss() }
                 }
             }
             .task {
@@ -108,7 +108,7 @@ struct AppSwitcherView: View {
         } catch let error as RemoteErrorPayload {
             errorMessage = AppL10n.remoteError(error.code)
         } catch {
-            errorMessage = AppL10n.text("Impossible de lire les applications du Mac.")
+            errorMessage = AppL10n.text("ios.could.not.load.apps.from.the.mac.e960e3c")
         }
     }
 
@@ -127,7 +127,7 @@ struct AppSwitcherView: View {
                 HapticFeedback.shared.failed()
                 errorMessage = AppL10n.remoteError(error.code)
             } catch {
-                errorMessage = AppL10n.text("L'application n'a pas pu être activée.")
+                errorMessage = AppL10n.text("ios.the.app.could.not.be.activated.4408c34")
             }
         }
     }

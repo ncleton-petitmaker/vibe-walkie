@@ -21,13 +21,26 @@ enum NomadFeatureFlag {
 enum DeviceKeyStore {
 
     private static let account = "device-signing-key"
+    private static let identifierAccount = "device-identifier"
     private static let identifierKey = "com.nicolascleton.viberemote.deviceIdentifier"
 
     static var deviceIdentifier: String {
+        if let data = try? loadRaw(account: identifierAccount),
+           let identifier = String(data: data, encoding: .utf8),
+           !identifier.isEmpty {
+            // Maintient la valeur historique pour les versions antérieures de
+            // l'app, sans en faire à nouveau la source de vérité.
+            UserDefaults.standard.set(identifier, forKey: identifierKey)
+            return identifier
+        }
+
         if let existing = UserDefaults.standard.string(forKey: identifierKey) {
+            try? store(Data(existing.utf8), account: identifierAccount)
             return existing
         }
+
         let generated = UUID().uuidString
+        try? store(Data(generated.utf8), account: identifierAccount)
         UserDefaults.standard.set(generated, forKey: identifierKey)
         return generated
     }
@@ -37,26 +50,23 @@ enum DeviceKeyStore {
     }
 
     static func loadOrCreatePrivateKey() throws -> Curve25519.Signing.PrivateKey {
-        if let data = try loadRaw() {
+        if let data = try loadRaw(account: account) {
             return try Curve25519.Signing.PrivateKey(rawRepresentation: data)
         }
         let key = Curve25519.Signing.PrivateKey()
-        try store(key.rawRepresentation)
+        try store(key.rawRepresentation, account: account)
         return key
     }
 
     /// Efface l'identité. Utilisé quand l'utilisateur oublie un Mac : la même
     /// clé ne doit pas resservir après une révocation.
     static func reset() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: VibeWalkieInfo.keychainService,
-            kSecAttrAccount as String: account
-        ]
-        SecItemDelete(query as CFDictionary)
+        delete(account: account)
+        delete(account: identifierAccount)
+        UserDefaults.standard.removeObject(forKey: identifierKey)
     }
 
-    private static func loadRaw() throws -> Data? {
+    private static func loadRaw(account: String) throws -> Data? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: VibeWalkieInfo.keychainService,
@@ -69,7 +79,7 @@ enum DeviceKeyStore {
         return item as? Data
     }
 
-    private static func store(_ data: Data) throws {
+    private static func store(_ data: Data, account: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: VibeWalkieInfo.keychainService,
@@ -85,15 +95,22 @@ enum DeviceKeyStore {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
         }
     }
+
+    private static func delete(account: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: VibeWalkieInfo.keychainService,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
 }
 
-/// Mac appairé, mémorisé côté iPhone.
-///
-/// L'empreinte TLS sert d'identité stable : le nom Bonjour peut changer et
-/// deux Macs peuvent avoir le même nom visible, mais ils ne partagent jamais
-/// le même certificat.
-struct PairedMac: Codable, Equatable, Identifiable {
+/// Compagnon appairé, mémorisé côté mobile.
+/// L'empreinte TLS reste l'identité stable sur macOS comme sur Windows.
+struct PairedHost: Codable, Equatable, Identifiable {
     let name: String
+    let platform: HostPlatform
     let serviceName: String
     let certificateFingerprint: String
     let nomadEndpoint: NomadEndpoint?
@@ -102,16 +119,31 @@ struct PairedMac: Codable, Equatable, Identifiable {
 
     init(
         name: String,
+        platform: HostPlatform = .macOS,
         serviceName: String,
         certificateFingerprint: String,
         nomadEndpoint: NomadEndpoint? = nil
     ) {
         self.name = name
+        self.platform = platform
         self.serviceName = serviceName
         self.certificateFingerprint = certificateFingerprint
         self.nomadEndpoint = nomadEndpoint?.isValid == true ? nomadEndpoint : nil
     }
 
+    private enum CodingKeys: String, CodingKey {
+        case name, platform, serviceName, certificateFingerprint, nomadEndpoint
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        platform = try container.decodeIfPresent(HostPlatform.self, forKey: .platform) ?? .macOS
+        serviceName = try container.decode(String.self, forKey: .serviceName)
+        certificateFingerprint = try container.decode(String.self, forKey: .certificateFingerprint)
+        let endpoint = try container.decodeIfPresent(NomadEndpoint.self, forKey: .nomadEndpoint)
+        nomadEndpoint = endpoint?.isValid == true ? endpoint : nil
+    }
 }
 
 /// Registre local des compagnons connus et de la cible sélectionnée.
@@ -120,19 +152,51 @@ struct PairedMac: Codable, Equatable, Identifiable {
 /// mise à jour de l'app retrouve donc le compagnon existant sans nouvel
 /// appairage. Le registre ne contient aucun secret, seulement les informations
 /// publiques déjà transportées par le QR.
-struct PairedMacStore {
+struct PairedHostStore {
     struct State: Codable, Equatable {
-        var macs: [PairedMac]
-        var selectedMacID: String?
+        var hosts: [PairedHost]
+        var selectedHostID: String?
 
-        var selectedMac: PairedMac? {
-            guard let selectedMacID else { return macs.first }
-            return macs.first { $0.id == selectedMacID } ?? macs.first
+        var selectedHost: PairedHost? {
+            guard let selectedHostID else { return hosts.first }
+            return hosts.first { $0.id == selectedHostID } ?? hosts.first
+        }
+
+        /// Compatibilité de source temporaire pour les tests et extensions V3.
+        var macs: [PairedHost] { hosts }
+
+        init(hosts: [PairedHost], selectedHostID: String?) {
+            self.hosts = hosts
+            self.selectedHostID = selectedHostID
+        }
+
+        init(macs: [PairedHost], selectedMacID: String?) {
+            self.init(hosts: macs, selectedHostID: selectedMacID)
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case hosts, selectedHostID, macs, selectedMacID
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            hosts = try container.decodeIfPresent([PairedHost].self, forKey: .hosts)
+                ?? container.decodeIfPresent([PairedHost].self, forKey: .macs)
+                ?? []
+            selectedHostID = try container.decodeIfPresent(String.self, forKey: .selectedHostID)
+                ?? container.decodeIfPresent(String.self, forKey: .selectedMacID)
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(hosts, forKey: .hosts)
+            try container.encodeIfPresent(selectedHostID, forKey: .selectedHostID)
         }
     }
 
-    private static let registryKey = "com.nicolascleton.viberemote.pairedMacs.v2"
-    private static let legacyKey = "com.nicolascleton.viberemote.pairedMac"
+    private static let registryKey = "com.nicolascleton.viberemote.pairedHosts.v3"
+    private static let v2RegistryKey = "com.nicolascleton.viberemote.pairedHosts.v2"
+    private static let legacyKey = "com.nicolascleton.viberemote.pairedHost"
 
     static func load(defaults: UserDefaults = .standard) -> State {
         if let data = defaults.data(forKey: registryKey),
@@ -140,12 +204,20 @@ struct PairedMacStore {
             return normalized(stored)
         }
 
-        guard let data = defaults.data(forKey: legacyKey),
-              let legacy = try? RemoteCoding.decoder.decode(PairedMac.self, from: data) else {
-            return State(macs: [], selectedMacID: nil)
+        if let data = defaults.data(forKey: v2RegistryKey),
+           let stored = try? RemoteCoding.decoder.decode(State.self, from: data) {
+            let migrated = normalized(stored)
+            persist(migrated, defaults: defaults)
+            defaults.removeObject(forKey: v2RegistryKey)
+            return migrated
         }
 
-        let migrated = State(macs: [legacy], selectedMacID: legacy.id)
+        guard let data = defaults.data(forKey: legacyKey),
+              let legacy = try? RemoteCoding.decoder.decode(PairedHost.self, from: data) else {
+            return State(hosts: [], selectedHostID: nil)
+        }
+
+        let migrated = State(hosts: [legacy], selectedHostID: legacy.id)
         persist(migrated, defaults: defaults)
         defaults.removeObject(forKey: legacyKey)
         return migrated
@@ -153,18 +225,18 @@ struct PairedMacStore {
 
     @discardableResult
     static func upsert(
-        _ mac: PairedMac,
+        _ host: PairedHost,
         select: Bool,
         defaults: UserDefaults = .standard
     ) -> State {
         var state = load(defaults: defaults)
-        if let index = state.macs.firstIndex(where: { $0.id == mac.id }) {
-            state.macs[index] = mac
+        if let index = state.hosts.firstIndex(where: { $0.id == host.id }) {
+            state.hosts[index] = host
         } else {
-            state.macs.append(mac)
+            state.hosts.append(host)
         }
-        if select || state.selectedMac == nil {
-            state.selectedMacID = mac.id
+        if select || state.selectedHost == nil {
+            state.selectedHostID = host.id
         }
         state = normalized(state)
         persist(state, defaults: defaults)
@@ -172,20 +244,20 @@ struct PairedMacStore {
     }
 
     @discardableResult
-    static func select(_ id: PairedMac.ID, defaults: UserDefaults = .standard) -> State {
+    static func select(_ id: PairedHost.ID, defaults: UserDefaults = .standard) -> State {
         var state = load(defaults: defaults)
-        guard state.macs.contains(where: { $0.id == id }) else { return state }
-        state.selectedMacID = id
+        guard state.hosts.contains(where: { $0.id == id }) else { return state }
+        state.selectedHostID = id
         persist(state, defaults: defaults)
         return state
     }
 
     @discardableResult
-    static func remove(_ id: PairedMac.ID, defaults: UserDefaults = .standard) -> State {
+    static func remove(_ id: PairedHost.ID, defaults: UserDefaults = .standard) -> State {
         var state = load(defaults: defaults)
-        state.macs.removeAll { $0.id == id }
-        if state.selectedMacID == id {
-            state.selectedMacID = state.macs.first?.id
+        state.hosts.removeAll { $0.id == id }
+        if state.selectedHostID == id {
+            state.selectedHostID = state.hosts.first?.id
         }
         state = normalized(state)
         persist(state, defaults: defaults)
@@ -194,11 +266,11 @@ struct PairedMacStore {
 
     private static func normalized(_ state: State) -> State {
         var seen = Set<String>()
-        let macs = state.macs.filter { seen.insert($0.id).inserted }
-        let selectedMacID = state.selectedMacID.flatMap { id in
-            macs.contains(where: { $0.id == id }) ? id : nil
-        } ?? macs.first?.id
-        return State(macs: macs, selectedMacID: selectedMacID)
+        let hosts = state.hosts.filter { seen.insert($0.id).inserted }
+        let selectedHostID = state.selectedHostID.flatMap { id in
+            hosts.contains(where: { $0.id == id }) ? id : nil
+        } ?? hosts.first?.id
+        return State(hosts: hosts, selectedHostID: selectedHostID)
     }
 
     private static func persist(_ state: State, defaults: UserDefaults) {
@@ -206,3 +278,8 @@ struct PairedMacStore {
         defaults.set(data, forKey: registryKey)
     }
 }
+
+/// Alias de source pour les extensions V3 restantes. Les données sur disque
+/// restent migrées vers les clés génériques `hosts` / `selectedHostID`.
+typealias PairedMac = PairedHost
+typealias PairedMacStore = PairedHostStore

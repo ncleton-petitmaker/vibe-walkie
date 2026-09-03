@@ -48,7 +48,8 @@ final class PairingAuthority: ObservableObject {
         cancelPendingApproval()
         let secret = SecureRandom.bytes(16)
         let payload = PairingQRPayload(
-            macName: macName,
+            hostName: macName,
+            hostPlatform: .macOS,
             serviceName: serviceName,
             certificateFingerprint: fingerprint,
             pairingSecret: secret.base64EncodedString(),
@@ -137,7 +138,8 @@ final class PairingAuthority: ObservableObject {
             id: response.deviceIdentifier,
             name: response.deviceName,
             publicKey: response.publicKey,
-            pairedAt: Date()
+            pairedAt: Date(),
+            clientPlatform: response.clientPlatform
         )
         peers.approve(peer)
         endPairing()
@@ -167,7 +169,8 @@ final class PairingAuthority: ObservableObject {
             id: response.deviceIdentifier,
             name: response.deviceName,
             publicKey: response.publicKey,
-            pairedAt: Date()
+            pairedAt: Date(),
+            clientPlatform: response.clientPlatform
         )
         peers.approve(replacement)
         endPairing()

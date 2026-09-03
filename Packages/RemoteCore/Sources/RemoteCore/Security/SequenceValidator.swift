@@ -11,6 +11,7 @@ public struct SequenceValidator: Sendable {
         case accepted
         case duplicate(UUID)
         case replay
+        case versionMismatch
     }
 
     private var lastSequence: UInt64 = 0
@@ -24,6 +25,9 @@ public struct SequenceValidator: Sendable {
     public mutating func validate(_ envelope: RemoteEnvelope, now: Date = Date()) -> Verdict {
         prune(now: now)
 
+        guard envelope.version == ProtocolVersion.current else {
+            return .versionMismatch
+        }
         if seenMessages[envelope.messageID] != nil {
             return .duplicate(envelope.messageID)
         }

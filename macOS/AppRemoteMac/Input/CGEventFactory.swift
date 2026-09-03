@@ -75,6 +75,8 @@ enum CGEventFactory {
             case .control: return (59, .maskControl)
             case .shift: return (56, .maskShift)
             case .function: return (63, .maskSecondaryFn)
+            case .windows: return (55, .maskCommand)
+            case .alt: return (58, .maskAlternate)
             }
         }
         pressShortcut(keyCode: CGKeyCode(shortcut.keyCode), modifiers: modifiers)
@@ -266,6 +268,34 @@ enum CGEventFactory {
             wheel3: 0
         )
         event?.post(tap: .cghidEventTap)
+    }
+
+    /// Figma documente le zoom à la souris comme Command + molette. Cette
+    /// forme fonctionne aussi dans ses vues Electron, contrairement à un
+    /// simple drapeau posé sans événement de touche Command réel.
+    static func zoom(deltaY: Double) {
+        let wheelDelta = Int32(clamping: Int(deltaY.rounded()))
+        guard wheelDelta != 0 else { return }
+
+        let command: CGKeyCode = 55
+        CGEvent(keyboardEventSource: source, virtualKey: command, keyDown: true)?
+            .post(tap: .cghidEventTap)
+
+        if let event = CGEvent(
+            scrollWheelEvent2Source: source,
+            units: .pixel,
+            wheelCount: 1,
+            wheel1: wheelDelta,
+            wheel2: 0,
+            wheel3: 0
+        ) {
+            event.flags = .maskCommand
+            event.setIntegerValueField(.scrollWheelEventIsContinuous, value: 1)
+            event.post(tap: .cghidEventTap)
+        }
+
+        CGEvent(keyboardEventSource: source, virtualKey: command, keyDown: false)?
+            .post(tap: .cghidEventTap)
     }
 
     /// Garde le curseur dans l'union des écrans branchés.

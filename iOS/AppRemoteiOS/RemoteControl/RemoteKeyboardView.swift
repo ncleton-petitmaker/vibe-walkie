@@ -11,8 +11,8 @@ enum KeyboardInputMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .direct: AppL10n.text("Direct")
-        case .corrected: AppL10n.text("Correcteur")
+        case .direct: AppL10n.text("ios.direct.002c7c6")
+        case .corrected: AppL10n.text("ios.editor.b2ded81")
         }
     }
 
@@ -31,7 +31,7 @@ struct RemoteKeyboardView: View {
         case inline
     }
 
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
 
     var presentation: Presentation = .sheet
 
@@ -86,18 +86,13 @@ struct RemoteKeyboardView: View {
                 .padding(.top, 8)
 
             Label(
-                inputMode == .direct ? "Clavier direct" : "Saisie avec correcteur",
+                AppL10n.text(inputMode == .direct
+                    ? "ios.direct.002c7c6"
+                    : "ios.editor.b2ded81"),
                 systemImage: inputMode.systemImage
             )
                 .font(.headline)
                 .foregroundStyle(.white)
-
-            Text(inputMode == .direct
-                 ? "Chaque frappe s'écrit immédiatement sur le Mac."
-                 : "Relisez et corrigez le texte sur l’iPhone avant de l’envoyer au Mac.")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.68))
-                .multilineTextAlignment(.center)
 
             statusMessage
 
@@ -108,10 +103,10 @@ struct RemoteKeyboardView: View {
                     .background(RoundedRectangle(cornerRadius: 14).fill(Color.controlSurface))
 
                 HStack(spacing: 12) {
-                    keyButton("Échap", key: .escape)
-                    keyButton("Tab", key: .tab)
-                    keyButton("Retour", key: .backspace)
-                    keyButton("Entrée", key: .enter)
+                    keyButton("ios.esc.7bd72d1", key: .escape)
+                    keyButton("ios.tab.90ddf19", key: .tab)
+                    keyButton("ios.backspace.ff7e715", key: .backspace)
+                    keyButton("ios.return.d9c7efe", key: .enter)
                 }
             } else {
                 composer
@@ -135,7 +130,7 @@ struct RemoteKeyboardView: View {
         } else {
             VStack(spacing: 8) {
                 HStack {
-                    Label("Brouillon corrigé", systemImage: inputMode.systemImage)
+                    Label("ios.editable.draft.038347c", systemImage: inputMode.systemImage)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.82))
                     Spacer()
@@ -165,7 +160,7 @@ struct RemoteKeyboardView: View {
     }
 
     private var composer: some View {
-        TextField("Écrivez votre texte…", text: $draft, axis: .vertical)
+        TextField("ios.type.your.text.e0e35fa", text: $draft, axis: .vertical)
             .textFieldStyle(.plain)
             .focused($isFocused)
             .autocorrectionDisabled(false)
@@ -179,7 +174,7 @@ struct RemoteKeyboardView: View {
                     .stroke(.white.opacity(0.08), lineWidth: 1)
             )
             .disabled(isSendingDraft)
-            .accessibilityLabel("Brouillon à envoyer au Mac")
+            .accessibilityLabel("ios.draft.to.send.to.the.mac.529af97")
             .onChange(of: draft) { _, newValue in
                 guard newValue.count > 512 else { return }
                 draft = String(newValue.prefix(512))
@@ -188,7 +183,7 @@ struct RemoteKeyboardView: View {
 
     private var draftActions: some View {
         HStack(spacing: 12) {
-            Button("Effacer", role: .destructive) {
+            Button("ios.clear.e4750da", role: .destructive) {
                 draft = ""
                 deliveryMessage = nil
                 errorMessage = nil
@@ -205,7 +200,7 @@ struct RemoteKeyboardView: View {
                     ProgressView()
                         .controlSize(.small)
                 } else {
-                    Label("Envoyer", systemImage: "arrow.up.circle.fill")
+                    Label("ios.send.7907520", systemImage: "arrow.up.circle.fill")
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -240,13 +235,13 @@ struct RemoteKeyboardView: View {
         Button {
             sendKey(.escape)
         } label: {
-            Label("Échap", systemImage: "escape")
+            Label("ios.esc.7bd72d1", systemImage: "escape")
         }
 
         Button {
             sendKey(.tab)
         } label: {
-            Label("Tab", systemImage: "arrow.right.to.line")
+            Label("ios.tab.90ddf19", systemImage: "arrow.right.to.line")
         }
     }
 
@@ -278,7 +273,7 @@ struct RemoteKeyboardView: View {
             } catch let error as RemoteErrorPayload {
                 errorMessage = AppL10n.remoteError(error.code)
             } catch {
-                errorMessage = AppL10n.text("Le texte n'a pas été envoyé au Mac.")
+                errorMessage = AppL10n.text("ios.the.text.was.not.sent.to.the.mac.8f573c5")
             }
         }
     }
@@ -316,11 +311,11 @@ struct RemoteKeyboardView: View {
                     payload: KeyboardTextPayload(text: text, userInitiated: true)
                 )
                 draft = ""
-                deliveryMessage = AppL10n.text("Texte envoyé au Mac.")
+                deliveryMessage = AppL10n.text("ios.text.sent.to.the.mac.0ed5c3d")
             } catch let error as RemoteErrorPayload {
                 errorMessage = AppL10n.remoteError(error.code)
             } catch {
-                errorMessage = AppL10n.text("Le texte n'a pas été envoyé au Mac.")
+                errorMessage = AppL10n.text("ios.the.text.was.not.sent.to.the.mac.8f573c5")
             }
             isSendingDraft = false
         }

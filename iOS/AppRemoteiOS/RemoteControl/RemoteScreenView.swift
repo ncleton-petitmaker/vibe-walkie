@@ -12,8 +12,8 @@ enum RemoteScreenPTTSide: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .right: AppL10n.text("À droite")
-        case .left: AppL10n.text("À gauche")
+        case .right: AppL10n.text("ios.right.37f370d")
+        case .left: AppL10n.text("ios.left.b107a0a")
         }
     }
 }
@@ -22,7 +22,7 @@ enum RemoteScreenPTTSide: String, CaseIterable, Identifiable {
 /// surface de contrôle principale. On évite ainsi de masquer le pointeur sous
 /// le doigt et on conserve exactement les gestes du pavé habituel.
 struct RemoteScreenView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var dictation: DictationController
@@ -78,7 +78,7 @@ struct RemoteScreenView: View {
                     .environmentObject(client)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Fermer") { showControlConfigurator = false }
+                            Button("ios.close.711e5f2") { showControlConfigurator = false }
                         }
                     }
             }
@@ -177,7 +177,7 @@ struct RemoteScreenView: View {
         .padding(.trailing, compact ? 10 : 12)
         .padding(.bottom, compact ? 8 : 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-        .accessibilityLabel("Fermer le clavier")
+        .accessibilityLabel("ios.close.keyboard.a7fb38b")
         .zIndex(20)
     }
 
@@ -303,16 +303,16 @@ struct RemoteScreenView: View {
                 Image(systemName: "rectangle.dashed.badge.record")
                     .font(.system(size: 30))
                     .foregroundStyle(.orange)
-                Text("Autorisez l’écran sur le Mac")
+                Text("ios.allow.screen.access.on.the.mac.e835fe8")
                     .font(.footnote.weight(.semibold))
-                Text(client.screenStreamStatus.detail ?? "Ouvrez Vibe Walkie sur le Mac puis autorisez l’enregistrement de l’écran.")
+                Text(client.screenStreamStatus.detail ?? AppL10n.text("ios.allow.screen.access.on.the.mac.e835fe8"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 46)
             }
         } else {
-            ProgressView("Connexion à l’écran du Mac…")
+            ProgressView("ios.connecting.to.the.mac.screen.e023739")
                 .font(.caption)
                 .tint(.white)
         }
@@ -333,10 +333,10 @@ struct RemoteScreenView: View {
                         Text("Notes")
                             .font(.caption.bold())
                             .foregroundStyle(.white.opacity(0.9))
-                        ForEach(["Idées", "Brief", "À relire"], id: \.self) { item in
+                        ForEach(["Vibe Walkie", "Codex", "Safari"], id: \.self) { item in
                             Text(item)
-                                .font(.system(size: 9, weight: item == "Brief" ? .semibold : .regular))
-                                .foregroundStyle(item == "Brief" ? .white : .white.opacity(0.55))
+                                .font(.system(size: 9, weight: item == "Vibe Walkie" ? .semibold : .regular))
+                                .foregroundStyle(item == "Vibe Walkie" ? .white : .white.opacity(0.55))
                         }
                         Spacer()
                     }
@@ -345,9 +345,9 @@ struct RemoteScreenView: View {
                     .background(.black.opacity(0.28))
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Brief lancement")
+                        Text("Vibe Walkie")
                             .font(.headline.bold())
-                        Text("Vibe Walkie me permet de dicter, viser le bon champ et piloter mon Mac depuis l’iPhone — sans envoyer ma voix dans le cloud.")
+                        Text(AppL10n.text("ios.control.the.pointer.keyboard.and.dictation.from.this.iphone.no.2d4c813"))
                             .font(.caption)
                             .lineSpacing(3)
                         RoundedRectangle(cornerRadius: 1)
@@ -382,7 +382,7 @@ struct RemoteScreenView: View {
             Spacer()
 
             Label(
-                client.connectionRoute == .local ? "Local" : "Nomade · Tailscale",
+                client.connectionRoute == .local ? "ios.local.8c31e6e" : "ios.remote.tailscale.8abdd7e",
                 systemImage: client.connectionRoute == .local ? "wifi" : "network"
             )
             .font(.caption2.weight(.semibold))
@@ -401,12 +401,12 @@ struct RemoteScreenView: View {
                 pttButton(compact: compact)
             }
 
-            commandButton("Saisie", systemImage: "keyboard", compact: compact) { openKeyboard() }
-            commandButton("Effacer", systemImage: "delete.left", compact: compact) { sendKey(.backspace) }
-            commandButton("Espace", systemImage: "space", compact: compact) { sendKey(.space) }
-            commandButton("Entrée", systemImage: "return", compact: compact) { sendKey(.enter) }
+            commandButton(AppL10n.text("ios.keyboard.cd896f5"), systemImage: "keyboard", compact: compact) { openKeyboard() }
+            commandButton(AppL10n.text("ios.clear.e4750da"), systemImage: "delete.left", compact: compact) { sendKey(.backspace) }
+            commandButton(AppL10n.text("ios.space.91bdaf6"), systemImage: "space", compact: compact) { sendKey(.space) }
+            commandButton(AppL10n.text("ios.return.d9c7efe"), systemImage: "return", compact: compact) { sendKey(.enter) }
             commandButton(
-                "Global",
+                AppL10n.text("ios.global.a258b30"),
                 systemImage: showGlobalPalette ? "xmark" : "circle.grid.2x2.fill",
                 compact: compact,
                 isActive: showGlobalPalette
@@ -501,11 +501,17 @@ struct RemoteScreenView: View {
         case .standardKey(let key):
             HapticFeedback.shared.tick()
             sendKey(key)
+        case .hostShortcut(let shortcut):
+            HapticFeedback.shared.tick()
+            client.sendFireAndForget(
+                type: .hostShortcutPress,
+                payload: HostShortcutPressPayload(shortcutID: shortcut.id)
+            )
         case .macShortcut(let shortcut):
             HapticFeedback.shared.tick()
             client.sendFireAndForget(
-                type: .macShortcutPress,
-                payload: MacShortcutPressPayload(shortcut: shortcut)
+                type: .hostShortcutPress,
+                payload: HostShortcutPressPayload(shortcutID: shortcut.migratedDefinition.id)
             )
         case .showKeyboard:
             HapticFeedback.shared.tick()

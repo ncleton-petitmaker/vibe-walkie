@@ -12,14 +12,14 @@ public enum ConnectionRoute: String, Codable, Equatable, Sendable {
     }
 }
 
-/// États visibles de la liaison iPhone -> Mac.
+/// États visibles de la liaison du mobile vers un compagnon de bureau.
 public enum ConnectionState: Equatable, Sendable {
     case idle
     case searching
-    case connecting(macName: String)
-    case pairing(macName: String, confirmationCode: String)
-    case awaitingApproval(macName: String, confirmationCode: String)
-    case ready(macName: String)
+    case connecting(hostName: String)
+    case pairing(hostName: String, confirmationCode: String)
+    case awaitingApproval(hostName: String, confirmationCode: String)
+    case ready(hostName: String)
     case failed(RemoteErrorCode)
 
     public var isReady: Bool {
@@ -27,13 +27,16 @@ public enum ConnectionState: Equatable, Sendable {
         return false
     }
 
-    public var macName: String? {
+    public var hostName: String? {
         switch self {
         case .connecting(let name), .ready(let name): return name
         case .pairing(let name, _), .awaitingApproval(let name, _): return name
         default: return nil
         }
     }
+
+    /// Compatibilité source temporaire avec l'interface iOS V3.
+    public var macName: String? { hostName }
 }
 
 extension RemoteErrorCode: Equatable {}

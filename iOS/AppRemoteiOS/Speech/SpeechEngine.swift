@@ -47,17 +47,17 @@ enum SpeechEngineError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedDevice:
-            return AppL10n.text("Cet iPhone ne prend pas en charge la transcription locale requise.")
+            return AppL10n.text("ios.this.iphone.does.not.support.the.required.on.device.transcription.ab659af")
         case .localeUnavailable(let locale):
-            return AppL10n.text("La langue \(locale) n'est pas disponible en local sur cet appareil.")
+            return AppL10n.format("ios.the.value.language.is.not.available.on.device.on.this.76f6795", locale)
         case .assetMissing:
-            return AppL10n.text("Le modèle de dictée local doit être téléchargé.")
+            return AppL10n.text("ios.the.on.device.dictation.model.must.be.downloaded.edc4230")
         case .microphoneDenied:
-            return AppL10n.text("Le microphone est désactivé pour Vibe Walkie.")
+            return AppL10n.text("ios.microphone.access.is.disabled.for.vibe.walkie.0a0bf5b")
         case .speechRecognitionDenied:
-            return AppL10n.text("La reconnaissance vocale est désactivée pour Vibe Walkie.")
+            return AppL10n.text("ios.speech.recognition.is.disabled.for.vibe.walkie.cc53045")
         case .notPrepared:
-            return AppL10n.text("Le moteur de dictée n'est pas prêt.")
+            return AppL10n.text("ios.the.dictation.engine.is.not.ready.1365a2c")
         }
     }
 }

@@ -7,12 +7,20 @@ public struct HelloPayload: Codable, Sendable {
     public let deviceIdentifier: String
     public let appVersion: String
     public let protocolVersion: Int
+    public let clientPlatform: ClientPlatform
 
-    public init(deviceName: String, deviceIdentifier: String, appVersion: String, protocolVersion: Int = ProtocolVersion.current) {
+    public init(
+        deviceName: String,
+        deviceIdentifier: String,
+        appVersion: String,
+        protocolVersion: Int = ProtocolVersion.current,
+        clientPlatform: ClientPlatform = .iOS
+    ) {
         self.deviceName = deviceName
         self.deviceIdentifier = deviceIdentifier
         self.appVersion = appVersion
         self.protocolVersion = protocolVersion
+        self.clientPlatform = clientPlatform
     }
 }
 
@@ -38,13 +46,22 @@ public struct PairingResponsePayload: Codable, Sendable {
     /// Présent uniquement lors du tout premier appairage, il prouve que
     /// l'utilisateur a physiquement scanné le QR affiché sur le Mac.
     public let pairingSecret: Data?
+    public let clientPlatform: ClientPlatform
 
-    public init(deviceIdentifier: String, deviceName: String, publicKey: Data, signature: Data, pairingSecret: Data?) {
+    public init(
+        deviceIdentifier: String,
+        deviceName: String,
+        publicKey: Data,
+        signature: Data,
+        pairingSecret: Data?,
+        clientPlatform: ClientPlatform = .iOS
+    ) {
         self.deviceIdentifier = deviceIdentifier
         self.deviceName = deviceName
         self.publicKey = publicKey
         self.signature = signature
         self.pairingSecret = pairingSecret
+        self.clientPlatform = clientPlatform
     }
 }
 
@@ -83,17 +100,35 @@ public struct RecordingStartedPayload: Codable, Sendable {
 public struct TargetToken: Codable, Sendable, Equatable {
     public let token: String
     public let applicationName: String
-    public let bundleIdentifier: String?
+    public let applicationIdentifier: String?
     public let windowTitle: String?
     public let expiresAt: Date
 
-    public init(token: String, applicationName: String, bundleIdentifier: String?, windowTitle: String?, expiresAt: Date) {
+    public init(
+        token: String,
+        applicationName: String,
+        applicationIdentifier: String?,
+        windowTitle: String?,
+        expiresAt: Date
+    ) {
         self.token = token
         self.applicationName = applicationName
-        self.bundleIdentifier = bundleIdentifier
+        self.applicationIdentifier = applicationIdentifier
         self.windowTitle = windowTitle
         self.expiresAt = expiresAt
     }
+
+    public init(token: String, applicationName: String, bundleIdentifier: String?, windowTitle: String?, expiresAt: Date) {
+        self.init(
+            token: token,
+            applicationName: applicationName,
+            applicationIdentifier: bundleIdentifier,
+            windowTitle: windowTitle,
+            expiresAt: expiresAt
+        )
+    }
+
+    public var bundleIdentifier: String? { applicationIdentifier }
 }
 
 public struct InsertTextPayload: Codable, Sendable {
@@ -118,6 +153,8 @@ public enum InsertionMethod: String, Codable, Sendable {
     case axRange = "ax_range"
     case paste
     case keyboardEvents = "keyboard_events"
+    case uiAutomation = "ui_automation"
+    case unicodeEvents = "unicode_events"
 }
 
 public struct InsertionResult: Codable, Sendable {
@@ -161,21 +198,41 @@ public struct RemoteWindow: Codable, Sendable, Identifiable, Equatable {
 public struct RemoteApplication: Codable, Sendable, Identifiable, Equatable {
     public let id: String
     public let name: String
-    public let bundleIdentifier: String?
+    public let applicationIdentifier: String?
     public let isActive: Bool
     /// PNG redimensionné côté Mac. Plafonné pour ne jamais saturer le canal
     /// de commande avec une icône de plusieurs mégaoctets.
     public let iconPNG: Data?
     public let windows: [RemoteWindow]
 
-    public init(id: String, name: String, bundleIdentifier: String?, isActive: Bool, iconPNG: Data?, windows: [RemoteWindow]) {
+    public init(
+        id: String,
+        name: String,
+        applicationIdentifier: String?,
+        isActive: Bool,
+        iconPNG: Data?,
+        windows: [RemoteWindow]
+    ) {
         self.id = id
         self.name = name
-        self.bundleIdentifier = bundleIdentifier
+        self.applicationIdentifier = applicationIdentifier
         self.isActive = isActive
         self.iconPNG = iconPNG
         self.windows = windows
     }
+
+    public init(id: String, name: String, bundleIdentifier: String?, isActive: Bool, iconPNG: Data?, windows: [RemoteWindow]) {
+        self.init(
+            id: id,
+            name: name,
+            applicationIdentifier: bundleIdentifier,
+            isActive: isActive,
+            iconPNG: iconPNG,
+            windows: windows
+        )
+    }
+
+    public var bundleIdentifier: String? { applicationIdentifier }
 }
 
 public struct WindowsSnapshotPayload: Codable, Sendable {
@@ -316,10 +373,15 @@ public struct PointerDragPayload: Codable, Sendable {
 public struct ScrollPayload: Codable, Sendable {
     public let deltaX: Double
     public let deltaY: Double
+    /// Un pincement est transporté comme une variante rétrocompatible du
+    /// défilement. Les anciens compagnons ignorent ce champ optionnel, tandis
+    /// que les nouveaux l'injectent avec le modificateur de zoom de l'hôte.
+    public let zoom: Bool?
 
-    public init(deltaX: Double, deltaY: Double) {
+    public init(deltaX: Double, deltaY: Double, zoom: Bool? = nil) {
         self.deltaX = deltaX
         self.deltaY = deltaY
+        self.zoom = zoom
     }
 }
 
@@ -379,11 +441,32 @@ public struct AcknowledgementPayload: Codable, Sendable {
     }
 }
 
-public struct ConnectionStatusPayload: Codable, Sendable {
-    public let accessibilityGranted: Bool
-    public let macName: String
+public struct ConnectionStatusPayload: Codable, Sendable, Equatable {
+    public let inputControlReady: Bool
+    public let screenCaptureReady: Bool
+    public let hostName: String
+    public let hostPlatform: HostPlatform
+    public let capabilities: [HostCapability]
     public let companionVersion: String
     public let nomadEndpoint: NomadEndpoint?
+
+    public init(
+        inputControlReady: Bool,
+        screenCaptureReady: Bool,
+        hostName: String,
+        hostPlatform: HostPlatform,
+        capabilities: [HostCapability],
+        companionVersion: String,
+        nomadEndpoint: NomadEndpoint? = nil
+    ) {
+        self.inputControlReady = inputControlReady
+        self.screenCaptureReady = screenCaptureReady
+        self.hostName = hostName
+        self.hostPlatform = hostPlatform
+        self.capabilities = Array(Set(capabilities)).sorted { $0.rawValue < $1.rawValue }
+        self.companionVersion = companionVersion
+        self.nomadEndpoint = nomadEndpoint
+    }
 
     public init(
         accessibilityGranted: Bool,
@@ -391,9 +474,17 @@ public struct ConnectionStatusPayload: Codable, Sendable {
         companionVersion: String,
         nomadEndpoint: NomadEndpoint? = nil
     ) {
-        self.accessibilityGranted = accessibilityGranted
-        self.macName = macName
-        self.companionVersion = companionVersion
-        self.nomadEndpoint = nomadEndpoint
+        self.init(
+            inputControlReady: accessibilityGranted,
+            screenCaptureReady: true,
+            hostName: macName,
+            hostPlatform: .macOS,
+            capabilities: HostCapability.fullControl,
+            companionVersion: companionVersion,
+            nomadEndpoint: nomadEndpoint
+        )
     }
+
+    public var accessibilityGranted: Bool { inputControlReady }
+    public var macName: String { hostName }
 }

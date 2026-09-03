@@ -26,6 +26,64 @@ public enum ShortcutModifier: String, Codable, Sendable, CaseIterable {
     case control
     case shift
     case function
+    case windows
+    case alt
+}
+
+/// Seule cette référence traverse le réseau. Les keycodes restent dans le
+/// compagnon qui a créé le raccourci.
+public struct HostShortcutReference: Codable, Sendable, Equatable, Identifiable {
+    public let id: String
+    public let displayName: String
+    /// Purely presentational host-chosen symbol. Hardware keycodes never leave
+    /// the companion.
+    public let icon: String?
+
+    public init(id: String, displayName: String, icon: String? = nil) {
+        self.id = String(id.prefix(96))
+        self.displayName = String(displayName.prefix(40))
+        self.icon = icon.map { String($0.prefix(80)) }
+    }
+
+    public var isValid: Bool {
+        !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+}
+
+/// Définition conservée exclusivement sur l'hôte. Elle n'est jamais incluse
+/// dans une configuration synchronisée vers un téléphone.
+public struct HostShortcutDefinition: Codable, Sendable, Equatable, Identifiable {
+    public let id: String
+    public let platform: HostPlatform
+    public let keyCode: UInt32
+    public let modifiers: [ShortcutModifier]
+    public let displayName: String
+    public let icon: String?
+
+    public init(
+        id: String,
+        platform: HostPlatform,
+        keyCode: UInt32,
+        modifiers: [ShortcutModifier],
+        displayName: String,
+        icon: String? = nil
+    ) {
+        self.id = String(id.prefix(96))
+        self.platform = platform
+        self.keyCode = keyCode
+        self.modifiers = Array(Set(modifiers)).sorted { $0.rawValue < $1.rawValue }
+        self.displayName = String(displayName.prefix(40))
+        self.icon = icon.map { String($0.prefix(80)) }
+    }
+
+    public var reference: HostShortcutReference {
+        HostShortcutReference(id: id, displayName: displayName, icon: icon ?? "command")
+    }
+
+    public var isValid: Bool {
+        reference.isValid && keyCode <= 0xFFFF
+    }
 }
 
 /// Raccourci matériel enregistré directement sur le Mac.
@@ -47,13 +105,89 @@ public struct MacKeyboardShortcut: Codable, Sendable, Equatable {
     public var isValid: Bool {
         keyCode <= 127 && !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+
+    public var migratedDefinition: HostShortcutDefinition {
+        let modifierKey = modifiers.map(\.rawValue).sorted().joined(separator: "-")
+        return HostShortcutDefinition(
+            id: "mac-\(keyCode)-\(modifierKey)",
+            platform: .macOS,
+            keyCode: UInt32(keyCode),
+            modifiers: modifiers,
+            displayName: displayName
+        )
+    }
 }
 
-public enum ControlButtonAction: Codable, Sendable, Equatable {
+public enum ControlButtonAction: Sendable, Equatable {
     case none
     case standardKey(RemoteKey)
+    case hostShortcut(HostShortcutReference)
+    /// Cas lu uniquement lors de la migration du stockage V3.
     case macShortcut(MacKeyboardShortcut)
     case showKeyboard
+}
+
+extension ControlButtonAction: Codable {
+    private enum Kind: String, Codable {
+        case none
+        case standardKey = "standard_key"
+        case hostShortcut = "host_shortcut"
+        case showKeyboard = "show_keyboard"
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type, key, shortcut
+    }
+
+    private enum LegacyAction: Codable {
+        case none
+        case standardKey(RemoteKey)
+        case macShortcut(MacKeyboardShortcut)
+        case showKeyboard
+    }
+
+    public init(from decoder: Decoder) throws {
+        if let container = try? decoder.container(keyedBy: CodingKeys.self),
+           let kind = try? container.decode(Kind.self, forKey: .type) {
+            switch kind {
+            case .none:
+                self = .none
+            case .standardKey:
+                self = .standardKey(try container.decode(RemoteKey.self, forKey: .key))
+            case .hostShortcut:
+                self = .hostShortcut(try container.decode(HostShortcutReference.self, forKey: .shortcut))
+            case .showKeyboard:
+                self = .showKeyboard
+            }
+            return
+        }
+
+        switch try LegacyAction(from: decoder) {
+        case .none: self = .none
+        case .standardKey(let key): self = .standardKey(key)
+        case .macShortcut(let shortcut): self = .macShortcut(shortcut)
+        case .showKeyboard: self = .showKeyboard
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .none:
+            try container.encode(Kind.none, forKey: .type)
+        case .standardKey(let key):
+            try container.encode(Kind.standardKey, forKey: .type)
+            try container.encode(key, forKey: .key)
+        case .hostShortcut(let shortcut):
+            try container.encode(Kind.hostShortcut, forKey: .type)
+            try container.encode(shortcut, forKey: .shortcut)
+        case .macShortcut(let shortcut):
+            try container.encode(Kind.hostShortcut, forKey: .type)
+            try container.encode(shortcut.migratedDefinition.reference, forKey: .shortcut)
+        case .showKeyboard:
+            try container.encode(Kind.showKeyboard, forKey: .type)
+        }
+    }
 }
 
 public enum ControlButtonIcon: Codable, Sendable, Equatable {
@@ -103,17 +237,22 @@ public struct ControlConfiguration: Codable, Sendable, Equatable {
     /// Bibliothèque ordonnée des commandes de débordement. Les commandes dont
     /// l'action est déjà visible sont automatiquement masquées de la bulle.
     public var globalButtons: [GlobalButtonConfiguration]
+    /// Palette provided by the companion. References stay opaque: a mobile can
+    /// assign one but cannot create an arbitrary host keystroke.
+    public var availableShortcuts: [HostShortcutReference]?
     public var revision: UInt64
     public var updatedAt: Date
 
     public init(
         buttons: [ControlButtonConfiguration],
         globalButtons: [GlobalButtonConfiguration] = ControlConfiguration.standardGlobalButtons,
+        availableShortcuts: [HostShortcutReference]? = nil,
         revision: UInt64 = 0,
         updatedAt: Date = Date()
     ) {
         self.buttons = buttons
         self.globalButtons = Self.normalizedGlobalButtons(globalButtons)
+        self.availableShortcuts = availableShortcuts
         self.revision = revision
         self.updatedAt = updatedAt
     }
@@ -121,6 +260,7 @@ public struct ControlConfiguration: Codable, Sendable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case buttons
         case globalButtons
+        case availableShortcuts
         case revision
         case updatedAt
     }
@@ -128,11 +268,14 @@ public struct ControlConfiguration: Codable, Sendable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         buttons = try container.decode([ControlButtonConfiguration].self, forKey: .buttons)
-        var storedButtons = try container.decodeIfPresent([GlobalButtonConfiguration].self, forKey: .globalButtons)
-            ?? []
-        let storedIDs = Set(storedButtons.map(\.id))
-        storedButtons.append(contentsOf: Self.standardGlobalButtons.filter { !storedIDs.contains($0.id) })
-        globalButtons = Self.normalizedGlobalButtons(storedButtons)
+        // Missing is a legacy V3/V4-beta payload and receives the defaults;
+        // an explicitly empty list is a valid cross-platform configuration.
+        if let storedButtons = try container.decodeIfPresent([GlobalButtonConfiguration].self, forKey: .globalButtons) {
+            globalButtons = Self.normalizedGlobalButtons(storedButtons)
+        } else {
+            globalButtons = Self.standardGlobalButtons
+        }
+        availableShortcuts = try container.decodeIfPresent([HostShortcutReference].self, forKey: .availableShortcuts)
         revision = try container.decodeIfPresent(UInt64.self, forKey: .revision) ?? 0
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date(timeIntervalSince1970: 0)
     }
@@ -141,6 +284,7 @@ public struct ControlConfiguration: Codable, Sendable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(buttons, forKey: .buttons)
         try container.encode(globalButtons, forKey: .globalButtons)
+        try container.encodeIfPresent(availableShortcuts, forKey: .availableShortcuts)
         try container.encode(revision, forKey: .revision)
         try container.encode(updatedAt, forKey: .updatedAt)
     }
@@ -259,10 +403,10 @@ public struct ControlConfigurationPayload: Codable, Sendable {
     }
 }
 
-public struct MacShortcutPressPayload: Codable, Sendable {
-    public let shortcut: MacKeyboardShortcut
+public struct HostShortcutPressPayload: Codable, Sendable {
+    public let shortcutID: String
 
-    public init(shortcut: MacKeyboardShortcut) {
-        self.shortcut = shortcut
+    public init(shortcutID: String) {
+        self.shortcutID = String(shortcutID.prefix(96))
     }
 }

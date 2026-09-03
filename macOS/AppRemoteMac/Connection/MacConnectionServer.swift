@@ -24,9 +24,11 @@ final class MacConnectionServer: ObservableObject {
     private var screenCaptureRunning = false
     private var screenCaptureStarting = false
     private var connectionLimiter = RateLimiter(capacity: 20, refillPerSecond: 1.0 / 3.0)
+    private var crossSessionResponses = PeerResponseCache()
 
     private let peers: ApprovedPeersStore
     private let authority: PairingAuthority
+    private let shortcutStore: HostShortcutStore
 
     /// Une connexion en cours de vie, avec son état d'authentification.
     ///
@@ -64,9 +66,11 @@ final class MacConnectionServer: ObservableObject {
     ) {
         self.peers = peers
         self.authority = authority
+        let shortcutStore = HostShortcutStore()
+        self.shortcutStore = shortcutStore
         self.nomadEndpoint = nomadEndpoint?.isValid == true ? nomadEndpoint : nil
         self.hasCompletedFirstCommand = UserDefaults.standard.bool(forKey: "hasCompletedFirstCommand")
-        self.controlConfiguration = Self.loadControlConfiguration()
+        self.controlConfiguration = shortcutStore.migrate(Self.loadControlConfiguration())
     }
 
     var certificateFingerprint: String? {
@@ -124,6 +128,7 @@ final class MacConnectionServer: ObservableObject {
         do {
             _ = try TLSIdentityStore.regenerate()
             peers.revokeAll()
+            crossSessionResponses.removeAll()
             lastError = nil
             start()
         } catch {
@@ -157,6 +162,7 @@ final class MacConnectionServer: ObservableObject {
 
     /// Ferme immédiatement les sessions d'un appareil révoqué.
     func disconnectPeer(_ peerID: String) {
+        crossSessionResponses.removeAll(for: peerID)
         for (key, session) in sessions where session.router?.peerID == peerID {
             session.connection.cancel()
             sessions.removeValue(forKey: key)
@@ -271,7 +277,7 @@ final class MacConnectionServer: ObservableObject {
     private func process(_ envelope: RemoteEnvelope, in session: Session) {
         guard envelope.version == ProtocolVersion.current else {
             sendAndClose(
-                error: RemoteErrorPayload(code: .protocolMismatch),
+                error: RemoteErrorPayload(code: .versionMismatch),
                 to: session,
                 replyTo: envelope.messageID
             )
@@ -321,12 +327,31 @@ final class MacConnectionServer: ObservableObject {
         }
 
         guard let router = session.router else { return }
+        if isCrossSessionIdempotent(envelope.type),
+           let previous = crossSessionResponses.response(
+               for: router.peerID,
+               messageID: envelope.messageID
+           ) {
+            sendEncoded(
+                type: previous.type,
+                payload: previous.payload,
+                to: session,
+                replyTo: envelope.messageID
+            )
+            return
+        }
         switch router.handle(envelope) {
         case .acknowledge(let payload):
             if payload.ok && ![.hello, .recordingStarted, .cancel].contains(envelope.type) {
                 markFirstCommandCompleted()
             }
-            send(type: .acknowledgement, payload: payload, to: session, replyTo: envelope.messageID)
+            sendResponse(
+                type: .acknowledgement,
+                payload: payload,
+                for: envelope,
+                peerID: router.peerID,
+                to: session
+            )
         case .snapshot(let payload):
             send(type: .windowsSnapshot, payload: payload, to: session, replyTo: envelope.messageID)
         case .screenRequest(let payload):
@@ -335,36 +360,46 @@ final class MacConnectionServer: ObservableObject {
             sendControlConfiguration(to: session, replyTo: envelope.messageID)
         case .controlConfigurationUpdate(let configuration):
             updateControlConfigurationFromPeer(configuration)
-            send(
+            sendResponse(
                 type: .acknowledgement,
                 payload: AcknowledgementPayload(ok: true),
-                to: session,
-                replyTo: envelope.messageID
+                for: envelope,
+                peerID: router.peerID,
+                to: session
             )
-        case .macShortcutPress(let shortcut):
+        case .hostShortcutPress(let shortcutID):
             let configuredActions = controlConfiguration.buttons.map(\.action) +
                 controlConfiguration.globalButtons.map(\.action)
             let isConfigured = configuredActions.contains { action in
-                guard case .macShortcut(let configured) = action else { return false }
-                return configured == shortcut
+                guard case .hostShortcut(let configured) = action else { return false }
+                return configured.id == shortcutID
             }
-            guard isConfigured else {
-                send(
-                    error: RemoteErrorPayload(code: .internalFailure, detail: "Raccourci non configuré"),
-                    to: session,
-                    replyTo: envelope.messageID
+            guard isConfigured,
+                  let shortcut = shortcutStore.definition(for: shortcutID),
+                  shortcut.platform == .macOS,
+                  shortcut.keyCode <= 127 else {
+                sendResponse(
+                    error: RemoteErrorPayload(code: .unsupportedCapability, detail: "Raccourci non configuré"),
+                    for: envelope,
+                    peerID: router.peerID,
+                    to: session
                 )
                 break
             }
-            CGEventFactory.press(shortcut)
-            send(
+            CGEventFactory.press(MacKeyboardShortcut(
+                keyCode: UInt16(shortcut.keyCode),
+                modifiers: shortcut.modifiers,
+                displayName: shortcut.displayName
+            ))
+            sendResponse(
                 type: .acknowledgement,
                 payload: AcknowledgementPayload(ok: true),
-                to: session,
-                replyTo: envelope.messageID
+                for: envelope,
+                peerID: router.peerID,
+                to: session
             )
         case .failure(let error):
-            send(error: error, to: session, replyTo: envelope.messageID)
+            sendResponse(error: error, for: envelope, peerID: router.peerID, to: session)
         case .ignore:
             break
         }
@@ -374,6 +409,20 @@ final class MacConnectionServer: ObservableObject {
         guard !hasCompletedFirstCommand else { return }
         hasCompletedFirstCommand = true
         UserDefaults.standard.set(true, forKey: "hasCompletedFirstCommand")
+    }
+
+    /// Les commandes qui fabriquent ou restituent un état propre à une socket
+    /// repartent volontairement à zéro à la reconnexion. Toutes les autres
+    /// réponses sont rejouées au lieu d'exécuter à nouveau une frappe, une
+    /// insertion ou un raccourci dont l'accusé a été perdu.
+    private func isCrossSessionIdempotent(_ type: RemoteMessageType) -> Bool {
+        ![
+            .hello,
+            .recordingStarted,
+            .listWindows,
+            .screenStreamRequest,
+            .controlConfigurationRequest
+        ].contains(type)
     }
 
     func approvePairing(_ requestID: UUID) {
@@ -432,8 +481,11 @@ final class MacConnectionServer: ObservableObject {
         send(
             type: .connectionStatus,
             payload: ConnectionStatusPayload(
-                accessibilityGranted: AccessibilityClient.isTrusted,
-                macName: Host.current().localizedName ?? "Mac",
+                inputControlReady: AccessibilityClient.isTrusted,
+                screenCaptureReady: CGPreflightScreenCaptureAccess(),
+                hostName: Host.current().localizedName ?? "Mac",
+                hostPlatform: .macOS,
+                capabilities: HostCapability.fullControl,
                 companionVersion: Bundle.main.appVersion,
                 nomadEndpoint: nomadEndpoint
             ),
@@ -447,7 +499,7 @@ final class MacConnectionServer: ObservableObject {
     /// Le Mac conserve la copie de référence afin qu'un nouvel iPhone retrouve
     /// immédiatement la disposition et les raccourcis matériels enregistrés.
     func updateControlConfiguration(_ requested: ControlConfiguration) {
-        var sanitized = Self.sanitizedControlConfiguration(requested)
+        var sanitized = Self.sanitizedControlConfiguration(shortcutStore.migrate(requested))
         sanitized.revision = controlConfiguration.revision &+ 1
         sanitized.updatedAt = Date()
         controlConfiguration = sanitized
@@ -470,29 +522,28 @@ final class MacConnectionServer: ObservableObject {
     /// présente peut seulement être conservée à l'identique.
     private func updateControlConfigurationFromPeer(_ requested: ControlConfiguration) {
         var restricted = requested
+        // This is a host-provided palette, never client-controlled state.
+        restricted.availableShortcuts = nil
+        // A mobile may assign any opaque reference advertised in the current
+        // palette, not merely one that happened to be on the previous layout.
+        let allowedShortcutIDs = Set(shortcutStore.references.map(\.id))
         for zone in ControlZone.allCases {
             var proposed = restricted.button(in: zone)
-            guard case .macShortcut = proposed.action,
-                  proposed.action != controlConfiguration.button(in: zone).action else { continue }
-
-            let currentAction = controlConfiguration.button(in: zone).action
-            if case .macShortcut = currentAction {
-                proposed.action = currentAction
-            } else {
+            if case .hostShortcut(let reference) = proposed.action,
+               !allowedShortcutIDs.contains(reference.id) {
                 proposed.action = .none
+                restricted.setButton(proposed)
+            } else if case .macShortcut = proposed.action {
+                proposed.action = .none
+                restricted.setButton(proposed)
             }
-            restricted.setButton(proposed)
         }
         restricted.globalButtons = restricted.globalButtons.map { proposed in
-            guard case .macShortcut = proposed.action,
-                  proposed.action != controlConfiguration.globalButtons.first(where: { $0.id == proposed.id })?.action else {
-                return proposed
-            }
             var safe = proposed
-            let currentAction = controlConfiguration.globalButtons.first(where: { $0.id == proposed.id })?.action
-            if let currentAction, case .macShortcut = currentAction {
-                safe.action = currentAction
-            } else {
+            if case .hostShortcut(let reference) = proposed.action,
+               !allowedShortcutIDs.contains(reference.id) {
+                safe.action = .none
+            } else if case .macShortcut = proposed.action {
                 safe.action = .none
             }
             return safe
@@ -501,9 +552,11 @@ final class MacConnectionServer: ObservableObject {
     }
 
     private func sendControlConfiguration(to session: Session, replyTo: UUID?) {
+        var snapshot = controlConfiguration
+        snapshot.availableShortcuts = shortcutStore.references
         send(
             type: .controlConfigurationSnapshot,
-            payload: ControlConfigurationPayload(configuration: controlConfiguration),
+            payload: ControlConfigurationPayload(configuration: snapshot),
             to: session,
             replyTo: replyTo
         )
@@ -547,6 +600,9 @@ final class MacConnectionServer: ObservableObject {
             if case .macShortcut(let shortcut) = button.action, !shortcut.isValid {
                 button.action = .none
             }
+            if case .hostShortcut(let shortcut) = button.action, !shortcut.isValid {
+                button.action = .none
+            }
             buttons.append(button)
         }
 
@@ -569,6 +625,9 @@ final class MacConnectionServer: ObservableObject {
             }
 
             if case .macShortcut(let shortcut) = button.action, !shortcut.isValid {
+                button.action = .none
+            }
+            if case .hostShortcut(let shortcut) = button.action, !shortcut.isValid {
                 button.action = .none
             }
             globalButtons.append(button)
@@ -653,7 +712,9 @@ final class MacConnectionServer: ObservableObject {
                     payload: ScreenStreamStatusPayload(
                         isStreaming: false,
                         permissionGranted: CGPreflightScreenCaptureAccess(),
-                        detail: error.localizedDescription
+                        // A framework error can contain display or window
+                        // context. The mobile only needs a stable state code.
+                        detail: "screen_capture_unavailable"
                     ),
                     to: session,
                     replyTo: replyTo
@@ -700,7 +761,7 @@ final class MacConnectionServer: ObservableObject {
     /// réseau (verrouillage de session, changement d'écran, service relancé).
     /// On publie alors l'état réel afin que l'iPhone puisse redemander le flux
     /// au lieu de rester indéfiniment sur la dernière image reçue.
-    private func handleScreenCaptureStopped(_ error: Error) {
+    private func handleScreenCaptureStopped(_: Error) {
         screenCaptureRunning = false
         screenCaptureStarting = false
         Task { await screenCapture.stop() }
@@ -711,7 +772,7 @@ final class MacConnectionServer: ObservableObject {
                 payload: ScreenStreamStatusPayload(
                     isStreaming: false,
                     permissionGranted: CGPreflightScreenCaptureAccess(),
-                    detail: error.localizedDescription
+                    detail: "screen_capture_unavailable"
                 ),
                 to: viewer,
                 replyTo: nil
@@ -760,15 +821,71 @@ final class MacConnectionServer: ObservableObject {
     }
 
     private func send<T: Encodable>(type: RemoteMessageType, payload: T, to session: Session, replyTo: UUID?) {
-        session.sequence += 1
-        guard let envelope = try? RemoteEnvelope.make(
+        guard let payloadData = try? RemoteCoding.encoder.encode(payload) else { return }
+        sendEncoded(type: type, payload: payloadData, to: session, replyTo: replyTo)
+    }
+
+    private func sendResponse<T: Encodable>(
+        type: RemoteMessageType,
+        payload: T,
+        for request: RemoteEnvelope,
+        peerID: String,
+        to session: Session
+    ) {
+        guard let payloadData = try? RemoteCoding.encoder.encode(payload) else { return }
+        cacheCrossSessionResponse(
             type: type,
+            payload: payloadData,
+            for: request,
+            peerID: peerID
+        )
+        sendEncoded(type: type, payload: payloadData, to: session, replyTo: request.messageID)
+    }
+
+    private func sendResponse(
+        error: RemoteErrorPayload,
+        for request: RemoteEnvelope,
+        peerID: String,
+        to session: Session
+    ) {
+        sendResponse(
+            type: .error,
+            payload: error,
+            for: request,
+            peerID: peerID,
+            to: session
+        )
+    }
+
+    private func cacheCrossSessionResponse(
+        type: RemoteMessageType,
+        payload: Data,
+        for request: RemoteEnvelope,
+        peerID: String
+    ) {
+        guard isCrossSessionIdempotent(request.type) else { return }
+        crossSessionResponses.store(
+            CachedPeerResponse(type: type, payload: payload),
+            for: peerID,
+            messageID: request.messageID
+        )
+    }
+
+    private func sendEncoded(
+        type: RemoteMessageType,
+        payload: Data,
+        to session: Session,
+        replyTo: UUID?
+    ) {
+        session.sequence += 1
+        let envelope = RemoteEnvelope(
+            type: type,
+            replyTo: replyTo,
             sessionID: session.sessionID,
             sequence: session.sequence,
-            replyTo: replyTo,
             payload: payload
-        ),
-        let data = try? RemoteCoding.encoder.encode(envelope),
+        )
+        guard let data = try? RemoteCoding.encoder.encode(envelope),
         let framed = try? MessageFramer.frame(data) else {
             return
         }

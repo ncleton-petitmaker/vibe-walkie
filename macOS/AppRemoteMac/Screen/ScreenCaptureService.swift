@@ -35,6 +35,7 @@ final class ScreenCaptureService: NSObject, SCStreamOutput, SCStreamDelegate, @u
     private var jpegQuality = 0.45
     private var minimumFrameInterval: TimeInterval = 0.1
     private var lastFrameAt = Date.distantPast
+    private let maximumJPEGBytes = 360 * 1_024
 
     func start(
         request: ScreenStreamRequestPayload,
@@ -111,26 +112,52 @@ final class ScreenCaptureService: NSObject, SCStreamOutput, SCStreamDelegate, @u
         lastFrameAt = Date()
         autoreleasepool {
             let image = CIImage(cvPixelBuffer: pixelBuffer)
-            guard let jpeg = context.jpegRepresentation(
-                of: image,
-                colorSpace: colorSpace,
-                options: [
-                    CIImageRepresentationOption(
-                        rawValue: kCGImageDestinationLossyCompressionQuality as String
-                    ): jpegQuality
-                ]
-            ), jpeg.count < ProtocolLimits.maxFrameBytes / 2 else { return }
+            guard let encoded = encodeBoundedJPEG(image) else { return }
 
             frameHandler(ScreenFramePayload(
-                jpegData: jpeg,
-                width: CVPixelBufferGetWidth(pixelBuffer),
-                height: CVPixelBufferGetHeight(pixelBuffer)
+                jpegData: encoded.data,
+                width: encoded.width,
+                height: encoded.height
             ))
         }
     }
 
+    /// La représentation base64 ajoute environ 33 % avant l'enveloppe JSON.
+    /// On garde donc une marge et on réduit progressivement qualité puis
+    /// dimensions au lieu de jeter silencieusement les scènes détaillées.
+    private func encodeBoundedJPEG(_ source: CIImage) -> (data: Data, width: Int, height: Int)? {
+        let qualitySteps = [jpegQuality, min(jpegQuality, 0.34), 0.25, 0.18, 0.12]
+        let scaleSteps: [CGFloat] = [1, 0.82, 0.66, 0.5]
+        let qualityKey = CIImageRepresentationOption(
+            rawValue: kCGImageDestinationLossyCompressionQuality as String
+        )
+
+        for scale in scaleSteps {
+            let image = scale == 1
+                ? source
+                : source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+            for quality in qualitySteps {
+                guard let data = context.jpegRepresentation(
+                    of: image,
+                    colorSpace: colorSpace,
+                    options: [qualityKey: quality]
+                ) else { continue }
+                if data.count <= maximumJPEGBytes {
+                    return (
+                        data,
+                        max(1, Int(image.extent.width.rounded())),
+                        max(1, Int(image.extent.height.rounded()))
+                    )
+                }
+            }
+        }
+        return nil
+    }
+
     func stream(_ stream: SCStream, didStopWithError error: Error) {
-        NSLog("[VibeWalkie] Capture écran arrêtée : %@", error.localizedDescription)
+        // Keep diagnostics useful without ever serialising a framework error,
+        // which may carry display, window or application context.
+        NSLog("[VibeWalkie] screen_capture_stopped")
         guard self.stream === stream else { return }
         stoppedHandler?(error)
     }

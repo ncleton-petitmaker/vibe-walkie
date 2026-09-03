@@ -15,3 +15,7 @@ regexes = ['''empreinte''']
 description = "Nom de type CryptoKit utilisé comme type de retour dans les tests"
 regexTarget = "secret"
 regexes = ['''Curve25519\.Signing\.PrivateKey''']
+
+[[allowlists]]
+description = "Clé Ed25519 déterministe du contrat interopérable V4"
+paths = ['''^ProtocolFixtures/V4/signature-ed25519\.json$''']

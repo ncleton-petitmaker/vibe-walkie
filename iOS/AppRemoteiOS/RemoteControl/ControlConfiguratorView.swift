@@ -4,7 +4,7 @@ import RemoteCore
 import UIKit
 
 struct ControlConfiguratorView: View {
-    @EnvironmentObject private var client: MacConnectionClient
+    @EnvironmentObject private var client: HostConnectionClient
     @State private var selectedZone: ControlZone?
     @State private var showResetConfirmation = false
     @State private var showGlobalOrder = false
@@ -13,9 +13,9 @@ struct ControlConfiguratorView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Bloc de boutons")
+                    Text("ios.button.panel.39e8512")
                         .font(.title2.bold())
-                    Text("Touchez une zone pour choisir sa touche, son nom et son icône. Le bouton Push‑to‑Talk reste toujours au centre.")
+                    Text("ios.tap.a.position.to.choose.its.key.name.and.icon.c579601")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -32,9 +32,9 @@ struct ControlConfiguratorView: View {
                             .font(.title3)
                             .foregroundStyle(Color.remoteBlue)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Bulle Global")
+                            Text("ios.global.bubble.d8b1205")
                                 .font(.headline)
-                            Text("Ordonner les commandes non visibles")
+                            Text("ios.reorder.hidden.controls.6460b74")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -56,26 +56,27 @@ struct ControlConfiguratorView: View {
                 }
                 .buttonStyle(.plain)
 
-                Label(
-                    client.state.isReady
-                        ? "Les changements sont synchronisés avec ce Mac."
-                        : "Les changements seront envoyés au Mac à la prochaine connexion.",
-                    systemImage: client.state.isReady ? "arrow.triangle.2.circlepath" : "clock.arrow.circlepath"
-                )
+                Label {
+                    Text(LocalizedStringKey(client.state.isReady
+                                            ? "ios.changes.sync.ready"
+                                            : "ios.changes.sync.pending"))
+                } icon: {
+                    Image(systemName: client.state.isReady ? "arrow.triangle.2.circlepath" : "clock.arrow.circlepath")
+                }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Raccourcis Mac")
+                    Text("ios.mac.shortcuts.6f27118")
                         .font(.headline)
-                    Text("Sur l’iPhone, vous pouvez affecter les touches standard. Pour enregistrer n’importe quelle combinaison — par exemple ⌘⇧K — ouvrez les réglages de Vibe Walkie sur le Mac.")
+                    Text("ios.on.iphone.you.can.assign.standard.keys.to.record.any.d48ee16")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
                 .padding(14)
                 .background(Color.controlSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-                Button("Revenir aux boutons d’origine", role: .destructive) {
+                Button("ios.restore.original.buttons.06b187d", role: .destructive) {
                     showResetConfirmation = true
                 }
                 .buttonStyle(.bordered)
@@ -83,11 +84,14 @@ struct ControlConfiguratorView: View {
             .padding()
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("Commandes")
+        .navigationTitle("ios.controls.0e3118a")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedZone) { zone in
             NavigationStack {
-                IOSControlButtonEditor(button: client.controlConfiguration.button(in: zone)) { button in
+                IOSControlButtonEditor(
+                    button: client.controlConfiguration.button(in: zone),
+                    availableShortcuts: client.controlConfiguration.availableShortcuts ?? []
+                ) { button in
                     var configuration = client.controlConfiguration
                     configuration.setButton(button)
                     client.updateControlConfiguration(configuration)
@@ -109,16 +113,16 @@ struct ControlConfiguratorView: View {
             .presentationDetents([.medium, .large])
         }
         .confirmationDialog(
-            "Réinitialiser le bloc ?",
+            "ios.reset.button.panel.e2995ec",
             isPresented: $showResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Rétablir les boutons d’origine", role: .destructive) {
+            Button("ios.restore.original.buttons.e9f294f", role: .destructive) {
                 client.resetControlConfiguration()
             }
-            Button("Annuler", role: .cancel) {}
+            Button("ios.cancel.46ad391", role: .cancel) {}
         } message: {
-            Text("Les raccourcis et icônes personnalisés de ces sept zones seront remplacés.")
+            Text("ios.custom.shortcuts.and.icons.in.these.seven.positions.will.be.6fa78be")
         }
     }
 }
@@ -145,7 +149,7 @@ private struct GlobalButtonOrderView: View {
                             .frame(width: 36, height: 36)
                             .background(Color.remoteBlue.opacity(0.16), in: RoundedRectangle(cornerRadius: 10))
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(button.title)
+                            Text(ControlTitleLocalization.title(button.title, action: button.action))
                                 .font(.body.weight(.semibold))
                             Text(button.action.globalDescription)
                                 .font(.caption)
@@ -158,15 +162,15 @@ private struct GlobalButtonOrderView: View {
                     save(order)
                 }
             } header: {
-                Text("Maintenez la poignée puis faites glisser")
+                Text("ios.hold.the.handle.then.drag.35697e0")
             }
         }
         .environment(\.editMode, .constant(.active))
-        .navigationTitle("Ordre de Global")
+        .navigationTitle("ios.global.order.3df30ee")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Terminé") { dismiss() }
+                Button("ios.done.f28acc8") { dismiss() }
             }
         }
     }
@@ -187,7 +191,7 @@ private struct ControlLayoutEditorPreview: View {
                         .foregroundStyle(.white)
                         .frame(width: 88, height: 88)
                         .background(Color.remoteBlue, in: Circle())
-                    Label("PTT verrouillé", systemImage: "lock.fill")
+                    Label("ios.ptt.locked.c9954d7", systemImage: "lock.fill")
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
@@ -223,7 +227,7 @@ private struct ControlLayoutEditorPreview: View {
             VStack(spacing: 5) {
                 ControlIconImage(icon: button.icon)
                     .frame(width: 22, height: 22)
-                Text(button.title)
+                Text(ControlTitleLocalization.title(button.title, action: button.action))
                     .font(.system(size: 9, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
@@ -239,7 +243,7 @@ private struct ControlLayoutEditorPreview: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Modifier (button.title)")
+        .accessibilityLabel(AppL10n.format("ios.edit.value.9465aba", ControlTitleLocalization.title(button.title, action: button.action)))
     }
 }
 
@@ -255,75 +259,96 @@ private struct IOSControlButtonEditor: View {
 
     @Environment(\.dismiss) private var dismiss
     let original: ControlButtonConfiguration
+    let availableShortcuts: [HostShortcutReference]
     let save: (ControlButtonConfiguration) -> Void
 
     @State private var title: String
     @State private var icon: ControlButtonIcon
     @State private var actionChoice: ActionChoice
     @State private var standardKey: RemoteKey
-    @State private var retainedMacShortcut: MacKeyboardShortcut?
+    @State private var retainedHostShortcut: HostShortcutReference?
+    @State private var selectedHostShortcutID: String?
     @State private var photoItem: PhotosPickerItem?
 
-    init(button: ControlButtonConfiguration, save: @escaping (ControlButtonConfiguration) -> Void) {
+    init(
+        button: ControlButtonConfiguration,
+        availableShortcuts: [HostShortcutReference],
+        save: @escaping (ControlButtonConfiguration) -> Void
+    ) {
         original = button
+        self.availableShortcuts = availableShortcuts
         self.save = save
-        _title = State(initialValue: button.title)
+        _title = State(initialValue: ControlTitleLocalization.title(button.title, action: button.action))
         _icon = State(initialValue: button.icon)
 
         switch button.action {
         case .standardKey(let key):
             _actionChoice = State(initialValue: .standard)
             _standardKey = State(initialValue: key)
-            _retainedMacShortcut = State(initialValue: nil)
+            _retainedHostShortcut = State(initialValue: nil)
+            _selectedHostShortcutID = State(initialValue: nil)
         case .showKeyboard:
             _actionChoice = State(initialValue: .showKeyboard)
             _standardKey = State(initialValue: .enter)
-            _retainedMacShortcut = State(initialValue: nil)
+            _retainedHostShortcut = State(initialValue: nil)
+            _selectedHostShortcutID = State(initialValue: nil)
+        case .hostShortcut(let shortcut):
+            _actionChoice = State(initialValue: .macShortcut)
+            _standardKey = State(initialValue: .enter)
+            _retainedHostShortcut = State(initialValue: shortcut)
+            _selectedHostShortcutID = State(initialValue: shortcut.id)
         case .macShortcut(let shortcut):
             _actionChoice = State(initialValue: .macShortcut)
             _standardKey = State(initialValue: .enter)
-            _retainedMacShortcut = State(initialValue: shortcut)
+            _retainedHostShortcut = State(initialValue: shortcut.migratedDefinition.reference)
+            _selectedHostShortcutID = State(initialValue: shortcut.migratedDefinition.reference.id)
         case .none:
             _actionChoice = State(initialValue: .none)
             _standardKey = State(initialValue: .enter)
-            _retainedMacShortcut = State(initialValue: nil)
+            _retainedHostShortcut = State(initialValue: nil)
+            _selectedHostShortcutID = State(initialValue: nil)
         }
     }
 
     var body: some View {
         Form {
-            Section("Zone") {
-                LabeledContent("Emplacement", value: original.zone.localizedName)
-                TextField("Nom du bouton", text: $title)
+            Section("ios.position.a8a06e4") {
+                LabeledContent("ios.position.bd92a6d", value: original.zone.localizedName)
+                TextField("ios.button.name.0386b44", text: $title)
                     .textInputAutocapitalization(.sentences)
             }
 
-            Section("Action") {
-                Picker("Type", selection: $actionChoice) {
-                    Text("Touche standard").tag(ActionChoice.standard)
-                    Text("Afficher le clavier").tag(ActionChoice.showKeyboard)
-                    Text("Aucune action").tag(ActionChoice.none)
-                    if retainedMacShortcut != nil {
-                        Text("Raccourci enregistré sur le Mac").tag(ActionChoice.macShortcut)
+            Section("ios.action.64cff13") {
+                Picker("ios.type.baaddf7", selection: $actionChoice) {
+                    Text("ios.standard.key.c5f1c34").tag(ActionChoice.standard)
+                    Text("ios.show.keyboard.d82ba3f").tag(ActionChoice.showKeyboard)
+                    Text("ios.no.action.ec3e8c2").tag(ActionChoice.none)
+                    if !shortcutChoices.isEmpty {
+                        Text("ios.shortcut.saved.on.the.mac.fb25886").tag(ActionChoice.macShortcut)
                     }
                 }
 
                 if actionChoice == .standard {
-                    Picker("Touche", selection: $standardKey) {
+                    Picker("ios.key.67754b1", selection: $standardKey) {
                         ForEach(RemoteKey.allCases, id: \.self) { key in
                             Label(key.localizedName, systemImage: key.suggestedSystemImage)
                                 .tag(key)
                         }
                     }
-                } else if actionChoice == .macShortcut, let retainedMacShortcut {
-                    LabeledContent("Combinaison", value: retainedMacShortcut.displayName)
-                    Text("Ce raccourci matériel peut être remplacé depuis le Mac.")
+                } else if actionChoice == .macShortcut, !shortcutChoices.isEmpty {
+                    Picker("ios.combination.151b519", selection: $selectedHostShortcutID) {
+                        ForEach(shortcutChoices) { shortcut in
+                            Label(shortcut.displayName, systemImage: shortcut.icon ?? "command")
+                                .tag(Optional(shortcut.id))
+                        }
+                    }
+                    Text("ios.this.hardware.shortcut.can.be.replaced.from.the.mac.add59c8")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
 
-            Section("Icône") {
+            Section("ios.icon.09e8677") {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
                     ForEach(ControlIconCatalog.systemImages, id: \.self) { name in
                         Button {
@@ -339,18 +364,18 @@ private struct IOSControlButtonEditor: View {
                 }
 
                 PhotosPicker(selection: $photoItem, matching: .images) {
-                    Label("Importer une autre icône", systemImage: "photo.badge.plus")
+                    Label("ios.import.another.icon.fc4f9ae", systemImage: "photo.badge.plus")
                 }
             }
         }
-        .navigationTitle("Modifier le bouton")
+        .navigationTitle("ios.edit.button.7e82cc8")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Annuler") { dismiss() }
+                Button("ios.cancel.46ad391") { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Enregistrer") {
+                Button("ios.save.71dc748") {
                     save(ControlButtonConfiguration(
                         zone: original.zone,
                         title: title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Sans titre" : title,
@@ -374,8 +399,16 @@ private struct IOSControlButtonEditor: View {
         case .showKeyboard: return .showKeyboard
         case .none: return .none
         case .macShortcut:
-            return retainedMacShortcut.map(ControlButtonAction.macShortcut) ?? .none
+            let shortcut = shortcutChoices.first { $0.id == selectedHostShortcutID } ?? retainedHostShortcut
+            return shortcut.map(ControlButtonAction.hostShortcut) ?? .none
         }
+    }
+
+    private var shortcutChoices: [HostShortcutReference] {
+        var seen = Set<String>()
+        return (availableShortcuts + [retainedHostShortcut].compactMap { $0 })
+            .filter { seen.insert($0.id).inserted }
+            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
     private func isSelected(_ name: String) -> Bool {
@@ -453,13 +486,13 @@ private enum IconImageNormalizer {
 extension ControlZone {
     var localizedName: String {
         switch self {
-        case .upperLeft: return AppL10n.text("En haut à gauche")
-        case .lowerLeft: return AppL10n.text("En bas à gauche")
-        case .upperRight: return AppL10n.text("En haut à droite")
-        case .lowerRight: return AppL10n.text("En bas à droite")
-        case .bottomLeft: return AppL10n.text("Rangée basse · gauche")
-        case .bottomCenter: return AppL10n.text("Rangée basse · centre")
-        case .bottomRight: return AppL10n.text("Rangée basse · droite")
+        case .upperLeft: return AppL10n.text("ios.upper.left.a8899ea")
+        case .lowerLeft: return AppL10n.text("ios.lower.left.7ffbd14")
+        case .upperRight: return AppL10n.text("ios.upper.right.f2b9c7b")
+        case .lowerRight: return AppL10n.text("ios.lower.right.77181d6")
+        case .bottomLeft: return AppL10n.text("ios.bottom.row.left.4544c19")
+        case .bottomCenter: return AppL10n.text("ios.bottom.row.center.e5b8187")
+        case .bottomRight: return AppL10n.text("ios.bottom.row.right.c83635a")
         }
     }
 }
@@ -467,21 +500,21 @@ extension ControlZone {
 extension RemoteKey {
     var localizedName: String {
         switch self {
-        case .enter: return AppL10n.text("Entrée")
-        case .escape: return AppL10n.text("Échap")
-        case .tab: return AppL10n.text("Tabulation")
-        case .applicationSwitcher: return AppL10n.text("Application précédente")
-        case .nextConversation: return AppL10n.text("Conversation ou onglet suivant")
-        case .backspace: return AppL10n.text("Effacement arrière")
-        case .delete: return AppL10n.text("Supprimer")
-        case .arrowUp: return AppL10n.text("Flèche haut")
-        case .arrowDown: return AppL10n.text("Flèche bas")
-        case .arrowLeft: return AppL10n.text("Flèche gauche")
-        case .arrowRight: return AppL10n.text("Flèche droite")
-        case .space: return AppL10n.text("Espace")
-        case .copy: return AppL10n.text("Copier")
-        case .paste: return AppL10n.text("Coller")
-        case .cut: return AppL10n.text("Couper")
+        case .enter: return AppL10n.text("ios.return.d9c7efe")
+        case .escape: return AppL10n.text("ios.esc.7bd72d1")
+        case .tab: return AppL10n.text("ios.tab.40d4558")
+        case .applicationSwitcher: return AppL10n.text("ios.previous.app.5711d90")
+        case .nextConversation: return AppL10n.text("ios.next.488d1ea")
+        case .backspace: return AppL10n.text("ios.backspace.ff7e715")
+        case .delete: return AppL10n.text("ios.delete.5e5d021")
+        case .arrowUp: return AppL10n.text("ios.up.4260ca3")
+        case .arrowDown: return AppL10n.text("ios.down.686b88e")
+        case .arrowLeft: return AppL10n.text("ios.left.b107a0a")
+        case .arrowRight: return AppL10n.text("ios.right.37f370d")
+        case .space: return AppL10n.text("ios.space.91bdaf6")
+        case .copy: return AppL10n.text("ios.copy.f84a10c")
+        case .paste: return AppL10n.text("ios.paste.39f83c7")
+        case .cut: return AppL10n.text("ios.cut.c0be34a")
         }
     }
 
@@ -509,10 +542,11 @@ extension RemoteKey {
 private extension ControlButtonAction {
     var globalDescription: String {
         switch self {
-        case .none: return AppL10n.text("À configurer")
+        case .none: return AppL10n.text("ios.not.configured.3c454da")
         case .standardKey(let key): return key.localizedName
+        case .hostShortcut(let shortcut): return shortcut.displayName
         case .macShortcut(let shortcut): return shortcut.displayName
-        case .showKeyboard: return AppL10n.text("Clavier de l’iPhone")
+        case .showKeyboard: return AppL10n.text("ios.iphone.keyboard.df50452")
         }
     }
 }
