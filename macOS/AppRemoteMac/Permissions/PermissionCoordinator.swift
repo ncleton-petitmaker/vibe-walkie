@@ -60,6 +60,7 @@ final class PermissionCoordinator: ObservableObject {
     @Published private(set) var hasRequestedScreenCapture: Bool
 
     private var pollingTask: Task<Void, Never>?
+    private var screenCaptureRequestTask: Task<Void, Never>?
     private var screenCaptureVerificationTask: Task<Void, Never>?
     private var screenCaptureState: ScreenCaptureAuthorizationState
     private var isRelaunchingForScreenCapture = false
@@ -100,6 +101,8 @@ final class PermissionCoordinator: ObservableObject {
     func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
+        screenCaptureRequestTask?.cancel()
+        screenCaptureRequestTask = nil
         screenCaptureVerificationTask?.cancel()
         screenCaptureVerificationTask = nil
     }
@@ -143,11 +146,43 @@ final class PermissionCoordinator: ObservableObject {
         UserDefaults.standard.set(true, forKey: Self.screenCaptureRequestKey)
         guard !CGPreflightScreenCaptureAccess() else {
             refresh()
+            verifyScreenCaptureReadiness(force: true)
             return
         }
+        guard screenCaptureRequestTask == nil else { return }
         UserDefaults.standard.set(true, forKey: Self.screenCaptureGrantPendingKey)
-        let granted = CGRequestScreenCaptureAccess()
-        updateScreenCaptureState(granted || CGPreflightScreenCaptureAccess())
+
+        // La première requête ScreenCaptureKit est celle qui enregistre
+        // réellement le binaire courant auprès de TCC sur les macOS récents.
+        // Se limiter à CGRequestScreenCaptureAccess pouvait laisser dans les
+        // Réglages une ancienne signature affichée comme active, alors que le
+        // processus installé recevait toujours un refus.
+        NSLog("[VibeWalkie] screen_capture_permission_request_started")
+        screenCaptureRequestTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let granted: Bool
+            do {
+                let content = try await SCShareableContent.excludingDesktopWindows(
+                    false,
+                    onScreenWindowsOnly: true
+                )
+                granted = !content.displays.isEmpty || CGPreflightScreenCaptureAccess()
+            } catch is CancellationError {
+                self.screenCaptureRequestTask = nil
+                return
+            } catch {
+                granted = CGPreflightScreenCaptureAccess()
+            }
+
+            self.screenCaptureRequestTask = nil
+            self.updateScreenCaptureState(granted)
+            if granted {
+                NSLog("[VibeWalkie] screen_capture_permission_request_granted")
+            } else {
+                NSLog("[VibeWalkie] screen_capture_permission_request_needs_settings")
+                self.openScreenCaptureSettingsPage()
+            }
+        }
     }
 
     /// Enregistre d'abord Vibe Walkie auprès de TCC. L'ouverture des Réglages
