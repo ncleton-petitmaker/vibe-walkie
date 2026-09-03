@@ -1,6 +1,16 @@
 import Foundation
 import Sparkle
 
+enum UpdateRequest {
+    static let scheme = "vibewalkie-mac"
+    static let checkForUpdatesHost = "check-for-updates"
+
+    static func requestsImmediateCheck(_ url: URL) -> Bool {
+        url.scheme?.caseInsensitiveCompare(scheme) == .orderedSame
+            && url.host?.caseInsensitiveCompare(checkForUpdatesHost) == .orderedSame
+    }
+}
+
 @MainActor
 final class UpdateController: ObservableObject {
     private let controller: SPUStandardUpdaterController

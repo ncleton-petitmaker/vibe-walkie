@@ -16,7 +16,7 @@ trap restore_keychains EXIT
 security list-keychains -d user -s "$login"
 cd "$project_root"
 
-build="${VIBE_WALKIE_BUILD:-$(date +%Y%m%d%H%M)}"
+build="${VIBE_WALKIE_BUILD:-$(date -u +%Y%m%d%H%M)}"
 archive_path="${VIBE_WALKIE_ARCHIVE_PATH:-$project_root/build/OTA/VibeWalkie-1.0.0-$build-macmini.xcarchive}"
 extra_settings=()
 if [[ "${VIBE_WALKIE_OTA:-0}" == "1" ]]; then

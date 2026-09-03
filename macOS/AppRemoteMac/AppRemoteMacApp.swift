@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import RemoteCore
 
 /// Dépendances uniques du compagnon.
@@ -69,5 +70,10 @@ struct VibeWalkieMacApp: App {
             .environmentObject(dependencies.peers)
             .environmentObject(dependencies.tailscale)
             .environmentObject(dependencies.updates)
+            .onOpenURL { url in
+                guard UpdateRequest.requestsImmediateCheck(url) else { return }
+                NSApplication.shared.activate(ignoringOtherApps: true)
+                dependencies.updates.checkForUpdates()
+            }
     }
 }

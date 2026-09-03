@@ -5,6 +5,7 @@ project_root="${VIBE_WALKIE_PROJECT_ROOT:-/Volumes/Docker/App Remote}"
 credentials="$HOME/Library/Application Support/Vibe Walkie Release Tools/App Store Connect/credentials.env"
 log_file="$HOME/Desktop/Vibe Walkie TestFlight upload.log"
 
+# shellcheck source=/dev/null
 source "$credentials"
 export ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY_PATH
 

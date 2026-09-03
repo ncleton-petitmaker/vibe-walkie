@@ -28,6 +28,28 @@ final class CommercializationConfigurationTests: XCTestCase {
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUVerifyUpdateBeforeExtraction") as? Bool, true)
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUScheduledCheckInterval") as? Int, 14_400)
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "SUEnableSystemProfiling") as? Bool, false)
+
+        let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+        let schemes = urlTypes?.flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
+        XCTAssertEqual(schemes, [UpdateRequest.scheme])
+    }
+
+    func testImmediateUpdateCheckURLIsStrictlyScoped() throws {
+        XCTAssertTrue(
+            UpdateRequest.requestsImmediateCheck(
+                try XCTUnwrap(URL(string: "vibewalkie-mac://check-for-updates"))
+            )
+        )
+        XCTAssertFalse(
+            UpdateRequest.requestsImmediateCheck(
+                try XCTUnwrap(URL(string: "vibewalkie-mac://anything-else"))
+            )
+        )
+        XCTAssertFalse(
+            UpdateRequest.requestsImmediateCheck(
+                try XCTUnwrap(URL(string: "https://check-for-updates"))
+            )
+        )
     }
 
     func testPrivacyAndThirdPartyNoticesAreBundled() {

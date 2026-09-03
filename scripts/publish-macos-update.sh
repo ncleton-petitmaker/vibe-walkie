@@ -2,6 +2,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+CREDENTIALS_FILE="${ASC_CREDENTIALS_FILE:-$HOME/Library/Application Support/Vibe Walkie Release Tools/App Store Connect/credentials.env}"
+if [[ -z "${NOTARY_PROFILE:-}" && -z "${ASC_KEY_PATH:-}" && -f "$CREDENTIALS_FILE" ]]; then
+  # Les identifiants restent hors du dépôt et sont chargés automatiquement.
+  # Une variable fournie explicitement conserve la priorité sur ce fichier.
+  # shellcheck source=/dev/null
+  source "$CREDENTIALS_FILE"
+fi
 VERSION="${VERSION:-1.0.0}"
 BUILD="${BUILD:-$(date -u +%Y%m%d%H%M)}"
 NOTES="${NOTES:-Améliorations de stabilité et d’expérience.}"
@@ -26,6 +33,7 @@ Variables facultatives :
   ASC_KEY_PATH=…             clé API App Store Connect hors dépôt
   ASC_KEY_ID=…               identifiant de cette clé
   ASC_ISSUER_ID=…            issuer de l’équipe App Store Connect
+  ASC_CREDENTIALS_FILE=…     fichier local chargé automatiquement
   INSTALL_AFTER_PUBLISH=1   installe aussi cette build sur ce Mac
 USAGE
 }
